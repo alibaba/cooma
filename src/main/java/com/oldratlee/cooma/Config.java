@@ -8,16 +8,16 @@ import java.util.regex.Pattern;
 /**
  * Configuration info of extensions, pass among extensions.
  * <p>
- * {@link Configs} are <b>immutable</b> instance, so threadsafe.
+ * {@link Config} are <b>immutable</b> instance, so threadsafe.
  * 
  * @author oldratlee
  * @since 0.1.0
  */
-public final class Configs {
+public final class Config {
     
     private final Map<String, String> configs;
     
-    private Configs(Map<String, String> configs, boolean deepCopy) {
+    private Config(Map<String, String> configs, boolean deepCopy) {
         if(deepCopy) {
             this.configs = new HashMap<String, String>(configs.size());
             for (Map.Entry<String, String> c : configs.entrySet()) {
@@ -33,15 +33,15 @@ public final class Configs {
     private static final Pattern KV_SEPERATOR = Pattern.compile("\\s*[=]\\s*");
     
     /**
-     * Parse config string to {@link Configs} instance.
+     * Parse config string to {@link Config} instance.
      * <p>
      * a config string like <code>key1=value1&key2=value2</code>. 
      * 
      * @param configString config string.
      */
-    public static Configs fromString(String configString) {
+    public static Config fromString(String configString) {
         if(configString == null || (configString = configString.trim()).length() == 0) {
-            return new Configs(new HashMap<String, String>(0), false);
+            return new Config(new HashMap<String, String>(0), false);
         }
         
         HashMap<String, String> cs = new HashMap<String, String>();
@@ -62,11 +62,11 @@ public final class Configs {
             }
         }
         
-        return new Configs(cs, false);
+        return new Config(cs, false);
     }
     
-    public static Configs fromMap(Map<String, String> configs) {
-        return new Configs(configs, true);
+    public static Config fromMap(Map<String, String> configs) {
+        return new Config(configs, true);
     }
     
     static Map<String, String> kv2Map(String... kv) {
@@ -86,20 +86,20 @@ public final class Configs {
         return cs;
     }
     
-    public static Configs fromKv(String... kvPairs) {  
-        return new Configs(kv2Map(kvPairs), false);
+    public static Config fromKv(String... kvPairs) {  
+        return new Config(kv2Map(kvPairs), false);
     }
     
-    public Configs addConfig(String... kvPairs) {
+    public Config addConfig(String... kvPairs) {
         Map<String, String> cs = new HashMap<String, String>(this.configs);
         cs.putAll(kv2Map(kvPairs));
-        return new Configs(cs, false);
+        return new Config(cs, false);
     }
     
-    public Configs addConfig(Map<String, String> configs) {
+    public Config addConfig(Map<String, String> configs) {
         Map<String, String> cs = new HashMap<String, String>(this.configs);
         cs.putAll(configs);
-        return new Configs(cs, false);
+        return new Config(cs, false);
     }
 
     public Map<String, String> toMap() {
@@ -167,9 +167,9 @@ public final class Configs {
     
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Configs)) return false;
+        if(!(obj instanceof Config)) return false;
         
-        Configs other = (Configs) obj;
+        Config other = (Config) obj;
         return configs.equals(other.configs);
     }
     

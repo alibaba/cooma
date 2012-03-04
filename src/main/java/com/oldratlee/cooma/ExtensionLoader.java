@@ -23,21 +23,19 @@ import com.oldratlee.cooma.internal.utils.Holder;
 import com.oldratlee.cooma.internal.utils.StringUtils;
 
 /**
- * 扩展点加载。<p>
+ * Load extension.<p>
  * <ul>
- * <li>自动注入关联扩展点。</li>
- * <li>自动Wrap上扩展点的Wrap类。</li>
- * <li>缺省获得的的扩展点是一个Adaptive Instance。
+ * <li>inject adaptive instance to the attribute of extension, if the attribute is an extension too.
+ * <li>wrap the specified extension wrapper
  * </ul>
- * 
- * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">JDK5.0的自动发现机制实现</a>
  * 
  * @author oldratlee
  * @since 0.1.0
  * 
- * @see Configs
+ * @see Config
  * @see Extension
  * @see Adaptive
+ * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  */
 public class ExtensionLoader<T> {
     
@@ -451,7 +449,7 @@ public class ExtensionLoader<T> {
             } else {
                 int configTypeIndex = -1;
                 for (int i = 0; i < pts.length; ++i) {
-                    if (pts[i].equals(Configs.class)) {
+                    if (pts[i].equals(Config.class)) {
                         configTypeIndex = i;
                         break;
                     }
@@ -463,7 +461,7 @@ public class ExtensionLoader<T> {
                                     configTypeIndex);
                     code.append(s);
                     
-                    s = String.format("%s config = arg%d;", Configs.class.getName(), configTypeIndex); 
+                    s = String.format("%s config = arg%d;", Config.class.getName(), configTypeIndex); 
                     code.append(s);
                 }
                 // 参数没有Configs类型
@@ -480,7 +478,7 @@ public class ExtensionLoader<T> {
                                     && Modifier.isPublic(m.getModifiers())
                                     && !Modifier.isStatic(m.getModifiers())
                                     && m.getParameterTypes().length == 0
-                                    && m.getReturnType() == Configs.class) {
+                                    && m.getReturnType() == Config.class) {
                                 configTypeIndex = i;
                                 attribMethod = name;
                                 break LBL_PTS;
@@ -500,7 +498,7 @@ public class ExtensionLoader<T> {
                                     configTypeIndex, attribMethod, pts[configTypeIndex].getName(), attribMethod);
                     code.append(s);
 
-                    s = String.format("%s config = arg%d.%s();",Configs.class.getName(), configTypeIndex, attribMethod); 
+                    s = String.format("%s config = arg%d.%s();",Config.class.getName(), configTypeIndex, attribMethod); 
                     code.append(s);
                 }
                 

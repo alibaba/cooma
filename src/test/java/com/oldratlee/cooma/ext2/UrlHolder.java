@@ -1,6 +1,6 @@
 package com.oldratlee.cooma.ext2;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 
 
 /**
@@ -10,7 +10,7 @@ import com.oldratlee.cooma.Configs;
 public class UrlHolder {
     private Double Num;
     
-    private Configs config;
+    private Config config;
     
     private String name;
     
@@ -24,11 +24,11 @@ public class UrlHolder {
         Num = num;
     }
 
-    public Configs getUrl() {
+    public Config getUrl() {
         return config;
     }
 
-    public void setUrl(Configs config) {
+    public void setUrl(Config config) {
         this.config = config;
     }
 

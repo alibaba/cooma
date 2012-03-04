@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * @author oldratlee
  * @since 0.1.0
  * @see ExtensionLoader
- * @see Configs
+ * @see Config
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface Adaptive {
 
     /**
-     * 从{@link Configs}的Key名，对应的Value作为要Adapt成的Extension名。
+     * 从{@link Config}的Key名，对应的Value作为要Adapt成的Extension名。
      * <p>
      * 如果{@link URL}这些Key都没有Value，使用 用 缺省的扩展（在接口的{@link Extension}中设定的值）。<br>
      * 比如，<code>String[] {"key1", "key2"}</code>，表示

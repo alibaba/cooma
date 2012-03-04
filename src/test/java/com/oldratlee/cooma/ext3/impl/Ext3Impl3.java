@@ -1,6 +1,6 @@
 package com.oldratlee.cooma.ext3.impl;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.ext3.Ext3;
 
 /**
@@ -8,15 +8,15 @@ import com.oldratlee.cooma.ext3.Ext3;
  *
  */
 public class Ext3Impl3 implements Ext3 {
-    public String echo(Configs config, String s) {
+    public String echo(Config config, String s) {
         return "Ext3Impl3-echo";
     }
     
-    public String yell(Configs config, String s) {
+    public String yell(Config config, String s) {
         return "Ext3Impl3-yell";
     }
 
-    public String bang(Configs config, int i) {
+    public String bang(Config config, int i) {
         return "bang3";
     }
     
