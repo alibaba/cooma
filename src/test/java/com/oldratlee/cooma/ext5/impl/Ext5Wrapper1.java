@@ -2,7 +2,7 @@ package com.oldratlee.cooma.ext5.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod;
 
 /**
@@ -19,17 +19,17 @@ public class Ext5Wrapper1 implements Ext5NoAdaptiveMethod {
         this.instance = instance;
     }
     
-    public String echo(Configs config, String s) {
+    public String echo(Config config, String s) {
         echoCount.incrementAndGet();
         return instance.echo(config, s);
     }
 
-    public String yell(Configs config, String s) {
+    public String yell(Config config, String s) {
         yellCount.incrementAndGet();
         return instance.yell(config, s);
     }
 
-    public String bang(Configs config, int i) {
+    public String bang(Config config, int i) {
         bangCount.incrementAndGet();
         return instance.bang(config, i);
     }

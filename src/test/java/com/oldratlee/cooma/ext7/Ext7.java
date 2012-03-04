@@ -1,7 +1,7 @@
 package com.oldratlee.cooma.ext7;
 
 import com.oldratlee.cooma.Adaptive;
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.Extension;
 
 /**
@@ -13,5 +13,5 @@ import com.oldratlee.cooma.Extension;
 @Extension
 public interface Ext7 {
     @Adaptive
-    String echo(Configs config, String s);
+    String echo(Config config, String s);
 }

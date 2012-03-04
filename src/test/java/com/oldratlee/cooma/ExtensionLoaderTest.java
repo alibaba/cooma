@@ -18,7 +18,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.ExtensionLoader;
 import com.oldratlee.cooma.ext1.Ext1;
 import com.oldratlee.cooma.ext1.impl.Ext1Impl1;
@@ -71,7 +71,7 @@ public class ExtensionLoaderTest {
         assertThat(impl2, anyOf(instanceOf(Ext5Wrapper1.class), instanceOf(Ext5Wrapper2.class)));
         
         
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
         int echoCount1 = Ext5Wrapper1.echoCount.get();
         int echoCount2 = Ext5Wrapper2.echoCount.get();
         int yellCount1 = Ext5Wrapper1.yellCount.get();
@@ -162,7 +162,7 @@ public class ExtensionLoaderTest {
         Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
 
         Map<String, String> map = new HashMap<String, String>();
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String echo = ext.echo(config, "haha");
         assertEquals("Ext1Impl1-echo", echo);
@@ -172,7 +172,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension() throws Exception {
         Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext1", "impl2");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext1", "impl2");
 
         String echo = ext.echo(config, "haha");
         assertEquals("Ext1Impl2-echo", echo);
@@ -182,7 +182,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension_customizeKey() throws Exception {
         Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
 
         String echo = ext.yell(config, "haha");
         assertEquals("Ext1Impl2-yell", echo);
@@ -230,7 +230,7 @@ public class ExtensionLoaderTest {
         Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
 
         
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
         try {
             ext.bang(config, 33);
             fail();
@@ -257,7 +257,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension_protocolKey() throws Exception {
         Ext3 ext = ExtensionLoader.getExtensionLoader(Ext3.class).getAdaptiveExtension();
     
-        Configs config = Configs.fromKv("protocol", "impl3", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "impl3", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String echo = ext.echo(config, "s");
         assertEquals("Ext3Impl3-echo", echo);
@@ -276,7 +276,7 @@ public class ExtensionLoaderTest {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
         
         
-        Configs config = Configs.fromKv("protocol", "impl1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "impl1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String yell = ext.yell(config, "s");
         assertEquals("Ext2Impl1-yell", yell);
@@ -290,7 +290,7 @@ public class ExtensionLoaderTest {
     public void test_urlHolder_getAdaptiveExtension() throws Exception {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
         
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext2", "impl1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext2", "impl1");
         
         UrlHolder holder = new UrlHolder();
         holder.setUrl(config);
@@ -303,7 +303,7 @@ public class ExtensionLoaderTest {
     public void test_urlHolder_getAdaptiveExtension_noExtension() throws Exception {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         UrlHolder holder = new UrlHolder();
         holder.setUrl(config);
@@ -348,7 +348,7 @@ public class ExtensionLoaderTest {
     public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNotAdativeMethod() throws Exception {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
         
         try {
             ext.bang(config, 33);
@@ -365,7 +365,7 @@ public class ExtensionLoaderTest {
     public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNameNotProvided() throws Exception {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         UrlHolder holder = new UrlHolder();
         holder.setUrl(config);
@@ -391,7 +391,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension_inject() throws Exception {
         Ext6 ext = ExtensionLoader.getExtensionLoader(Ext6.class).getAdaptiveExtension();
 
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext6", "impl1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext6", "impl1");
         
         assertEquals("Ext6Impl1-echo-Ext1Impl1-echo", ext.echo(config, "ha"));
         

@@ -1,7 +1,7 @@
 package com.oldratlee.cooma.ext3;
 
 import com.oldratlee.cooma.Adaptive;
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.Extension;
 
 /**
@@ -10,10 +10,10 @@ import com.oldratlee.cooma.Extension;
 @Extension("impl3")
 public interface Ext3 {
     @Adaptive({"key1", "protocol"})
-    String echo(Configs config, String s);
+    String echo(Config config, String s);
     
     @Adaptive({"protocol", "key2"})
-    String yell(Configs config, String s);
+    String yell(Config config, String s);
     
-    String bang(Configs config, int i);
+    String bang(Config config, int i);
 }

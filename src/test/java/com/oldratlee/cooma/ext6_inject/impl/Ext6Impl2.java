@@ -2,7 +2,7 @@ package com.oldratlee.cooma.ext6_inject.impl;
 
 import java.util.List;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.ext6_inject.Ext6;
 
 /**
@@ -19,7 +19,7 @@ public class Ext6Impl2 implements Ext6 {
         this.list = list;
     }
 
-    public String echo(Configs config, String s) {
+    public String echo(Config config, String s) {
         throw new UnsupportedOperationException();
     }
 

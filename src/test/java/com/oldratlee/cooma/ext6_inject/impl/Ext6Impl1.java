@@ -2,7 +2,7 @@ package com.oldratlee.cooma.ext6_inject.impl;
 
 import junit.framework.Assert;
 
-import com.oldratlee.cooma.Configs;
+import com.oldratlee.cooma.Config;
 import com.oldratlee.cooma.ext1.Ext1;
 import com.oldratlee.cooma.ext6_inject.Dao;
 import com.oldratlee.cooma.ext6_inject.Ext6;
@@ -23,7 +23,7 @@ public class Ext6Impl1 implements Ext6 {
         this.ext1 = ext1;
     }
 
-    public String echo(Configs config, String s) {
+    public String echo(Config config, String s) {
         return "Ext6Impl1-echo-" + ext1.echo(config, s);
     }
     
