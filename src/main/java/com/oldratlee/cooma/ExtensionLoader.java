@@ -23,7 +23,7 @@ import com.oldratlee.cooma.internal.utils.Holder;
 import com.oldratlee.cooma.internal.utils.StringUtils;
 
 /**
- * Dubbo使用的扩展点获取。<p>
+ * 扩展点加载。<p>
  * <ul>
  * <li>自动注入关联扩展点。</li>
  * <li>自动Wrap上扩展点的Wrap类。</li>
