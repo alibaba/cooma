@@ -33,7 +33,7 @@ public @interface Adaptive {
      * </ol>
      * <p>
      * 如果不设置则缺省使用Extension接口类名的点分隔小写字串。<br>
-     * 即对于Extension接口{@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}的缺省值为
+     * 即对于Extension接口{@code com.oldratlee.cooma.xxx.YyyInvokerWrapper}的缺省值为
      * <code>String[] {"yyy.invoker.wrapper"}</code>
      * 
      * @see Extension#value()

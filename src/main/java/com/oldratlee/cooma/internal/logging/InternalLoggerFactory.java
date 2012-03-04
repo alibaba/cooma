@@ -36,7 +36,7 @@ package com.oldratlee.cooma.internal.logging;
  * @version $Rev: 2122 $, $Date: 2010-02-02 11:00:04 +0900 (Tue, 02 Feb 2010) $
  *
  * @apiviz.landmark
- * @apiviz.has com.alibaba.oldratlee.cooma.logging.InternalLogger oneway - - creates
+ * @apiviz.has com.oldratlee.cooma.logging.InternalLogger oneway - - creates
  */
 public abstract class InternalLoggerFactory {
     private static volatile InternalLoggerFactory defaultFactory = new JdkLoggerFactory();
