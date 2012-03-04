@@ -526,14 +526,14 @@ public class ExtensionLoader<T> {
                 for (int i = value.length - 1; i >= 0; --i) {
                     if(i == value.length - 1) {
                         if(null != defaultExtName) {
-                            getNameCode = String.format("config.getParameter(\"%s\", \"%s\")", value[i], defaultExtName);
+                            getNameCode = String.format("config.get(\"%s\", \"%s\")", value[i], defaultExtName);
                         }
                         else {
-                            getNameCode = String.format("config.getParameter(\"%s\")", value[i]);
+                            getNameCode = String.format("config.get(\"%s\")", value[i]);
                         }
                     }
                     else {
-                        getNameCode = String.format("config.getParameter(\"%s\", %s)", value[i], getNameCode);
+                        getNameCode = String.format("config.get(\"%s\", %s)", value[i], getNameCode);
                     }
                 }
                 code.append("String extName = ").append(getNameCode).append(";");

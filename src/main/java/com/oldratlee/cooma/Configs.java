@@ -40,7 +40,7 @@ public final class Configs {
      * 
      * @param configString config string.
      */
-    public static Configs fromConfigString(String configString) {
+    public static Configs fromString(String configString) {
         if(configString == null || (configString = configString.trim()).length() == 0) {
             return new Configs(new HashMap<String, String>(0), false);
         }
@@ -112,9 +112,17 @@ public final class Configs {
         return configs.containsKey(key);
     }
     
-    
     public String get(String key) {
         return configs.get(key);
+    }
+    
+    public String get(String key, String defaultValue) {
+        if(contains(key)) {
+            return configs.get(key);
+        }
+        else {
+            return defaultValue;
+        }
     }
 
     // the util methods!
@@ -156,5 +164,39 @@ public final class Configs {
         else {
             return defaultValue;
         }
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Configs)) return false;
+        
+        Configs other = (Configs) obj;
+        return configs.equals(other.configs);
+    }
+    
+    private transient volatile String toString;
+
+    @Override
+    public String toString() {
+        if(toString != null) return toString;
+        
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        for(Map.Entry<String, String> c :configs.entrySet()) {
+            if (isFirst) {
+                isFirst = false;
+            }
+            else {
+                sb.append("&");
+            }
+            
+            sb.append(c.getKey().trim());
+            
+            String value = c.getValue();
+            if(value != null && (value = value.trim()).length() > 0) {
+                sb.append("=").append(value);
+            }
+        }
+        return toString = sb.toString();
     }
 }
