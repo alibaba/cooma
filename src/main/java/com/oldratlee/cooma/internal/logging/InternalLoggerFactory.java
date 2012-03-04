@@ -15,8 +15,10 @@
  */
 package com.oldratlee.cooma.internal.logging;
 
+import com.oldratlee.cooma.internal.logging.cl.CommonsLoggerFactory;
 import com.oldratlee.cooma.internal.logging.jdk.JdkLoggerFactory;
 import com.oldratlee.cooma.internal.logging.log4j.Log4JLoggerFactory;
+import com.oldratlee.cooma.internal.logging.slf4j.Slf4JLoggerFactory;
 
 
 /**
@@ -42,7 +44,42 @@ import com.oldratlee.cooma.internal.logging.log4j.Log4JLoggerFactory;
  * @apiviz.has com.oldratlee.cooma.logging.InternalLogger oneway - - creates
  */
 public abstract class InternalLoggerFactory {
-    private static volatile InternalLoggerFactory defaultFactory = new JdkLoggerFactory();
+    
+    private static volatile InternalLoggerFactory defaultFactory; 
+    static {
+        // 1. use log4j
+        try {
+            Class.forName("org.apache.log4j.Logger");
+            defaultFactory = new Log4JLoggerFactory();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        
+        // 2. use commons logging
+        if(defaultFactory == null) {
+            try {
+                Class.forName("org.apache.commons.logging.LogFactory");
+                defaultFactory = new CommonsLoggerFactory();
+            } catch (ClassNotFoundException t) {
+                t.printStackTrace();
+            }
+        }
+        
+        // 3. use slf4j
+        if(defaultFactory == null) {
+            try {
+                Class.forName("org.slf4j.LoggerFactory");
+                defaultFactory = new Slf4JLoggerFactory();
+            } catch (ClassNotFoundException t) {
+                t.printStackTrace();
+            }
+        }
+        
+        // 4. use jdk logger
+        if(defaultFactory == null) {
+            defaultFactory = new JdkLoggerFactory();
+        }
+    }
 
     /**
      * Returns the default factory.  The initial default factory is
