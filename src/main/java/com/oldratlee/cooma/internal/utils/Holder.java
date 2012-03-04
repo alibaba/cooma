@@ -18,7 +18,7 @@ package com.oldratlee.cooma.internal.utils;
 /**
  * @author oldratlee
  */
-public class Reference<T> {
+public class Holder<T> {
     
     private T value;
     

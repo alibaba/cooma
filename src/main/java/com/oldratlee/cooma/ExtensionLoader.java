@@ -19,7 +19,7 @@ import com.oldratlee.cooma.internal.bytecode.ClassGenerator;
 import com.oldratlee.cooma.internal.logging.InternalLogger;
 import com.oldratlee.cooma.internal.logging.InternalLoggerFactory;
 import com.oldratlee.cooma.internal.utils.ConcurrentHashSet;
-import com.oldratlee.cooma.internal.utils.Reference;
+import com.oldratlee.cooma.internal.utils.Holder;
 import com.oldratlee.cooma.internal.utils.StringUtils;
 
 /**
@@ -51,13 +51,13 @@ public class ExtensionLoader<T> {
 
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
     
-    private final Reference<Map<String, Class<?>>> cachedClasses = new Reference<Map<String,Class<?>>>();
+    private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String,Class<?>>>();
     
-	private final ConcurrentMap<String, Reference<Object>> cachedInstances = new ConcurrentHashMap<String, Reference<Object>>();
+	private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
 	
     private volatile Class<?> cachedAdaptiveClass = null;
     
-	private final Reference<Object> cachedAdaptiveInstance = new Reference<Object>();
+	private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
 	private volatile Throwable createAdaptiveInstanceError;
 	
     private Set<Class<?>> cachedWrapperClasses;
@@ -103,9 +103,9 @@ public class ExtensionLoader<T> {
 	public T getExtension(String name) {
 		if (name == null || name.length() == 0)
 		    throw new IllegalArgumentException("Extension name == null");
-		Reference<Object> reference = cachedInstances.get(name);
+		Holder<Object> reference = cachedInstances.get(name);
 		if (reference == null) {
-		    cachedInstances.putIfAbsent(name, new Reference<Object>());
+		    cachedInstances.putIfAbsent(name, new Holder<Object>());
 		    reference = cachedInstances.get(name);
 		}
 		Object instance = reference.get();
