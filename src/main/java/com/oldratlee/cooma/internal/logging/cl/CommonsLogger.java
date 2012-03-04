@@ -13,12 +13,14 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.oldratlee.cooma.internal.logging;
+package com.oldratlee.cooma.internal.logging.cl;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+
+import com.oldratlee.cooma.internal.logging.AbstractInternalLogger;
 
 /**
- * <a href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</a>
+ * <a href="http://commons.apache.org/logging/">Apache Commons Logging</a>
  * logger.
  *
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
@@ -27,12 +29,14 @@ import org.apache.log4j.Logger;
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  *
  */
-class Log4JLogger extends AbstractInternalLogger {
+class CommonsLogger extends AbstractInternalLogger {
 
-    private final Logger logger;
+    private final Log logger;
+    private final String loggerName;
 
-    Log4JLogger(Logger logger) {
+    CommonsLogger(Log logger, String loggerName) {
         this.logger = logger;
+        this.loggerName = loggerName;
     }
 
     public void debug(String msg) {
@@ -64,7 +68,7 @@ class Log4JLogger extends AbstractInternalLogger {
     }
 
     public boolean isErrorEnabled() {
-        return true;
+        return logger.isErrorEnabled();
     }
 
     public boolean isInfoEnabled() {
@@ -72,7 +76,7 @@ class Log4JLogger extends AbstractInternalLogger {
     }
 
     public boolean isWarnEnabled() {
-        return true;
+        return logger.isWarnEnabled();
     }
 
     public void warn(String msg) {
@@ -85,6 +89,6 @@ class Log4JLogger extends AbstractInternalLogger {
 
     @Override
     public String toString() {
-        return String.valueOf(logger.getName());
+        return loggerName;
     }
 }

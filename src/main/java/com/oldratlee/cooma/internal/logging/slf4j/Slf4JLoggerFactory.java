@@ -13,12 +13,15 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.oldratlee.cooma.internal.logging;
+package com.oldratlee.cooma.internal.logging.slf4j;
+
+import com.oldratlee.cooma.internal.logging.InternalLogger;
+import com.oldratlee.cooma.internal.logging.InternalLoggerFactory;
+
 
 
 /**
- * Logger factory which creates a
- * <a href="http://java.sun.com/javase/6/docs/technotes/guides/logging/index.html">java.util.logging</a>
+ * Logger factory which creates a <a href="http://www.slf4j.org/">SLF4J</a>
  * logger.
  *
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
@@ -27,12 +30,12 @@ package com.oldratlee.cooma.internal.logging;
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  *
  */
-public class JdkLoggerFactory extends InternalLoggerFactory {
+public class Slf4JLoggerFactory extends InternalLoggerFactory {
 
     @Override
     public InternalLogger newInstance(String name) {
-        final java.util.logging.Logger logger =
-            java.util.logging.Logger.getLogger(name);
-        return new JdkLogger(logger, name);
+        final org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(name);
+        return new Slf4JLogger(logger);
     }
 }

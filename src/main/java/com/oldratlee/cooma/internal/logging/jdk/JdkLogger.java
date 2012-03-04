@@ -13,10 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.oldratlee.cooma.internal.logging;
+package com.oldratlee.cooma.internal.logging.jdk;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.oldratlee.cooma.internal.logging.AbstractInternalLogger;
 
 /**
  * <a href="http://java.sun.com/javase/6/docs/technotes/guides/logging/index.html">java.util.logging</a>

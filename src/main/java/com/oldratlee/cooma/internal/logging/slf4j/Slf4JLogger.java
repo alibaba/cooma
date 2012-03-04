@@ -13,9 +13,11 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.oldratlee.cooma.internal.logging;
+package com.oldratlee.cooma.internal.logging.slf4j;
 
 import org.slf4j.Logger;
+
+import com.oldratlee.cooma.internal.logging.AbstractInternalLogger;
 
 /**
  * <a href="http://www.slf4j.org/">SLF4J</a> logger.
