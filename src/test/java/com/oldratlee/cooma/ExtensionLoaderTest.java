@@ -187,7 +187,7 @@ public class ExtensionLoaderTest {
         String echo = ext.yell(config, "haha");
         assertEquals("Ext1Impl2-yell", echo);
 
-        config = config.addConfig("key1", "impl3"); // 注意： URL是值类型
+        config = config.addConfig("key1", "impl3");
         echo = ext.yell(config, "haha");
         assertEquals("Ext1Impl3-yell", echo);
     }

@@ -11,5 +11,5 @@ import com.oldratlee.cooma.Extension;
 @Extension("impl1")
 public interface Ext4 {
     @Adaptive
-    String bark(String name, List<Object> list); // 没有URL参数的方法
+    String bark(String name, List<Object> list); // 没有Config参数的方法
 }
