@@ -26,7 +26,7 @@ import com.oldratlee.cooma.internal.utils.StringUtils;
  * Load extension.<p>
  * <ul>
  * <li>inject adaptive instance to the attribute of extension, if the attribute is an extension too.
- * <li>wrap the specified extension wrapper
+ * <li>wrap the specified extension wrapper.
  * </ul>
  * 
  * @author oldratlee
@@ -43,7 +43,7 @@ public class ExtensionLoader<T> {
     
 	private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
-    private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
+    private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
     
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 

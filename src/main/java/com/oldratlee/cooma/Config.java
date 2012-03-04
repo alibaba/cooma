@@ -166,13 +166,30 @@ public final class Config {
     }
     
     @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof Config)) return false;
-        
-        Config other = (Config) obj;
-        return configs.equals(other.configs);
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((configs == null) ? 0 : configs.hashCode());
+        return result;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Config other = (Config) obj;
+        if (configs == null) {
+            if (other.configs != null)
+                return false;
+        } else if (!configs.equals(other.configs))
+            return false;
+        return true;
+    }
+
     private transient volatile String toString;
 
     @Override
