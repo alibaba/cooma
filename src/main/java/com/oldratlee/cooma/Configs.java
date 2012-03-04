@@ -6,10 +6,9 @@ import java.util.regex.Pattern;
 
 
 /**
- * Configuration info of extensions. pass among the extension.
+ * Configuration info of extensions, pass among extensions.
  * <p>
- * {@link Configs} are <b>immutable</b> instance, so can be used in
- * multithreading case safely.
+ * {@link Configs} are <b>immutable</b> instance, so threadsafe.
  * 
  * @author oldratlee
  * @since 0.1.0
