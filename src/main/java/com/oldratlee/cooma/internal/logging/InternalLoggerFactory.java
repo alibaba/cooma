@@ -15,6 +15,9 @@
  */
 package com.oldratlee.cooma.internal.logging;
 
+import com.oldratlee.cooma.internal.logging.jdk.JdkLoggerFactory;
+import com.oldratlee.cooma.internal.logging.log4j.Log4JLoggerFactory;
+
 
 /**
  * Creates an {@link InternalLogger} or changes the default factory
@@ -71,6 +74,7 @@ public abstract class InternalLoggerFactory {
      */
     public static InternalLogger getInstance(String name) {
         final InternalLogger logger = getDefaultFactory().newInstance(name);
+        
         return new InternalLogger() {
 
             public void debug(String msg) {
