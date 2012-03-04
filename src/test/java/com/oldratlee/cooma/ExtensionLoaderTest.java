@@ -110,7 +110,7 @@ public class ExtensionLoaderTest {
         try {
             ExtensionLoader.getExtensionLoader(Ext1.class).getExtension("XXX");
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension com.alibaba.oldratlee.cooma.ext1.Ext1 by name XXX"));
+            assertThat(expected.getMessage(), containsString("No such extension com.oldratlee.cooma.ext1.Ext1 by name XXX"));
         }
     }
     
@@ -119,7 +119,7 @@ public class ExtensionLoaderTest {
         try {
             ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getExtension("XXX");
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension com.alibaba.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod by name XXX"));
+            assertThat(expected.getMessage(), containsString("No such extension com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod by name XXX"));
         }
     }
     
@@ -165,7 +165,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("com.alibaba.oldratlee.cooma.ExtensionLoaderTest"),
+                    allOf(containsString("com.oldratlee.cooma.ExtensionLoaderTest"),
                             containsString("is not extension"),
                             containsString("WITHOUT @Extension Annotation")));
        
@@ -226,8 +226,8 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extenstion interface com.alibaba.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod"),
-                            containsString("No adaptive method on extension com.alibaba.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
+                    allOf(containsString("Can not create adaptive extenstion interface com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod"),
+                            containsString("No adaptive method on extension com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
         // 多次get，都会报错且相同
         try {
@@ -235,8 +235,8 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extenstion interface com.alibaba.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod"),
-                            containsString("No adaptive method on extension com.alibaba.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
+                    allOf(containsString("Can not create adaptive extenstion interface com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod"),
+                            containsString("No adaptive method on extension com.oldratlee.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
     }
 
@@ -253,7 +253,7 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("method "));
             assertThat(
                     expected.getMessage(),
-                    containsString("of interface com.alibaba.oldratlee.cooma.ext1.Ext1 is not adaptive method!"));
+                    containsString("of interface com.oldratlee.cooma.ext1.Ext1 is not adaptive method!"));
         }
     }
     
@@ -272,9 +272,8 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension_protocolKey() throws Exception {
         Ext3 ext = ExtensionLoader.getExtensionLoader(Ext3.class).getAdaptiveExtension();
     
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Configs config = Configs.fromKv("protocol", "impl3", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
-        
         String echo = ext.echo(config, "s");
         assertEquals("Ext3Impl3-echo", echo);
     
@@ -292,7 +291,7 @@ public class ExtensionLoaderTest {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
         
         
-        Configs config = Configs.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Configs config = Configs.fromKv("protocol", "impl1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String yell = ext.yell(config, "s");
         assertEquals("Ext2Impl1-yell", yell);
@@ -349,14 +348,14 @@ public class ExtensionLoaderTest {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.alibaba.oldratlee.cooma.ext2.UrlHolder argument == null", e.getMessage());
+            assertEquals("com.oldratlee.cooma.ext2.UrlHolder argument == null", e.getMessage());
         }
         
         try {
             ext.echo(new UrlHolder(), "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.alibaba.oldratlee.cooma.ext2.UrlHolder argument getUrl() == null", e.getMessage());
+            assertEquals("com.oldratlee.cooma.ext2.UrlHolder argument getUrl() == null", e.getMessage());
         }
     }
 
@@ -373,7 +372,7 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("method "));
             assertThat(
                     expected.getMessage(),
-                    containsString("of interface com.alibaba.oldratlee.cooma.ext2.Ext2 is not adaptive method!"));
+                    containsString("of interface com.oldratlee.cooma.ext2.Ext2 is not adaptive method!"));
         }
     }
 
@@ -399,7 +398,7 @@ public class ExtensionLoaderTest {
             ext.echo(holder, "haha");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension(com.alibaba.oldratlee.cooma.ext2.Ext2) name from config"));
+            assertThat(expected.getMessage(), containsString("Fail to get extension(com.oldratlee.cooma.ext2.Ext2) name from config"));
         }
     }
     
@@ -434,7 +433,7 @@ public class ExtensionLoaderTest {
             loader.getExtension("error");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Failed to load extension class(interface: interface com.alibaba.oldratlee.cooma.ext7.Ext7"));
+            assertThat(expected.getMessage(), containsString("Failed to load extension class(interface: interface com.oldratlee.cooma.ext7.Ext7"));
             assertThat(expected.getCause(), instanceOf(ExceptionInInitializerError.class));
         }
     }
