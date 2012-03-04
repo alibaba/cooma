@@ -20,20 +20,21 @@ import java.lang.annotation.Target;
 public @interface Adaptive {
 
     /**
-     * 从{@link Config}的Key名，对应的Value作为要Adapt成的Extension名。
+     * the key names of the {@link Config}, the corresponding value in {@link Config} used as the extension name which adaptive instance adapt to.
+     * <br>
+     * If these keys have no corresponding value in the {@link Config}, use the default extension(set by the {@link Extension} on the extension interface).
      * <p>
-     * 如果{@link URL}这些Key都没有Value，使用 用 缺省的扩展（在接口的{@link Extension}中设定的值）。<br>
-     * 比如，<code>String[] {"key1", "key2"}</code>，表示
+     * eg. <code>String[] {"key1", "key2"}</code>, means:
      * <ol>
-     * <li>先在URL上找key1的Value作为要Adapt成的Extension名；
-     * <li>key1没有Value，则使用key2的Value作为要Adapt成的Extension名。
-     * <li>key2没有Value，使用缺省的扩展。
-     * <li>如果没有设定缺省扩展，则方法调用会抛出{@link IllegalStateException}。
+     * <li>use the value of <code>key1</code> as the extension name which adaptive instance adapt to;
+     * <li>if <code>key1</code> has no corresponding value in the {@link Config}, use the value of <code>key2</code> as the extension name;
+     * <li>if <code>key2</code> has no corresponding value in the {@link Config}, use the default extension;
+     * <li>if has no default extension, throw {@link IllegalStateException} when inject the adaptive instance.
      * </ol>
      * <p>
-     * 如果不设置则缺省使用Extension接口类名的点分隔小写字串。<br>
-     * 即对于Extension接口{@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}的缺省值为
-     * <code>String[] {"yyy.invoker.wrapper"}</code>
+     *
+     * if default value of key names is the low case of extension interface name, seperate word by dot.
+     * eg. Extension interface {@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}, the key names is <code>String[] {"yyy.invoker.wrapper"}</code>
      * 
      * @see Extension#value()
      */
