@@ -34,7 +34,7 @@ public @interface Adaptive {
      * <p>
      *
      * if default value of key names is the low case of extension interface name, seperate word by dot.
-     * eg. Extension interface {@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}, the key names is <code>String[] {"yyy.invoker.wrapper"}</code>
+     * eg. Extension interface {@code com.oldratlee.cooma.xxx.YyyInvokerWrapper}, the key names is <code>String[] {"yyy.invoker.wrapper"}</code>
      * 
      * @see Extension#value()
      */
