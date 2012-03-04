@@ -6,7 +6,6 @@ syntax: glob
 *.al
 .libs
 *.so
-*.so.[0-9]*
 *.a
 *.pyc
 *.pyo
@@ -16,3 +15,8 @@ syntax: glob
 .settings
 target
 .springBeans
+
+
+syntax: regexp
+
+.*\.so.[0-9]*
