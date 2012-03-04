@@ -35,6 +35,8 @@ import com.oldratlee.cooma.internal.utils.StringUtils;
  * @author oldratlee
  * @since 0.1.0
  * 
+ * @see Configs
+ * @see Extension
  * @see Adaptive
  */
 public class ExtensionLoader<T> {

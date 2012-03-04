@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mark a interface as an extension.
+ * Mark a interface as an extension interface.
  * 
  * @author oldratlee
  * @since 0.1.0

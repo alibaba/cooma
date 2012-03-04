@@ -7,13 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 在{@link ExtensionLoader}生成Extension的Adaptive Instance时，为
- * {@link ExtensionLoader}提供信息。
- * 
+ * The information used by {@link ExtensionLoader} to generate Adaptive Instance.
+ *  
  * @author oldratlee
  * @since 0.1.0
  * @see ExtensionLoader
- * @see URL
+ * @see Configs
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface Adaptive {
 
     /**
-     * 从{@link URL}的Key名，对应的Value作为要Adapt成的Extension名。
+     * 从{@link Configs}的Key名，对应的Value作为要Adapt成的Extension名。
      * <p>
      * 如果{@link URL}这些Key都没有Value，使用 用 缺省的扩展（在接口的{@link Extension}中设定的值）。<br>
      * 比如，<code>String[] {"key1", "key2"}</code>，表示
@@ -33,7 +32,7 @@ public @interface Adaptive {
      * </ol>
      * <p>
      * 如果不设置则缺省使用Extension接口类名的点分隔小写字串。<br>
-     * 即对于Extension接口{@code com.oldratlee.cooma.xxx.YyyInvokerWrapper}的缺省值为
+     * 即对于Extension接口{@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}的缺省值为
      * <code>String[] {"yyy.invoker.wrapper"}</code>
      * 
      * @see Extension#value()
