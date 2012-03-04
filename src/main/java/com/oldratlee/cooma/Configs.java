@@ -40,7 +40,7 @@ public final class Configs {
      * 
      * @param configString config string.
      */
-    public Configs valueOf(String configString) {
+    public static Configs fromConfigString(String configString) {
         if(configString == null || (configString = configString.trim()).length() == 0) {
             return new Configs(new HashMap<String, String>(0), false);
         }
@@ -65,10 +65,48 @@ public final class Configs {
         
         return new Configs(cs, false);
     }
+    
+    public static Configs fromMap(Map<String, String> configs) {
+        return new Configs(configs, true);
+    }
+    
+    static Map<String, String> kv2Map(String... kv) {
+        Map<String, String> cs = new HashMap<String, String>();
+        
+        for(int i = 0; i < kv.length; i += 2) {
+            String key = kv[i];
+            if(key == null) throw new IllegalArgumentException("Key must not null!");
+            if(i + 1 < kv.length) {
+                cs.put(key, kv[i+1]);
+            }
+            else {
+                cs.put(key, null);
+            }
+        }
+        
+        return cs;
+    }
+    
+    public static Configs fromKv(String... kvPairs) {  
+        return new Configs(kv2Map(kvPairs), false);
+    }
+    
+    public Configs addConfig(String... kvPairs) {
+        Map<String, String> cs = new HashMap<String, String>(this.configs);
+        cs.putAll(kv2Map(kvPairs));
+        return new Configs(cs, false);
+    }
+    
+    public Configs addConfig(Map<String, String> configs) {
+        Map<String, String> cs = new HashMap<String, String>(this.configs);
+        cs.putAll(configs);
+        return new Configs(cs, false);
+    }
 
     public Map<String, String> toMap() {
         return new HashMap<String, String>(configs);
     }
+    
 
     public boolean contains(String key) {
         return configs.containsKey(key);
@@ -109,5 +147,14 @@ public final class Configs {
     
     public long getLong(String key) {
         return Long.parseLong(get(key));
+    }
+    
+    public long getLong(String key, long defaultValue) {
+        if(contains(key)) {
+            return Long.parseLong(get(key));
+        }
+        else {
+            return defaultValue;
+        }
     }
 }

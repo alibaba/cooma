@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -448,28 +447,28 @@ public class ExtensionLoader<T> {
                         .append(method.toString()).append(" of interface ")
                         .append(type.getName()).append(" is not adaptive method!\");");
             } else {
-                int urlTypeIndex = -1;
+                int configTypeIndex = -1;
                 for (int i = 0; i < pts.length; ++i) {
-                    if (pts[i].equals(URL.class)) {
-                        urlTypeIndex = i;
+                    if (pts[i].equals(Configs.class)) {
+                        configTypeIndex = i;
                         break;
                     }
                 }
-                // 有类型为URL的参数
-                if (urlTypeIndex != -1) {
+                // 有类型为Configs的参数
+                if (configTypeIndex != -1) {
                     // Null Point check
-                    String s = String.format("if (arg%d == null)  { throw new IllegalArgumentException(\"url == null\"); }",
-                                    urlTypeIndex);
+                    String s = String.format("if (arg%d == null)  { throw new IllegalArgumentException(\"config == null\"); }",
+                                    configTypeIndex);
                     code.append(s);
                     
-                    s = String.format("%s url = arg%d;", URL.class.getName(), urlTypeIndex); 
+                    s = String.format("%s config = arg%d;", Configs.class.getName(), configTypeIndex); 
                     code.append(s);
                 }
-                // 参数没有URL类型
+                // 参数没有Configs类型
                 else {
                     String attribMethod = null;
                     
-                    // 找到参数的URL属性
+                    // 找到参数的Configs属性
                     LBL_PTS:
                     for (int i = 0; i < pts.length; ++i) {
                         Method[] ms = pts[i].getMethods();
@@ -479,8 +478,8 @@ public class ExtensionLoader<T> {
                                     && Modifier.isPublic(m.getModifiers())
                                     && !Modifier.isStatic(m.getModifiers())
                                     && m.getParameterTypes().length == 0
-                                    && m.getReturnType() == URL.class) {
-                                urlTypeIndex = i;
+                                    && m.getReturnType() == Configs.class) {
+                                configTypeIndex = i;
                                 attribMethod = name;
                                 break LBL_PTS;
                             }
@@ -488,18 +487,18 @@ public class ExtensionLoader<T> {
                     }
                     if(attribMethod == null) {
                         throw new IllegalStateException("fail to create adative class for interface " + type.getName()
-                        		+ ": not found url parameter or url attribute in parameters of method " + method.getName());
+                        		+ ": not found config parameter or config attribute in parameters of method " + method.getName());
                     }
                     
                     // Null point check
                     String s = String.format("if (arg%d == null)  { throw new IllegalArgumentException(\"%s argument == null\"); }",
-                                    urlTypeIndex, pts[urlTypeIndex].getName());
+                                    configTypeIndex, pts[configTypeIndex].getName());
                     code.append(s);
                     s = String.format("if (arg%d.%s() == null)  { throw new IllegalArgumentException(\"%s argument %s() == null\"); }",
-                                    urlTypeIndex, attribMethod, pts[urlTypeIndex].getName(), attribMethod);
+                                    configTypeIndex, attribMethod, pts[configTypeIndex].getName(), attribMethod);
                     code.append(s);
 
-                    s = String.format("%s url = arg%d.%s();",URL.class.getName(), urlTypeIndex, attribMethod); 
+                    s = String.format("%s config = arg%d.%s();",Configs.class.getName(), configTypeIndex, attribMethod); 
                     code.append(s);
                 }
                 
@@ -527,29 +526,20 @@ public class ExtensionLoader<T> {
                 for (int i = value.length - 1; i >= 0; --i) {
                     if(i == value.length - 1) {
                         if(null != defaultExtName) {
-                            if(!"protocol".equals(value[i]))
-                                getNameCode = String.format("url.getParameter(\"%s\", \"%s\")", value[i], defaultExtName);
-                            else
-                                getNameCode = String.format("( url.getProtocol() == null ? \"%s\" : url.getProtocol() )", defaultExtName);
+                            getNameCode = String.format("config.getParameter(\"%s\", \"%s\")", value[i], defaultExtName);
                         }
                         else {
-                            if(!"protocol".equals(value[i]))
-                                getNameCode = String.format("url.getParameter(\"%s\")", value[i]);
-                            else
-                                getNameCode = "url.getProtocol()";
+                            getNameCode = String.format("config.getParameter(\"%s\")", value[i]);
                         }
                     }
                     else {
-                        if(!"protocol".equals(value[i]))
-                            getNameCode = String.format("url.getParameter(\"%s\", %s)", value[i], getNameCode);
-                        else
-                            getNameCode = String.format("( url.getProtocol() == null ? (%s) : url.getProtocol() )", getNameCode);
+                        getNameCode = String.format("config.getParameter(\"%s\", %s)", value[i], getNameCode);
                     }
                 }
                 code.append("String extName = ").append(getNameCode).append(";");
                 // check extName == null?
                 String s = String.format("if(extName == null) {" +
-                		"throw new IllegalStateException(\"Fail to get extension(%s) name from url(\" + url.toString() + \") use keys(%s)\"); }",
+                		"throw new IllegalStateException(\"Fail to get extension(%s) name from config(\" + config.toString() + \") use keys(%s)\"); }",
                         type.getName(), Arrays.toString(value));
                 code.append(s);
                 
