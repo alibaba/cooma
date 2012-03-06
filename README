@@ -1,0 +1,16 @@
+Cooma is a simple microcontainer implemementation of Java.
+Home Page: https://bitbucket.org/oldrat/cooma
+
+=========================
+Design Principle
+=========================
+
+- Simple(readability)
+- Concept Independence
+- Developer Friendly
+
+=========================
+Origin
+=========================
+
+I'm one developer of the dubbo project, and I maintain the microcontainer part of dubbo. The microcontainer of dubbo is good, but the concept is dependent to dubbo, and too complex. I think this is a bad smell for reusability, so I cramp out the code of microcontainer part from the dubbo, and name it to cooma.
