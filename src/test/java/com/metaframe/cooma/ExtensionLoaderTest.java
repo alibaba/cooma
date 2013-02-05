@@ -152,7 +152,6 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveExtension_defaultExtension() throws Exception {
         Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
 
-        Map<String, String> map = new HashMap<String, String>();
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String echo = ext.echo(config, "haha");
@@ -196,7 +195,7 @@ public class ExtensionLoaderTest {
     }
     
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNoAdativeMethodOnInterface() throws Exception {
+    public void test_getAdaptiveExtension_ExceptionWhenNoAdaptiveMethodOnInterface() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getAdaptiveExtension();
             fail();
@@ -336,7 +335,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNotAdativeMethod() throws Exception {
+    public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
         Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");

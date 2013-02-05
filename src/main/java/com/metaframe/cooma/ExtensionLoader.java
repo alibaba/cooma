@@ -2,8 +2,10 @@ package com.metaframe.cooma;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -15,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
-import com.metaframe.cooma.internal.bytecode.ClassGenerator;
 import com.metaframe.cooma.internal.logging.InternalLogger;
 import com.metaframe.cooma.internal.logging.InternalLoggerFactory;
 import com.metaframe.cooma.internal.utils.ConcurrentHashSet;
@@ -47,7 +48,7 @@ public class ExtensionLoader<T> {
     
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
-    private final Class<?> type;
+    private final Class<T> type;
 
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
     
@@ -87,7 +88,7 @@ public class ExtensionLoader<T> {
         return loader;
     }
 
-    private ExtensionLoader(Class<?> type) {
+    private ExtensionLoader(Class<T> type) {
         this.type = type;
     }
     
@@ -402,23 +403,22 @@ public class ExtensionLoader<T> {
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
         try {
-            return injectExtension((T) getAdaptiveExtensionClass().newInstance());
+            return injectExtension(getAdaptiveExtensionInstance());
         } catch (Exception e) {
             throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
         }
     }
-    
-    private Class<?> getAdaptiveExtensionClass() {
-        getExtensionClasses();
-        if (cachedAdaptiveClass != null) {
-            return cachedAdaptiveClass;
+
+    volatile T adaptiveInstance;
+    final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
+    final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
+
+    private T getAdaptiveExtensionInstance() {
+        if(null != adaptiveInstance) {
+            return adaptiveInstance;
         }
-        return cachedAdaptiveClass = createAdaptiveExtensionClass();
-    }
-    
-    private Class<?> createAdaptiveExtensionClass() {
-        ClassLoader classLoader = findClassLoader();
-        
+        getExtensionClasses();
+
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
         for(Method m : methods) {
@@ -427,145 +427,129 @@ public class ExtensionLoader<T> {
                 break;
             }
         }
-        // 完全没有Adaptive方法，则不需要生成Adaptive类
+        // 接口上没有Adaptive方法，则不需要生成Adaptive类
         if(! hasAdaptiveAnnotation)
             throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
-        
-        ClassGenerator cg = ClassGenerator.newInstance(classLoader);
-        cg.setClassName(type.getName() + "$Adpative");
-        cg.addInterface(type);
-        cg.addDefaultConstructor();
-        
-        for (Method method : methods) {
-            Class<?> rt = method.getReturnType();
-            Class<?>[] pts = method.getParameterTypes();
 
-            Adaptive adaptiveAnnotation = method.getAnnotation(Adaptive.class);
-            StringBuilder code = new StringBuilder(512);
-            if (adaptiveAnnotation == null) {
-                code.append("throw new UnsupportedOperationException(\"method ")
-                        .append(method.toString()).append(" of interface ")
-                        .append(type.getName()).append(" is not adaptive method!\");");
-            } else {
-                int configTypeIndex = -1;
-                for (int i = 0; i < pts.length; ++i) {
-                    if (pts[i].equals(Config.class)) {
-                        configTypeIndex = i;
-                        break;
+        // 收集获取Config的信息：Config是哪个参数；或者是，Config在哪个参数的哪个属性上
+        for(Method method : methods) {
+            Adaptive annotation = method.getAnnotation(Adaptive.class);
+            // 如果不Adaptive方法，不需要收集Config信息
+            if(annotation == null) continue;
+
+            // 找类型为Configs的参数
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            for(int i = 0; i < parameterTypes.length; ++i) {
+                if(Config.class.isAssignableFrom(parameterTypes[i])) {
+                    method2ConfigArgIndex.put(method, i);
+                    break;
+                }
+            }
+            if(method2ConfigArgIndex.containsKey(method)) continue;
+
+            // 找到参数的Configs属性
+            LBL_PARAMETER_TYPES:
+            for (int i = 0; i < parameterTypes.length; ++i) {
+                Method[] ms = parameterTypes[i].getMethods();
+                for (Method m : ms) {
+                    String name = m.getName();
+                    if ((name.startsWith("get") || name.length() > 3)
+                            && Modifier.isPublic(m.getModifiers())
+                            && !Modifier.isStatic(m.getModifiers())
+                            && m.getParameterTypes().length == 0
+                            && Config.class.isAssignableFrom(m.getReturnType())) {
+                        method2ConfigArgIndex.put(method, i);
+                        method2ConfigGetter.put(method, m);
+                        break LBL_PARAMETER_TYPES;
                     }
                 }
-                // 有类型为Configs的参数
-                if (configTypeIndex != -1) {
-                    // Null Point check
-                    String s = String.format("if (arg%d == null)  { throw new IllegalArgumentException(\"config == null\"); }",
-                                    configTypeIndex);
-                    code.append(s);
-                    
-                    s = String.format("%s config = arg%d;", Config.class.getName(), configTypeIndex); 
-                    code.append(s);
+            }
+
+            if(!method2ConfigArgIndex.containsKey(method)) {
+                throw new IllegalStateException("fail to create adaptive class for interface " + type.getName()
+                        + ": not found config parameter or config attribute in parameters of method " + method.getName());
+
+            }
+        }
+
+        Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
+            // FIXME 添加toString方法支持！
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//                if(method.getDeclaringClass().equals(Object.class)) {
+//
+//                    return
+//                }
+                if(!method2ConfigArgIndex.containsKey(method)) {
+                    throw new UnsupportedOperationException("method " + method.getName() + " of interface "
+                            + type.getName() + " is not adaptive method!");
                 }
-                // 参数没有Configs类型
+
+
+                int confArgIdx = method2ConfigArgIndex.get(method);
+                Object confArg = args[confArgIdx];
+                Config config;
+                if(method2ConfigGetter.containsKey(method)) {
+                    if(confArg == null) {
+                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
+                                " argument == null");
+                    }
+                    Method configGetter = method2ConfigGetter.get(method);
+                    config = (Config) configGetter.invoke(confArg);
+                    if(config == null) {
+                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
+                                " argument " + configGetter.getName() + "() == null");
+                    }
+                }
                 else {
-                    String attribMethod = null;
-                    
-                    // 找到参数的Configs属性
-                    LBL_PTS:
-                    for (int i = 0; i < pts.length; ++i) {
-                        Method[] ms = pts[i].getMethods();
-                        for (Method m : ms) {
-                            String name = m.getName();
-                            if ((name.startsWith("get") || name.length() > 3)
-                                    && Modifier.isPublic(m.getModifiers())
-                                    && !Modifier.isStatic(m.getModifiers())
-                                    && m.getParameterTypes().length == 0
-                                    && m.getReturnType() == Config.class) {
-                                configTypeIndex = i;
-                                attribMethod = name;
-                                break LBL_PTS;
-                            }
-                        }
+                    if(confArg == null) {
+                        throw new IllegalArgumentException("config == null");
                     }
-                    if(attribMethod == null) {
-                        throw new IllegalStateException("fail to create adaptive class for interface " + type.getName()
-                        		+ ": not found config parameter or config attribute in parameters of method " + method.getName());
-                    }
-                    
-                    // Null point check
-                    String s = String.format("if (arg%d == null)  { throw new IllegalArgumentException(\"%s argument == null\"); }",
-                                    configTypeIndex, pts[configTypeIndex].getName());
-                    code.append(s);
-                    s = String.format("if (arg%d.%s() == null)  { throw new IllegalArgumentException(\"%s argument %s() == null\"); }",
-                                    configTypeIndex, attribMethod, pts[configTypeIndex].getName(), attribMethod);
-                    code.append(s);
-
-                    s = String.format("%s config = arg%d.%s();",Config.class.getName(), configTypeIndex, attribMethod); 
-                    code.append(s);
+                    config = (Config) confArg;
                 }
-                
-                String[] value = adaptiveAnnotation.value();
+
+                String[] value = method.getAnnotation(Adaptive.class).value();
                 // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
                 if(value.length == 0) {
-                    char[] charArray = type.getSimpleName().toCharArray();
-                    StringBuilder sb = new StringBuilder(128);
-                    for (int i = 0; i < charArray.length; i++) {
-                        if(Character.isUpperCase(charArray[i])) {
-                            if(i != 0) {
-                                sb.append(".");
-                            }
-                            sb.append(Character.toLowerCase(charArray[i]));
-                        }
-                        else {
-                            sb.append(charArray[i]);
-                        }
-                    }
-                    value = new String[] {sb.toString()};
-                }
-                
-                String defaultExtName = cachedDefaultName;
-                String getNameCode = null;
-                for (int i = value.length - 1; i >= 0; --i) {
-                    if(i == value.length - 1) {
-                        if(null != defaultExtName) {
-                            getNameCode = String.format("config.get(\"%s\", \"%s\")", value[i], defaultExtName);
-                        }
-                        else {
-                            getNameCode = String.format("config.get(\"%s\")", value[i]);
-                        }
-                    }
-                    else {
-                        getNameCode = String.format("config.get(\"%s\", %s)", value[i], getNameCode);
-                    }
-                }
-                code.append("String extName = ").append(getNameCode).append(";");
-                // check extName == null?
-                String s = String.format("if(extName == null) {" +
-                		"throw new IllegalStateException(\"Fail to get extension(%s) name from config(\" + config.toString() + \") use keys(%s)\"); }",
-                        type.getName(), Arrays.toString(value));
-                code.append(s);
-                
-                s = String.format("%s extension = (%<s)%s.getExtensionLoader(%s.class).getExtension(extName);",
-                        type.getName(), ExtensionLoader.class.getName(), type.getName());
-                code.append(s);
-                
-                // return statement
-                if (!rt.equals(void.class)) {
-                    code.append("return ");
+                    value = new String[]{getDefaultKeyFromType()};
                 }
 
-                s = String.format("extension.%s(", method.getName());
-                code.append(s);
-                for (int i = 0; i < pts.length; i++) {
-                    if (i != 0)
-                        code.append(", ");
-                    code.append("arg").append(i);
+                String extName = null;
+                for(int i = 0; i < value.length; ++i) {
+                    if(!config.contains(value[i])) {
+                        if(i == value.length - 1)
+                            extName = cachedDefaultName;
+                        continue;
+                    }
+                    extName = config.get(value[i]);
+                    break;
                 }
-                code.append(");");
+                if(extName == null)
+                    throw new IllegalStateException("Fail to get extension(" + type.getName() +
+                        ") name from config(" + config + ") use keys())");
+
+                return  method.invoke(ExtensionLoader.this.getExtension(extName), args);
             }
-            
-            cg.addMethod(method.getName(), method.getModifiers(), rt, pts,
-                    method.getExceptionTypes(), code.toString());
+        });
+        adaptiveInstance = type.cast(p);
+        return adaptiveInstance;
+    }
+
+    // 扩展点接口名的点分隔
+    private String getDefaultKeyFromType() {
+        char[] charArray = type.getSimpleName().toCharArray();
+        StringBuilder sb = new StringBuilder(128);
+        for (int i = 0; i < charArray.length; i++) {
+            if(Character.isUpperCase(charArray[i])) {
+                if(i != 0) {
+                    sb.append(".");
+                }
+                sb.append(Character.toLowerCase(charArray[i]));
+            }
+            else {
+                sb.append(charArray[i]);
+            }
         }
-        return cg.toClass();
+        return sb.toString();
     }
 
     private static ClassLoader findClassLoader() {

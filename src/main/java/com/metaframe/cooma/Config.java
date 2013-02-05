@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * Configuration info of extensions, pass among extensions.
  * <p>
- * {@link Config} are <b>immutable</b> instance, so threadsafe.
+ * {@link Config} are <b>immutable</b> instance, so thread-safe.
  * 
  * @author oldratlee
  * @since 0.1.0
