@@ -3,7 +3,7 @@ package com.metaframe.cooma.internal.utils;
 /**
  * Holds a value of type <code>T</code>.
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  **/
 public final class Holder<T> {

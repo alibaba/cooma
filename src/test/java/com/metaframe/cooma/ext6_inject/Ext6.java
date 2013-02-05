@@ -7,7 +7,7 @@ import com.metaframe.cooma.Extension;
 /**
  * 无Default
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension
 public interface Ext6 {

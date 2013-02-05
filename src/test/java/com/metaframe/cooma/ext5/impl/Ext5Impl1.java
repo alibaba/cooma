@@ -4,7 +4,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod;
 
 /**
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class Ext5Impl1 implements Ext5NoAdaptiveMethod {
     public String echo(Config config, String s) {

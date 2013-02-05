@@ -6,8 +6,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext4.Ext4;
 
 /**
- * @author oldratlee
- *
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class Ext4Impl2 implements Ext4 {
     public String echo(Config config, String s) {

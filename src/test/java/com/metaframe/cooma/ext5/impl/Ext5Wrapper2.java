@@ -6,7 +6,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod;
 
 /**
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class Ext5Wrapper2 implements Ext5NoAdaptiveMethod {
     Ext5NoAdaptiveMethod instance;

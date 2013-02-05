@@ -4,7 +4,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.Extension;
 
 /**
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension("impl1")
 public interface Ext5NoAdaptiveMethod {

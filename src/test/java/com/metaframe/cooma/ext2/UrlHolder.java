@@ -4,8 +4,7 @@ import com.metaframe.cooma.Config;
 
 
 /**
- * @author oldratlee
- *
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class UrlHolder {
     private Double Num;

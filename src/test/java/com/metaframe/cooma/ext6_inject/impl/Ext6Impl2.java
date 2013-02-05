@@ -6,7 +6,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext6_inject.Ext6;
 
 /**
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class Ext6Impl2 implements Ext6 {
     List<String> list;
