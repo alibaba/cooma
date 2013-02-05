@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 	<name>Cooma Microcontainer</name>
 	<description>Simple Microcontainer(Java)</description>
-	<url>https://bitbucket.org/oldrat/cooma</url>
+	<url>https://github.com/metaframe/cooma/wiki</url>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
 		<license>
@@ -94,8 +94,8 @@
 		</dependency>
 	</dependencies>
 	<scm>
-		<url>https://bitbucket.org/oldrat/cooma</url>
-		<connection>scm:hg:https://bitbucket.org/oldrat/cooma</connection>
+		<url>https://github.com/metaframe/cooma</url>
+		<connection>scm:git:git@github.com:metaframe/cooma.git</connection>
 	</scm>
 	<developers>
 		<developer>
