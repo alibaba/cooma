@@ -1,27 +1,21 @@
 package com.metaframe.cooma;
 
+import com.metaframe.cooma.internal.utils.ConcurrentHashSet;
+import com.metaframe.cooma.internal.utils.Holder;
+import com.metaframe.cooma.internal.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-
-import com.metaframe.cooma.internal.logging.InternalLogger;
-import com.metaframe.cooma.internal.logging.InternalLoggerFactory;
-import com.metaframe.cooma.internal.utils.ConcurrentHashSet;
-import com.metaframe.cooma.internal.utils.Holder;
-import com.metaframe.cooma.internal.utils.StringUtils;
 
 /**
  * Load extension.<p>
@@ -39,8 +33,7 @@ import com.metaframe.cooma.internal.utils.StringUtils;
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  */
 public class ExtensionLoader<T> {
-    
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ExtensionLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
     
 	private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
