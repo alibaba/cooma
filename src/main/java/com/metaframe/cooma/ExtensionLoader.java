@@ -404,7 +404,7 @@ public class ExtensionLoader<T> {
         try {
             return injectExtension((T) getAdaptiveExtensionClass().newInstance());
         } catch (Exception e) {
-            throw new IllegalStateException("Can not create adaptive extenstion " + type + ", cause: " + e.getMessage(), e);
+            throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
         }
     }
     
@@ -486,7 +486,7 @@ public class ExtensionLoader<T> {
                         }
                     }
                     if(attribMethod == null) {
-                        throw new IllegalStateException("fail to create adative class for interface " + type.getName()
+                        throw new IllegalStateException("fail to create adaptive class for interface " + type.getName()
                         		+ ": not found config parameter or config attribute in parameters of method " + method.getName());
                     }
                     

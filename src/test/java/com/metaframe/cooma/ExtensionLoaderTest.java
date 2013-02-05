@@ -202,7 +202,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extenstion interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
+                    allOf(containsString("Can not create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
                             containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
         // 多次get，都会报错且相同
@@ -211,7 +211,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extenstion interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
+                    allOf(containsString("Can not create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
                             containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
     }
@@ -239,7 +239,7 @@ public class ExtensionLoaderTest {
             ExtensionLoader.getExtensionLoader(Ext4.class).getAdaptiveExtension();
             fail();
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("fail to create adative class for interface "));
+            assertThat(expected.getMessage(), containsString("fail to create adaptive class for interface "));
             assertThat(expected.getMessage(), containsString(": not found config parameter or config attribute in parameters of method "));
         }
     }
