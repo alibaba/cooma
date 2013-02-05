@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * <p>
  * {@link Config} are <b>immutable</b> instance, so thread-safe.
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  */
 public final class Config {

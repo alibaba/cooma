@@ -6,7 +6,7 @@ import java.io.StringWriter;
 /**
  * StringUtils
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  */
 public final class StringUtils {

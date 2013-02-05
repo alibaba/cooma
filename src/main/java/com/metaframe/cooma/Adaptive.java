@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * The information used by {@link ExtensionLoader} to generate Adaptive Instance.
  *  
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  * @see ExtensionLoader
  * @see Config

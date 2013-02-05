@@ -26,7 +26,7 @@ import com.metaframe.cooma.ext6_inject.impl.Ext6Impl2;
 import com.metaframe.cooma.ext7.Ext7;
 
 /**
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class ExtensionLoaderTest {
     @Test

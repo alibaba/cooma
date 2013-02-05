@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Mark a interface as an extension interface.
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  */
 @Documented

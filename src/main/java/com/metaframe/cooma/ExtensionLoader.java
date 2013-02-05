@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * <li>wrap the specified extension wrapper.
  * </ul>
  * 
- * @author oldratlee
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  * @since 0.1.0
  * 
  * @see Config
