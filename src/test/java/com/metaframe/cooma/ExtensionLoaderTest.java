@@ -201,7 +201,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
+                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
                             containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
         // 多次get，都会报错且相同
@@ -210,7 +210,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Can not create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
+                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
                             containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
         }
     }
@@ -409,7 +409,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("Failed to load extension class(interface: interface com.metaframe.cooma.ext7.Ext7"));
-            assertThat(expected.getCause(), instanceOf(ExceptionInInitializerError.class));
+            assertThat(expected.getCause().getCause(), instanceOf(ExceptionInInitializerError.class));
         }
     }
 }
