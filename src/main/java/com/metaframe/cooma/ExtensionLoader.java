@@ -33,46 +33,25 @@ import java.util.regex.Pattern;
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  */
 public class ExtensionLoader<T> {
-    private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
-    
-	private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
-    private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
-    
-    private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
-
-    private final Class<T> type;
-
-    private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
-    
-    private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String,Class<?>>>();
-    
-	private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
-	
-    private volatile Class<?> cachedAdaptiveClass = null;
-    
-	private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
-	private volatile Throwable createAdaptiveInstanceError;
-	
-    private Set<Class<?>> cachedWrapperClasses;
-    
-    private String cachedDefaultName;
-    
-    private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<String, IllegalStateException>();
-    
-    private static <T> boolean withExtensionAnnotation(Class<T> type) {
-        return type.isAnnotationPresent(Extension.class);
-    }
-    
+    /**
+     * Factory Method of {@link ExtensionLoader}.
+     *
+     * @param type Extension type class
+     * @param <T> Extension type
+     * @return {@link ExtensionLoader} instance.
+     * @throws IllegalArgumentException type argument is null;
+     *         or type is not a extension since WITHOUT {@link Extension} Annotation.
+     */
     @SuppressWarnings("unchecked")
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
         if (type == null)
             throw new IllegalArgumentException("Extension type == null");
         if(!withExtensionAnnotation(type)) {
             throw new IllegalArgumentException("type(" + type +
-            		") is not a extension, because WITHOUT @Extension Annotation!");
+                    ") is not a extension, because WITHOUT @Extension Annotation!");
         }
-        
+
         ExtensionLoader<T> loader = (ExtensionLoader<T>) EXTENSION_LOADERS.get(type);
         if (loader == null) {
             EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader<T>(type));
@@ -81,78 +60,97 @@ public class ExtensionLoader<T> {
         return loader;
     }
 
-    private ExtensionLoader(Class<T> type) {
-        this.type = type;
+    /**
+     * 获取指定名字的扩展实例。
+     *
+     * @param name 扩展名。
+     * @return 指定名字的扩展实例
+     * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     */
+    public T getExtension(String name) {
+        if (name == null || name.length() == 0)
+            throw new IllegalArgumentException("Extension name == null");
+
+        // 引入的Holder是为了下面用Holder作“细粒度锁”，而不是锁整个extInstances
+        Holder<T> holder = extInstances.get(name);
+        if (holder == null) {
+            extInstances.putIfAbsent(name, new Holder<T>());
+            holder = extInstances.get(name);
+        }
+
+        T instance = holder.get();
+        if (instance == null) {
+            synchronized (holder) { // 以holder为锁，减小锁粒度
+                instance = holder.get();
+                if (instance == null) {
+                    instance = createExtension(name);
+                    holder.set(instance);
+                }
+            }
+        }
+
+        return instance;
     }
-    
+
+    /**
+     * 返回缺省的扩展，如果没有设置则返回<code>null</code>。
+     */
+    public T getDefaultExtension() {
+        getExtensionClasses();
+        if(null == cachedDefaultName || cachedDefaultName.length() == 0) {
+            return null;
+        }
+        return getExtension(cachedDefaultName);
+    }
+
+    /**
+     * 检查是否有指定名字的扩展。
+     *
+     * @param name 扩展名
+     * @return 有指定名字的扩展，则<code>true</code>，否则<code>false</code>。
+     * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     */
+    public boolean hasExtension(String name) {
+        if (name == null || name.length() == 0)
+            throw new IllegalArgumentException("Extension name == null");
+        try {
+            return getExtensionClass(name) != null;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
+     */
+    public String getDefaultExtensionName() {
+        getExtensionClasses();
+        return cachedDefaultName;
+    }
+
+    public Set<String> getSupportedExtensions() {
+        Map<String, Class<?>> clazzes = getExtensionClasses();
+        return Collections.unmodifiableSet(new TreeSet<String>(clazzes.keySet()));
+    }
+
     public String getExtensionName(T extensionInstance) {
         return getExtensionName(extensionInstance.getClass());
     }
 
     public String getExtensionName(Class<?> extensionClass) {
+        // FIXME 要先去加载有哪些类！
         return cachedNames.get(extensionClass);
     }
-    
-	@SuppressWarnings("unchecked")
-	public T getExtension(String name) {
-		if (name == null || name.length() == 0)
-		    throw new IllegalArgumentException("Extension name == null");
-		Holder<Object> reference = cachedInstances.get(name);
-		if (reference == null) {
-		    cachedInstances.putIfAbsent(name, new Holder<Object>());
-		    reference = cachedInstances.get(name);
-		}
-		Object instance = reference.get();
-		if (instance == null) {
-		    synchronized (reference) {
-	            instance = reference.get();
-	            if (instance == null) {
-	                instance = createExtension(name);
-	                reference.set(instance);
-	            }
-	        }
-		}
-		return (T) instance;
-	}
-	
-	/**
-	 * 返回缺省的扩展，如果没有设置则返回<code>null</code>。 
-	 */
-	public T getDefaultExtension() {
-        getExtensionClasses();
-	    if(null == cachedDefaultName || cachedDefaultName.length() == 0) {
-	        return null;
-	    }
-	    return getExtension(cachedDefaultName);
-	}
 
-	public boolean hasExtension(String name) {
-	    if (name == null || name.length() == 0)
-	        throw new IllegalArgumentException("Extension name == null");
-	    try {
-	        return getExtensionClass(name) != null;
-	    } catch (Throwable t) {
-	        return false;
-	    }
-	}
-    
-	public Set<String> getSupportedExtensions() {
-        Map<String, Class<?>> clazzes = getExtensionClasses();
-        return Collections.unmodifiableSet(new TreeSet<String>(clazzes.keySet()));
-    }
-	
-	/**
-	 * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。 
-	 */
-	public String getDefaultExtensionName() {
-	    getExtensionClasses();
-	    return cachedDefaultName;
-	}
-	
-
-    @SuppressWarnings("unchecked")
+    /**
+     * 取得Adaptive实例。
+     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。
+     *
+     * @deprecated 推荐使用自动注入关联扩展的Adaptive实例的方式。
+     */
+    @Deprecated
     public T getAdaptiveExtension() {
-        Object instance = cachedAdaptiveInstance.get();
+        T instance = cachedAdaptiveInstance.get();
         if (instance == null) {
             if(createAdaptiveInstanceError == null) {
                 synchronized (cachedAdaptiveInstance) {
@@ -172,8 +170,43 @@ public class ExtensionLoader<T> {
                 rethrowAsRuntime(createAdaptiveInstanceError, "fail to create adaptive instance: ");
             }
         }
-        
-        return (T) instance;
+
+        return instance;
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
+
+    private static final String SERVICES_DIRECTORY = "META-INF/services/";
+
+    private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
+
+    private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
+
+    private final Class<T> type;
+
+    private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
+
+    private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String,Class<?>>>();
+
+    private final ConcurrentMap<String, Holder<T>> extInstances = new ConcurrentHashMap<String, Holder<T>>();
+
+    private volatile Class<?> cachedAdaptiveClass = null;
+
+    private final Holder<T> cachedAdaptiveInstance = new Holder<T>();
+    private volatile Throwable createAdaptiveInstanceError;
+
+    private Set<Class<?>> cachedWrapperClasses;
+
+    private String cachedDefaultName;
+
+    private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<String, IllegalStateException>();
+
+    private static <T> boolean withExtensionAnnotation(Class<T> type) {
+        return type.isAnnotationPresent(Extension.class);
+    }
+
+    private ExtensionLoader(Class<T> type) {
+        this.type = type;
     }
 
     private static void rethrowAsRuntime(Throwable t, String message) {
@@ -182,7 +215,7 @@ public class ExtensionLoader<T> {
         else
             throw new IllegalStateException(message + t.toString(), t);
     }
-    
+
     private IllegalStateException findException(String name) {
         for (Map.Entry<String, IllegalStateException> entry : exceptions.entrySet()) {
             if (entry.getKey().toLowerCase().contains(name.toLowerCase())) {
@@ -222,7 +255,7 @@ public class ExtensionLoader<T> {
                     type + ")  could not be instantiated: " + t.getMessage(), t);
         }
     }
-    
+
     private T injectExtension(T instance) {
         try {
             for (Method method : instance.getClass().getMethods()) {
@@ -236,7 +269,7 @@ public class ExtensionLoader<T> {
                             method.invoke(instance, adaptive);
                         } catch (Exception e) {
                             logger.error("fail to inject via method " + method.getName()
-                            		+ " of interface " + type.getName() + ": " + e.getMessage(), e);
+                                    + " of interface " + type.getName() + ": " + e.getMessage(), e);
                         }
                     }
                 }
@@ -246,19 +279,19 @@ public class ExtensionLoader<T> {
         }
         return instance;
     }
-    
-	private Class<?> getExtensionClass(String name) {
-	    if (type == null)
-	        throw new IllegalArgumentException("Extension type == null");
-	    if (name == null)
-	        throw new IllegalArgumentException("Extension name == null");
-	    Class<?> clazz = getExtensionClasses().get(name);
-	    if (clazz == null)
-	        throw new IllegalStateException("No such extension \"" + name + "\" for " + type.getName() + "!");
-	    return clazz;
-	}
-	
-	private Map<String, Class<?>> getExtensionClasses() {
+
+    private Class<?> getExtensionClass(String name) {
+        if (type == null)
+            throw new IllegalArgumentException("Extension type == null");
+        if (name == null)
+            throw new IllegalArgumentException("Extension name == null");
+        Class<?> clazz = getExtensionClasses().get(name);
+        if (clazz == null)
+            throw new IllegalStateException("No such extension \"" + name + "\" for " + type.getName() + "!");
+        return clazz;
+    }
+
+    private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = cachedClasses.get();
         if (classes == null) {
             synchronized (cachedClasses) {
@@ -270,8 +303,8 @@ public class ExtensionLoader<T> {
             }
         }
         return classes;
-	}
-	
+    }
+
     private Map<String, Class<?>> loadExtensionClasses() {
         final Extension defaultAnnotation = type.getAnnotation(Extension.class);
         if(defaultAnnotation != null) {
@@ -285,7 +318,7 @@ public class ExtensionLoader<T> {
                 if(names.length == 1) cachedDefaultName = names[0];
             }
         }
-        
+
         ClassLoader classLoader = findClassLoader();
         Map<String, Class<?>> extensionClasses = new HashMap<String, Class<?>>();
         String fileName = null;
@@ -387,12 +420,12 @@ public class ExtensionLoader<T> {
         }
         return extensionClasses;
     }
-    
+
     private String findAnnotationName(Class<?> clazz) {
         Extension extension = clazz.getAnnotation(Extension.class);
         return extension == null ? null : extension.value();
     }
-    
+
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
         try {
@@ -535,10 +568,10 @@ public class ExtensionLoader<T> {
         classLoader = ExtensionLoader.class.getClassLoader();
         return classLoader;
     }
-    
+
     @Override
     public String toString() {
         return this.getClass().getName() + "[" + type.getName() + "]";
     }
-    
+
 }
