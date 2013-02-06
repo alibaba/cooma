@@ -503,7 +503,7 @@ public class ExtensionLoader<T> {
                 String[] value = method.getAnnotation(Adaptive.class).value();
                 // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
                 if(value.length == 0) {
-                    value = new String[]{getDefaultKeyFromType()};
+                    value = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
                 }
 
                 String extName = null;
@@ -525,24 +525,6 @@ public class ExtensionLoader<T> {
         });
         adaptiveInstance = type.cast(p);
         return adaptiveInstance;
-    }
-
-    // 扩展点接口名的点分隔
-    private String getDefaultKeyFromType() {
-        char[] charArray = type.getSimpleName().toCharArray();
-        StringBuilder sb = new StringBuilder(128);
-        for (int i = 0; i < charArray.length; i++) {
-            if(Character.isUpperCase(charArray[i])) {
-                if(i != 0) {
-                    sb.append(".");
-                }
-                sb.append(Character.toLowerCase(charArray[i]));
-            }
-            else {
-                sb.append(charArray[i]);
-            }
-        }
-        return sb.toString();
     }
 
     private static ClassLoader findClassLoader() {
