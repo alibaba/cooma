@@ -91,7 +91,7 @@ public class ExtensionLoader<T> {
         if (instance == null) {
             synchronized (holder) { // 以holder为锁，减小锁粒度
                 instance = holder.get();
-                if (instance == null) {
+                if (instance == null) { // double check
                     instance = createExtension(name);
                     holder.set(instance);
                 }
@@ -300,7 +300,7 @@ public class ExtensionLoader<T> {
         getExtensionClasses();
 
         synchronized (adaptiveInstanceHolder) {
-            adaptiveInstance =  adaptiveInstanceHolder.get();
+            adaptiveInstance = adaptiveInstanceHolder.get();
             if(null != adaptiveInstance) { // double check
                 return adaptiveInstance;
             }
