@@ -14,13 +14,13 @@ import com.metaframe.cooma.ext2.ConfigHolder;
 import com.metaframe.cooma.ext2.NoDefaultExt;
 import com.metaframe.cooma.ext4.AdaptiveMethodNoConfig_Ext;
 import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
+import com.metaframe.cooma.ext6.InjectExt;
+import com.metaframe.cooma.ext7.InitErrorExt;
 import org.junit.Test;
 
 import com.metaframe.cooma.ext5.impl.Ext5Wrapper1;
 import com.metaframe.cooma.ext5.impl.Ext5Wrapper2;
-import com.metaframe.cooma.ext6_inject.Ext6;
-import com.metaframe.cooma.ext6_inject.impl.Ext6Impl2;
-import com.metaframe.cooma.ext7.Ext7;
+import com.metaframe.cooma.ext6.impl.Ext6Impl2;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
@@ -343,9 +343,9 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_getAdaptiveExtension_inject() throws Exception {
-        Ext6 ext = ExtensionLoader.getExtensionLoader(Ext6.class).getAdaptiveExtension();
+        InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getAdaptiveExtension();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext6", "impl1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key", "impl1");
         
         assertEquals("Ext6Impl1-echo-Ext1Impl1-echo", ext.echo(config, "ha"));
         
@@ -355,7 +355,7 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_getAdaptiveExtension_InjectNotExtFail() throws Exception {
-        Ext6 ext = ExtensionLoader.getExtensionLoader(Ext6.class).getExtension("impl2");
+        InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getExtension("impl2");
         
         Ext6Impl2 impl = (Ext6Impl2) ext;
         assertNull(impl.getList());
@@ -363,7 +363,7 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_InitError() throws Exception {
-        ExtensionLoader<Ext7> loader = ExtensionLoader.getExtensionLoader(Ext7.class);
+        ExtensionLoader<InitErrorExt> loader = ExtensionLoader.getExtensionLoader(InitErrorExt.class);
         
         loader.getExtension("ok");
         
@@ -371,7 +371,7 @@ public class ExtensionLoaderTest {
             loader.getExtension("error");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Failed to load extension class(interface: interface com.metaframe.cooma.ext7.Ext7"));
+            assertThat(expected.getMessage(), containsString("Failed to load extension class(interface: interface com.metaframe.cooma.ext7.InitErrorExt"));
             assertThat(expected.getCause().getCause(), instanceOf(ExceptionInInitializerError.class));
         }
     }

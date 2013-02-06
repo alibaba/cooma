@@ -1,4 +1,4 @@
-package com.metaframe.cooma.ext6_inject;
+package com.metaframe.cooma.ext6;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)

@@ -1,4 +1,4 @@
-package com.metaframe.cooma.ext6_inject;
+package com.metaframe.cooma.ext6;
 
 import com.metaframe.cooma.Adaptive;
 import com.metaframe.cooma.Config;
@@ -10,7 +10,7 @@ import com.metaframe.cooma.Extension;
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension
-public interface Ext6 {
-    @Adaptive
+public interface InjectExt {
+    @Adaptive({"key"})
     String echo(Config config, String s);
 }

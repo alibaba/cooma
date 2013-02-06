@@ -1,31 +1,31 @@
-package com.metaframe.cooma.ext6_inject.impl;
+package com.metaframe.cooma.ext6.impl;
 
 import com.metaframe.cooma.ext1.SimpleExt;
+import com.metaframe.cooma.ext6.InjectExt;
 import junit.framework.Assert;
 
 import com.metaframe.cooma.Config;
-import com.metaframe.cooma.ext6_inject.Dao;
-import com.metaframe.cooma.ext6_inject.Ext6;
+import com.metaframe.cooma.ext6.Dao;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-public class Ext6Impl1 implements Ext6 {
-    SimpleExt ext1;
+public class Ext6Impl1 implements InjectExt {
+    SimpleExt simpleExt;
     public Dao obj;
     
     public void setDao(Dao obj){
+        this.obj = obj;
+
         Assert.assertNotNull("inject extension instance can not be null", obj);
         Assert.fail();
     }
     
-    public void setExt1(SimpleExt ext1) {
-        this.ext1 = ext1;
+    public void setSimpleExt(SimpleExt simpleExt) {
+        this.simpleExt = simpleExt;
     }
 
     public String echo(Config config, String s) {
-        return "Ext6Impl1-echo-" + ext1.echo(config, s);
+        return "Ext6Impl1-echo-" + simpleExt.echo(config, s);
     }
-    
-
 }
