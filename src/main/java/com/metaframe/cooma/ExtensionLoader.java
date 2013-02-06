@@ -18,8 +18,10 @@ import java.util.regex.Pattern;
 /**
  * Load extension.<p>
  * <ul>
- * <li>inject adaptive instance to the attribute of extension, if the attribute is an extension too.
- * <li>wrap the specified extension wrapper.
+ *     <li>Manage extension instance, instance is singleton.
+ *     <li>query extension
+ *     <li>inject adaptive instance to the attribute of extension, if the attribute is an extension too.
+ *     <li>wrap the specified extension wrapper.
  * </ul>
  * 
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
@@ -105,7 +107,6 @@ public class ExtensionLoader<T> {
      * @since 0.1.0
      */
     public T getDefaultExtension() {
-        getExtensionClasses();
         if(null == defaultExtension || defaultExtension.length() == 0) {
             return null;
         }
@@ -131,12 +132,22 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 检查是否有指定缺省的扩展。
+     *
+     * @return 有指定缺省的扩展，则<code>true</code>，否则<code>false</code>。
+     * @since 0.1.0
+     */
+    public boolean hasDefaultExtension(String name) {
+        return !(null == defaultExtension || defaultExtension.length() == 0);
+
+    }
+
+    /**
      * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
      *
      * @since 0.1.0
      */
     public String getDefaultExtensionName() {
-        getExtensionClasses();
         return defaultExtension;
     }
 
