@@ -69,8 +69,8 @@ public class ExtensionLoader<T> {
         if (type == null)
             throw new IllegalArgumentException("Extension type == null");
         if(!withExtensionAnnotation(type)) {
-            throw new IllegalArgumentException("Extension type(" + type + 
-            		") is not extension, because WITHOUT @Extension Annotation!");
+            throw new IllegalArgumentException("type(" + type +
+            		") is not a extension, because WITHOUT @Extension Annotation!");
         }
         
         ExtensionLoader<T> loader = (ExtensionLoader<T>) EXTENSION_LOADERS.get(type);
@@ -193,7 +193,7 @@ public class ExtensionLoader<T> {
         int i = 1;
         for (Map.Entry<String, IllegalStateException> entry : exceptions.entrySet()) {
             buf.append("\r\n(");
-            buf.append(i ++);
+            buf.append(i++);
             buf.append(") ");
             buf.append(entry.getKey());
             buf.append(":\r\n");
