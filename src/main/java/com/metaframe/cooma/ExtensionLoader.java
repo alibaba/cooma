@@ -144,7 +144,7 @@ public class ExtensionLoader<T> {
 
     public String getExtensionName(Class<?> extensionClass) {
         // FIXME 要先去加载有哪些类！
-        return extensionNames.get(extensionClass);
+        return extClass2Name.get(extensionClass);
     }
 
     /**
@@ -155,31 +155,29 @@ public class ExtensionLoader<T> {
      */
     @Deprecated
     public T getAdaptiveExtension() {
-        T instance = cachedAdaptiveInstance.get();
-        if (instance == null) {
-            if(createAdaptiveInstanceError == null) {
-                synchronized (cachedAdaptiveInstance) {
-                    instance = cachedAdaptiveInstance.get();
-                    if (instance == null) {
-                        try {
-                            instance = createAdaptiveInstance0();
-                            cachedAdaptiveInstance.set(instance);
-                        } catch (Throwable t) {
-                            createAdaptiveInstanceError = t;
-                            throw new IllegalStateException("Can not create adaptive extension " + type +
-                                    ", cause: " + t.getMessage(), t);
-                        }
-                    }
-                }
-            }
-            else {
-                throw new IllegalStateException("Can not create adaptive extension " + type +
-                        ", cause: " + createAdaptiveInstanceError.getMessage(), createAdaptiveInstanceError);
+        if(createAdaptiveInstanceError == null) {
+            try {
+                return createAdaptiveInstance();
+            } catch (Throwable t) {
+                createAdaptiveInstanceError = t;
+                throw new IllegalStateException("Fail to create adaptive extension " + type +
+                        ", cause: " + t.getMessage(), t);
             }
         }
-
-        return instance;
+        else {
+            throw new IllegalStateException("Fail to create adaptive extension " + type +
+                    ", cause: " + createAdaptiveInstanceError.getMessage(), createAdaptiveInstanceError);
+        }
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + "<" + type.getName() + ">";
+    }
+
+    // ==============================
+    // internal methods
+    // ==============================
 
     private final Class<T> type;
     private final String defaultExtension;
@@ -207,30 +205,11 @@ public class ExtensionLoader<T> {
         defaultExtension = defaultExt;
     }
 
-    private IllegalStateException findException(String name) {
-        for (Map.Entry<String, IllegalStateException> entry : exceptions.entrySet()) {
-            if (entry.getKey().toLowerCase().contains(name.toLowerCase())) {
-                return entry.getValue();
-            }
-        }
-        StringBuilder buf = new StringBuilder("No such extension " + type.getName() + " by name " + name + ", possible causes: ");
-        int i = 1;
-        for (Map.Entry<String, IllegalStateException> entry : exceptions.entrySet()) {
-            buf.append("\r\n(");
-            buf.append(i++);
-            buf.append(") ");
-            buf.append(entry.getKey());
-            buf.append(":\r\n");
-            buf.append(StringUtils.toString(entry.getValue()));
-        }
-        return new IllegalStateException(buf.toString());
-    }
-
     @SuppressWarnings("unchecked")
     private T createExtension(String name) {
         Class<?> clazz = getExtensionClasses().get(name);
         if (clazz == null) {
-            throw findException(name);
+            throw findExtensionClassLoadException(name);
         }
         try {
             T instance = injectExtension((T) clazz.newInstance());
@@ -271,39 +250,33 @@ public class ExtensionLoader<T> {
         return instance;
     }
 
-    private Class<?> getExtensionClass(String name) {
-        if (type == null)
-            throw new IllegalArgumentException("Extension type == null");
-        if (name == null)
-            throw new IllegalArgumentException("Extension name == null");
-        Class<?> clazz = getExtensionClasses().get(name);
-        if (clazz == null)
-            throw new IllegalStateException("No such extension \"" + name + "\" for " + type.getName() + "!");
-        return clazz;
-    }
-
     // ====================================
     // get & create Adaptive Instance
     // ====================================
 
-    private final Holder<T> cachedAdaptiveInstance = new Holder<T>();
+    private final Holder<T> adaptiveInstanceHolder = new Holder<T>();
     private volatile Throwable createAdaptiveInstanceError;
 
-    private final Holder<T> adaptiveInstanceHolder = new Holder<T>();
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
 
     /**
      * Thread-safe.
      */
-    private T createAdaptiveInstance0() {
-        if(null != adaptiveInstanceHolder.get()) {
-            return adaptiveInstanceHolder.get();
+    private T createAdaptiveInstance() {
+        T adaptiveInstance =  adaptiveInstanceHolder.get();
+        if(null != adaptiveInstance) {
+            return adaptiveInstance;
         }
 
         getExtensionClasses();
 
         synchronized (adaptiveInstanceHolder) {
+            adaptiveInstance =  adaptiveInstanceHolder.get();
+            if(null != adaptiveInstance) { // double check
+                return adaptiveInstance;
+            }
+
             checkAndSetAdaptiveInfo0();
 
             Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
@@ -437,15 +410,26 @@ public class ExtensionLoader<T> {
     // get & load Extension Class
     // ====================================
 
+    // Holder<Map<ext-name, ext-class>>
     private final Holder<Map<String, Class<?>>> extClassesHolder = new Holder<Map<String,Class<?>>>();
 
     private volatile Class<?> adaptiveClass = null;
 
     private Set<Class<?>> wrapperClasses;
 
-    private final ConcurrentMap<Class<?>, String> extensionNames = new ConcurrentHashMap<Class<?>, String>();
+    private final ConcurrentMap<Class<?>, String> extClass2Name = new ConcurrentHashMap<Class<?>, String>();
 
-    private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<String, IllegalStateException>();
+    private Map<String, IllegalStateException> extClassLoadExceptions = new ConcurrentHashMap<String, IllegalStateException>();
+
+    private Class<?> getExtensionClass(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("Extension name == null");
+
+        Class<?> clazz = getExtensionClasses().get(name);
+        if (clazz == null)
+            throw findExtensionClassLoadException(name);
+        return clazz;
+    }
 
     /**
      * Thread-safe
@@ -462,6 +446,32 @@ public class ExtensionLoader<T> {
             }
         }
         return classes;
+    }
+
+    private IllegalStateException findExtensionClassLoadException(String name) {
+        String msg = "No such extension " + type.getName() + " by name " + name;
+
+        for (Map.Entry<String, IllegalStateException> entry : extClassLoadExceptions.entrySet()) {
+            if (entry.getKey().toLowerCase().contains(name.toLowerCase())) {
+                IllegalStateException e = entry.getValue();
+                return new IllegalStateException(msg + ", cause: "  + e.getMessage(), e);
+            }
+        }
+
+        StringBuilder buf = new StringBuilder(msg);
+        if(!extClassLoadExceptions.isEmpty()) {
+            buf.append(", possible causes: ");
+            int i = 1;
+            for (Map.Entry<String, IllegalStateException> entry : extClassLoadExceptions.entrySet()) {
+                buf.append("\r\n(");
+                buf.append(i++);
+                buf.append(") ");
+                buf.append(entry.getKey());
+                buf.append(":\r\n");
+                buf.append(StringUtils.toString(entry.getValue()));
+            }
+        }
+        return new IllegalStateException(buf.toString());
     }
 
     private Map<String, Class<?>> loadExtensionClasses0() {
@@ -552,8 +562,8 @@ public class ExtensionLoader<T> {
 
                             String[] nameList = NAME_SEPARATOR.split(name);
                             for (String n : nameList) {
-                                if (! extensionNames.containsKey(clazz)) {
-                                    extensionNames.put(clazz, n); // FIXME 实现类的扩展点名，只记录了一个！
+                                if (! extClass2Name.containsKey(clazz)) {
+                                    extClass2Name.put(clazz, n); // FIXME 实现类的扩展点名，只记录了一个！
                                 }
 
                                 Class<?> c = extName2Class.get(n);
@@ -570,7 +580,7 @@ public class ExtensionLoader<T> {
                     }
                 } catch (Throwable t) {
                     IllegalStateException e = new IllegalStateException("Failed to load extension class(interface: " + type + ", class line: " + line + ") in " + url + ", cause: " + t.getMessage(), t);
-                    exceptions.put(line, e);
+                    extClassLoadExceptions.put(line, e);
                 }
             } // end of while read lines
         } catch (Throwable t) {
@@ -621,11 +631,6 @@ public class ExtensionLoader<T> {
 
     private static <T> boolean withExtensionAnnotation(Class<T> type) {
         return type.isAnnotationPresent(Extension.class);
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getName() + "<" + type.getName() + ">";
     }
 
 }
