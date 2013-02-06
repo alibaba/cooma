@@ -1,21 +1,22 @@
-package com.metaframe.cooma.ext5.impl;
-
-import java.util.concurrent.atomic.AtomicInteger;
+package com.metaframe.cooma.ext3.impl;
 
 import com.metaframe.cooma.Config;
+import com.metaframe.cooma.ext3.WrappedExt;
 import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-public class Ext5Wrapper2 implements NoAdaptiveMethodExt {
-    NoAdaptiveMethodExt instance;
+public class Ext3Wrapper2 implements WrappedExt {
+    WrappedExt instance;
     
     public static AtomicInteger echoCount = new AtomicInteger();
     public static AtomicInteger yellCount = new AtomicInteger();
     public static AtomicInteger bangCount = new AtomicInteger();
     
-    public Ext5Wrapper2(NoAdaptiveMethodExt instance) {
+    public Ext3Wrapper2(WrappedExt instance) {
         this.instance = instance;
     }
     

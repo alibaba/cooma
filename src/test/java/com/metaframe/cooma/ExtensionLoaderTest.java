@@ -12,14 +12,15 @@ import com.metaframe.cooma.ext1.impl.SimpleExtImpl1;
 import com.metaframe.cooma.ext1.impl.SimpleExtImpl2;
 import com.metaframe.cooma.ext2.ConfigHolder;
 import com.metaframe.cooma.ext2.NoDefaultExt;
+import com.metaframe.cooma.ext3.WrappedExt;
+import com.metaframe.cooma.ext3.impl.Ext3Wrapper1;
+import com.metaframe.cooma.ext3.impl.Ext3Wrapper2;
 import com.metaframe.cooma.ext4.AdaptiveMethodNoConfig_Ext;
 import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
 import com.metaframe.cooma.ext6.InjectExt;
 import com.metaframe.cooma.ext7.InitErrorExt;
 import org.junit.Test;
 
-import com.metaframe.cooma.ext5.impl.Ext5Wrapper1;
-import com.metaframe.cooma.ext5.impl.Ext5Wrapper2;
 import com.metaframe.cooma.ext6.impl.Ext6Impl2;
 
 /**
@@ -52,30 +53,30 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_getExtension_WithWrapper() throws Exception {
-        NoAdaptiveMethodExt impl1 = ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("impl1");
-        assertThat(impl1, anyOf(instanceOf(Ext5Wrapper1.class), instanceOf(Ext5Wrapper2.class)));
-        
-        NoAdaptiveMethodExt impl2 = ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("impl2") ;
-        assertThat(impl2, anyOf(instanceOf(Ext5Wrapper1.class), instanceOf(Ext5Wrapper2.class)));
+        WrappedExt impl1 = ExtensionLoader.getExtensionLoader(WrappedExt.class).getExtension("impl1");
+        assertThat(impl1, anyOf(instanceOf(Ext3Wrapper1.class), instanceOf(Ext3Wrapper2.class)));
+
+        WrappedExt impl2 = ExtensionLoader.getExtensionLoader(WrappedExt.class).getExtension("impl2") ;
+        assertThat(impl2, anyOf(instanceOf(Ext3Wrapper1.class), instanceOf(Ext3Wrapper2.class)));
         
         
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-        int echoCount1 = Ext5Wrapper1.echoCount.get();
-        int echoCount2 = Ext5Wrapper2.echoCount.get();
-        int yellCount1 = Ext5Wrapper1.yellCount.get();
-        int yellCount2 = Ext5Wrapper2.yellCount.get();
+        int echoCount1 = Ext3Wrapper1.echoCount.get();
+        int echoCount2 = Ext3Wrapper2.echoCount.get();
+        int yellCount1 = Ext3Wrapper1.yellCount.get();
+        int yellCount2 = Ext3Wrapper2.yellCount.get();
         
-        assertEquals("Ext5Impl1-echo", impl1.echo(config, "ha"));
-        assertEquals(echoCount1 + 1, Ext5Wrapper1.echoCount.get());
-        assertEquals(echoCount2 + 1, Ext5Wrapper2.echoCount.get());
-        assertEquals(yellCount1, Ext5Wrapper1.yellCount.get());
-        assertEquals(yellCount2, Ext5Wrapper2.yellCount.get());
+        assertEquals("Ext3Impl1-echo", impl1.echo(config, "ha"));
+        assertEquals(echoCount1 + 1, Ext3Wrapper1.echoCount.get());
+        assertEquals(echoCount2 + 1, Ext3Wrapper2.echoCount.get());
+        assertEquals(yellCount1, Ext3Wrapper1.yellCount.get());
+        assertEquals(yellCount2, Ext3Wrapper2.yellCount.get());
         
-        assertEquals("Ext5Impl2-yell", impl2.yell(config, "ha"));
-        assertEquals(echoCount1 + 1, Ext5Wrapper1.echoCount.get());
-        assertEquals(echoCount2 + 1, Ext5Wrapper2.echoCount.get());
-        assertEquals(yellCount1 + 1, Ext5Wrapper1.yellCount.get());
-        assertEquals(yellCount2 + 1, Ext5Wrapper2.yellCount.get());
+        assertEquals("Ext3Impl2-yell", impl2.yell(config, "ha"));
+        assertEquals(echoCount1 + 1, Ext3Wrapper1.echoCount.get());
+        assertEquals(echoCount2 + 1, Ext3Wrapper2.echoCount.get());
+        assertEquals(yellCount1 + 1, Ext3Wrapper1.yellCount.get());
+        assertEquals(yellCount2 + 1, Ext3Wrapper2.yellCount.get());
     }
     
     @Test
