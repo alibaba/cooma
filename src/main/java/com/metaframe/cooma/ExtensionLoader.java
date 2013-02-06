@@ -162,17 +162,19 @@ public class ExtensionLoader<T> {
                     instance = cachedAdaptiveInstance.get();
                     if (instance == null) {
                         try {
-                            instance = createAdaptiveExtension();
+                            instance = createAdaptiveInstance0();
                             cachedAdaptiveInstance.set(instance);
                         } catch (Throwable t) {
                             createAdaptiveInstanceError = t;
-                            rethrowAsRuntime(t, "fail to create adaptive instance: ");
+                            throw new IllegalStateException("Can not create adaptive extension " + type +
+                                    ", cause: " + t.getMessage(), t);
                         }
                     }
                 }
             }
             else {
-                rethrowAsRuntime(createAdaptiveInstanceError, "fail to create adaptive instance: ");
+                throw new IllegalStateException("Can not create adaptive extension " + type +
+                        ", cause: " + createAdaptiveInstanceError.getMessage(), createAdaptiveInstanceError);
             }
         }
 
@@ -203,13 +205,6 @@ public class ExtensionLoader<T> {
             }
         }
         defaultExtension = defaultExt;
-    }
-
-    private static void rethrowAsRuntime(Throwable t, String message) {
-        if(t instanceof RuntimeException)
-            throw (RuntimeException)t;
-        else
-            throw new IllegalStateException(message + t.toString(), t);
     }
 
     private IllegalStateException findException(String name) {
@@ -287,22 +282,13 @@ public class ExtensionLoader<T> {
         return clazz;
     }
 
-    @SuppressWarnings("unchecked")
-    private T createAdaptiveExtension() {
-        try {
-            return injectExtension(getAdaptiveInstance());
-        } catch (Exception e) {
-            throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
-        }
-    }
-
     // ====================================
     // get & create Adaptive Instance
     // ====================================
 
     private final Holder<T> cachedAdaptiveInstance = new Holder<T>();
     private volatile Throwable createAdaptiveInstanceError;
-    
+
     private final Holder<T> adaptiveInstanceHolder = new Holder<T>();
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
@@ -310,7 +296,7 @@ public class ExtensionLoader<T> {
     /**
      * Thread-safe.
      */
-    private T getAdaptiveInstance() {
+    private T createAdaptiveInstance0() {
         if(null != adaptiveInstanceHolder.get()) {
             return adaptiveInstanceHolder.get();
         }
@@ -318,7 +304,7 @@ public class ExtensionLoader<T> {
         getExtensionClasses();
 
         synchronized (adaptiveInstanceHolder) {
-            checkAndSetAdaptiveInfo();
+            checkAndSetAdaptiveInfo0();
 
             Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
                 // FIXME 添加toString方法支持！ #13
@@ -377,12 +363,22 @@ public class ExtensionLoader<T> {
                     return  method.invoke(ExtensionLoader.this.getExtension(extName), args);
                 }
             });
-            adaptiveInstanceHolder.set(type.cast(p));
+
+            T adaptive = type.cast(p);
+
+//            try {
+//                injectExtension(adaptive);
+//            } catch (Exception e) {
+//                // FIXME 出错的异常没有记录！
+//                throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
+//            }
+
+            adaptiveInstanceHolder.set(adaptive);
             return adaptiveInstanceHolder.get();
         }
     }
 
-    private void checkAndSetAdaptiveInfo() {
+    private void checkAndSetAdaptiveInfo0() {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
         for(Method m : methods) {
