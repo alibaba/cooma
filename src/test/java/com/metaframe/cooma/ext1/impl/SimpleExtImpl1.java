@@ -1,22 +1,21 @@
-package com.metaframe.cooma.ext3.impl;
+package com.metaframe.cooma.ext1.impl;
 
 import com.metaframe.cooma.Config;
-import com.metaframe.cooma.ext3.Ext3;
+import com.metaframe.cooma.ext1.SimpleExt;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-public class Ext3Impl2 implements Ext3 {
+public class SimpleExtImpl1 implements SimpleExt {
     public String echo(Config config, String s) {
-        return "Ext3Impl2-echo";
+        return "Ext1Impl1-echo";
     }
     
     public String yell(Config config, String s) {
-        return "Ext3Impl2-yell";
-    }
-
-    public String bang(Config config, int i) {
-        return "bang2";
+        return "Ext1Impl1-yell";
     }
     
+    public String bang(Config config, int i) {
+        return "bang1";
+    }
 }

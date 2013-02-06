@@ -5,17 +5,13 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.Extension;
 
 /**
- * 无Default
+ * 无Default。
+ * 使用ConfigHolder。
  * 
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension
-public interface Ext2 {
+public interface NoDefaultExt {
     @Adaptive
-    String echo(UrlHolder holder, String s);
-    
-    @Adaptive({"key1", "protocol"})
-    String yell(Config config, String s);
-    
-    String bang(Config config, int i);
+    String echo(ConfigHolder holder, String s);
 }
