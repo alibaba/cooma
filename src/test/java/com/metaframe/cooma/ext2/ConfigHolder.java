@@ -23,11 +23,11 @@ public class ConfigHolder {
         Num = num;
     }
 
-    public Config getUrl() {
+    public Config getConfig() {
         return config;
     }
 
-    public void setUrl(Config config) {
+    public void setConfig(Config config) {
         this.config = config;
     }
 
