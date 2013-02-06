@@ -262,7 +262,8 @@ public class ExtensionLoader<T> {
                 }
             }
             return instance;
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             throw new IllegalStateException("Extension instance(name: " + name + ", class: " +
                     type + ")  could not be instantiated: " + t.getMessage(), t);
         }
@@ -275,13 +276,13 @@ public class ExtensionLoader<T> {
                         && method.getParameterTypes().length == 1
                         && Modifier.isPublic(method.getModifiers())) {
                     Class<?> pt = method.getParameterTypes()[0];
-                    if (pt.isInterface() && withExtensionAnnotation(pt) && getExtensionLoader(pt).getSupportedExtensions().size() > 0) {
+                    if (pt.isInterface() && withExtensionAnnotation(pt)) {
                         try {
                             Object adaptive = getExtensionLoader(pt).getAdaptiveExtension();
                             method.invoke(instance, adaptive);
                         } catch (Exception e) {
                             logger.error("fail to inject via method " + method.getName()
-                                    + " of interface " + type.getName() + ": " + e.getMessage(), e);
+                                    + " of interface " + type.getName() + ", cause: " + e.getMessage(), e);
                         }
                     }
                 }
