@@ -28,6 +28,41 @@ import com.metaframe.cooma.ext6.impl.Ext6Impl2;
  */
 public class ExtensionLoaderTest {
     @Test
+    public void test_getExtensionLoader_Null() throws Exception {
+        try {
+            ExtensionLoader.getExtensionLoader(null);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(),
+                    containsString("Extension type == null"));
+        }
+    }
+
+    @Test
+    public void test_getExtensionLoader_NotInterface() throws Exception {
+        try {
+            ExtensionLoader.getExtensionLoader(ExtensionLoaderTest.class);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(),
+                    containsString("type(class com.metaframe.cooma.ExtensionLoaderTest) is not interface"));
+        }
+    }
+
+    @Test
+    public void test_getExtensionLoader_NotSpiAnnotation() throws Exception {
+        try {
+            ExtensionLoader.getExtensionLoader(NoExtensionExt.class);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(),
+                    allOf(containsString(NoExtensionExt.class.getName()),
+                            containsString("is not a extension"),
+                            containsString("WITHOUT @Extension Annotation")));
+        }
+    }
+
+    @Test
     public void test_getDefault() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getDefaultExtension();
         assertThat(ext, instanceOf(SimpleExtImpl1.class));
@@ -119,6 +154,22 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
         }
     }
+
+    @Test
+    public void test_hasExtension_wrapperIsNotExt() throws Exception {
+        assertTrue(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("impl1"));
+        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("impl1,impl2"));
+        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("xxx"));
+
+        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("wrapper1"));
+
+        try {
+            ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension(null);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), containsString("Extension name == null"));
+        }
+    }
     
     @Test
     public void test_getSupportedExtensions() throws Exception {
@@ -131,21 +182,18 @@ public class ExtensionLoaderTest {
         
         assertEquals(expected, exts);
     }
-    
+
     @Test
-    public void test_getSupportedExtensions_NoExtension() throws Exception {
-        try {
-            ExtensionLoader.getExtensionLoader(ExtensionLoaderTest.class).getSupportedExtensions();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected.getMessage(), 
-                    allOf(containsString("com.metaframe.cooma.ExtensionLoaderTest"),
-                            containsString("is not a extension"),
-                            containsString("WITHOUT @Extension Annotation")));
-       
-        }
+    public void test_getSupportedExtensions_wrapperIsNotExt() throws Exception {
+        Set<String> exts = ExtensionLoader.getExtensionLoader(WrappedExt.class).getSupportedExtensions();
+
+        Set<String> expected = new HashSet<String>();
+        expected.add("impl1");
+        expected.add("impl2");
+
+        assertEquals(expected, exts);
     }
-    
+
     @Test
     public void test_getAdaptiveExtension_defaultExtension() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
