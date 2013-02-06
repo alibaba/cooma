@@ -144,8 +144,8 @@ public class ExtensionLoader<T> {
      * @since 0.1.0
      */
     public Set<String> getSupportedExtensions() {
-        Map<String, Class<?>> clazzes = getExtensionClasses();
-        return Collections.unmodifiableSet(new TreeSet<String>(clazzes.keySet()));
+        Map<String, Class<?>> classes = getExtensionClasses();
+        return Collections.unmodifiableSet(new TreeSet<String>(classes.keySet()));
     }
 
     /**
@@ -355,13 +355,6 @@ public class ExtensionLoader<T> {
             });
 
             T adaptive = type.cast(p);
-
-//            try {
-//                injectExtension(adaptive);
-//            } catch (Exception e) {
-//                // FIXME 出错的异常没有记录！
-//                throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
-//            }
 
             adaptiveInstanceHolder.set(adaptive);
             return adaptiveInstanceHolder.get();
