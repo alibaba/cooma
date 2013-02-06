@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-
 /**
  * Configuration info of extensions, pass among extensions.
  * <p>
@@ -21,7 +20,7 @@ public final class Config {
         if(deepCopy) {
             this.configs = new HashMap<String, String>(configs.size());
             for (Map.Entry<String, String> c : configs.entrySet()) {
-                this.configs.put(c.getKey().toString(), c.getValue().toString());
+                this.configs.put(c.getKey(), c.getValue());
             }
         }
         else {
@@ -29,8 +28,8 @@ public final class Config {
         }
     }
 
-    private static final Pattern PAIR_SEPERATOR = Pattern.compile("\\s*[&]\\s*");
-    private static final Pattern KV_SEPERATOR = Pattern.compile("\\s*[=]\\s*");
+    private static final Pattern PAIR_SEPARATOR = Pattern.compile("\\s*[&]\\s*");
+    private static final Pattern KV_SEPARATOR = Pattern.compile("\\s*[=]\\s*");
     
     /**
      * Parse config string to {@link Config} instance.
@@ -45,11 +44,11 @@ public final class Config {
         }
         
         HashMap<String, String> cs = new HashMap<String, String>();
-        String[] pairs = PAIR_SEPERATOR.split(configString);
+        String[] pairs = PAIR_SEPARATOR.split(configString);
         for(String pair : pairs) {
             if(pair.length() == 0) continue;
             
-            String[] kv = KV_SEPERATOR.split(pair);
+            String[] kv = KV_SEPARATOR.split(pair);
             switch (kv.length) {
                 case 1:
                     cs.put(kv[0], "");
