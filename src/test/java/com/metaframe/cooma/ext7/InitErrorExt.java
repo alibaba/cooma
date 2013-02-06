@@ -11,7 +11,7 @@ import com.metaframe.cooma.Extension;
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension
-public interface Ext7 {
-    @Adaptive
+public interface InitErrorExt {
+    @Adaptive("key")
     String echo(Config config, String s);
 }
