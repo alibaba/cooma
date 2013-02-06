@@ -19,6 +19,8 @@ public @interface Extension {
 
     /**
      * the default extension name.
+     *
+     * @since 0.1.0
      */
     String value() default "";
 

@@ -47,6 +47,7 @@ public class ExtensionLoader<T> {
      * @return {@link ExtensionLoader} instance.
      * @throws IllegalArgumentException type argument is null;
      *         or type is not a extension since WITHOUT {@link Extension} Annotation.
+     * @since 0.1.0
      */
     @SuppressWarnings("unchecked")
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
@@ -71,6 +72,7 @@ public class ExtensionLoader<T> {
      * @param name 扩展名。
      * @return 指定名字的扩展实例
      * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     * @since 0.1.0
      */
     public T getExtension(String name) {
         if (name == null || name.length() == 0)
@@ -99,6 +101,8 @@ public class ExtensionLoader<T> {
 
     /**
      * 返回缺省的扩展，如果没有设置则返回<code>null</code>。
+     *
+     * @since 0.1.0
      */
     public T getDefaultExtension() {
         getExtensionClasses();
@@ -114,6 +118,7 @@ public class ExtensionLoader<T> {
      * @param name 扩展名
      * @return 有指定名字的扩展，则<code>true</code>，否则<code>false</code>。
      * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     * @since 0.1.0
      */
     public boolean hasExtension(String name) {
         if (name == null || name.length() == 0)
@@ -127,21 +132,32 @@ public class ExtensionLoader<T> {
 
     /**
      * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
+     *
+     * @since 0.1.0
      */
     public String getDefaultExtensionName() {
         getExtensionClasses();
         return defaultExtension;
     }
 
+    /**
+     * @since 0.1.0
+     */
     public Set<String> getSupportedExtensions() {
         Map<String, Class<?>> clazzes = getExtensionClasses();
         return Collections.unmodifiableSet(new TreeSet<String>(clazzes.keySet()));
     }
 
+    /**
+     * @since 0.1.0
+     */
     public String getExtensionName(T extensionInstance) {
         return getExtensionName(extensionInstance.getClass());
     }
 
+    /**
+     * @since 0.1.0
+     */
     public String getExtensionName(Class<?> extensionClass) {
         // FIXME 要先去加载有哪些类！
         return extClass2Name.get(extensionClass);
@@ -152,6 +168,7 @@ public class ExtensionLoader<T> {
      * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。
      *
      * @deprecated 推荐使用自动注入关联扩展的Adaptive实例的方式。
+     * @since 0.1.0
      */
     @Deprecated
     public T getAdaptiveExtension() {

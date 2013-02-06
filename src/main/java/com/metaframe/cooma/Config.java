@@ -37,6 +37,7 @@ public final class Config {
      * a config string like <code>key1=value1&key2=value2</code>. 
      * 
      * @param configString config string.
+     * @since 0.1.0
      */
     public static Config fromString(String configString) {
         if(configString == null || (configString = configString.trim()).length() == 0) {
@@ -63,7 +64,10 @@ public final class Config {
         
         return new Config(cs, false);
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public static Config fromMap(Map<String, String> configs) {
         return new Config(configs, true);
     }
@@ -84,36 +88,56 @@ public final class Config {
         
         return cs;
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public static Config fromKv(String... kvPairs) {  
         return new Config(kv2Map(kvPairs), false);
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public Config addConfig(String... kvPairs) {
         Map<String, String> cs = new HashMap<String, String>(this.configs);
         cs.putAll(kv2Map(kvPairs));
         return new Config(cs, false);
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public Config addConfig(Map<String, String> configs) {
         Map<String, String> cs = new HashMap<String, String>(this.configs);
         cs.putAll(configs);
         return new Config(cs, false);
     }
 
+    /**
+     * @since 0.1.0
+     */
     public Map<String, String> toMap() {
         return new HashMap<String, String>(configs);
     }
-    
 
+    /**
+     * @since 0.1.0
+     */
     public boolean contains(String key) {
         return configs.containsKey(key);
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public String get(String key) {
         return configs.get(key);
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public String get(String key, String defaultValue) {
         if(contains(key)) {
             return configs.get(key);
@@ -125,10 +149,16 @@ public final class Config {
 
     // the util methods!
 
+    /**
+     * @since 0.1.0
+     */
     public boolean getBoolean(String key) {
         return Boolean.valueOf(get(key));
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public boolean getBoolean(String key, boolean defaultValue) {
         if(contains(key)) {
             return Boolean.valueOf(get(key));
@@ -137,11 +167,17 @@ public final class Config {
             return defaultValue;
         }
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public int getInt(String key) {
         return Integer.parseInt(get(key));
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public int getInt(String key, int defaultValue) {
         if(contains(key)) {
             return Integer.parseInt(get(key));
@@ -150,11 +186,17 @@ public final class Config {
             return defaultValue;
         }
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public long getLong(String key) {
         return Long.parseLong(get(key));
     }
-    
+
+    /**
+     * @since 0.1.0
+     */
     public long getLong(String key, long defaultValue) {
         if(contains(key)) {
             return Long.parseLong(get(key));
