@@ -14,8 +14,7 @@ public class Ext3Wrapper1 implements WrappedExt {
     
     public static AtomicInteger echoCount = new AtomicInteger();
     public static AtomicInteger yellCount = new AtomicInteger();
-    public static AtomicInteger bangCount = new AtomicInteger();
-    
+
     public Ext3Wrapper1(WrappedExt instance) {
         this.instance = instance;
     }
@@ -28,10 +27,5 @@ public class Ext3Wrapper1 implements WrappedExt {
     public String yell(Config config, String s) {
         yellCount.incrementAndGet();
         return instance.yell(config, s);
-    }
-
-    public String bang(Config config, int i) {
-        bangCount.incrementAndGet();
-        return instance.bang(config, i);
     }
 }
