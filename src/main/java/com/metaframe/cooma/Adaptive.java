@@ -37,6 +37,7 @@ public @interface Adaptive {
      * eg. Extension interface <code>com.metaframe.cooma.FooBizService</code>, the key names is <code>String[] {"foo.biz.service"}</code>
      * 
      * @see Extension#value()
+     * @since 0.1.0
      */
     String[] value() default {};
 }
