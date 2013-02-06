@@ -142,7 +142,7 @@ public class ExtensionLoaderTest {
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), 
                     allOf(containsString("com.metaframe.cooma.ExtensionLoaderTest"),
-                            containsString("is not extension"),
+                            containsString("is not a extension"),
                             containsString("WITHOUT @Extension Annotation")));
        
         }
