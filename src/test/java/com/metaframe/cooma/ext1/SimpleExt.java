@@ -9,6 +9,7 @@ import com.metaframe.cooma.Extension;
  */
 @Extension("impl1")
 public interface SimpleExt {
+    // 没有使用key的@Adaptive ！
     @Adaptive
     String echo(Config config, String s);
     

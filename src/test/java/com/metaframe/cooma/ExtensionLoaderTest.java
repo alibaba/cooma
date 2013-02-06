@@ -157,7 +157,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension() throws Exception {
+    public void test_getAdaptiveExtension_useTypeNameAsKey() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
@@ -181,7 +181,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_UrlNpe() throws Exception {
+    public void test_getAdaptiveExtension_ConfigNpe() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         try {
@@ -231,7 +231,7 @@ public class ExtensionLoaderTest {
     }
     
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNoUrlAttrib() throws Exception {
+    public void test_getAdaptiveExtension_ExceptionWhenNoConfigAttrib() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(AdaptiveMethodNoConfig_Ext.class).getAdaptiveExtension();
             fail();
@@ -248,7 +248,7 @@ public class ExtensionLoaderTest {
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
         
         ConfigHolder holder = new ConfigHolder();
-        holder.setUrl(config);
+        holder.setConfig(config);
     
         String echo = ext.echo(holder, "haha");
         assertEquals("Ext2Impl1-echo", echo);
@@ -261,7 +261,7 @@ public class ExtensionLoaderTest {
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         ConfigHolder holder = new ConfigHolder();
-        holder.setUrl(config);
+        holder.setConfig(config);
         
         try {
             ext.echo(holder, "haha");
@@ -271,7 +271,7 @@ public class ExtensionLoaderTest {
         }
         
         config = config.addConfig("no.default.ext", "XXX");
-        holder.setUrl(config);
+        holder.setConfig(config);
         try {
             ext.echo(holder, "haha");
             fail();
@@ -281,7 +281,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension_UrlNpe() throws Exception {
+    public void test_configHolder_getAdaptiveExtension_ConfigNpe() throws Exception {
         NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
 
         try {
@@ -295,7 +295,7 @@ public class ExtensionLoaderTest {
             ext.echo(new ConfigHolder(), "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.metaframe.cooma.ext2.ConfigHolder argument getUrl() == null", e.getMessage());
+            assertEquals("com.metaframe.cooma.ext2.ConfigHolder argument getConfig() == null", e.getMessage());
         }
     }
 
@@ -323,7 +323,7 @@ public class ExtensionLoaderTest {
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         ConfigHolder holder = new ConfigHolder();
-        holder.setUrl(config);
+        holder.setConfig(config);
         
         try {
             ext.echo(holder, "impl1");
@@ -333,7 +333,7 @@ public class ExtensionLoaderTest {
         }
         
         config = config.addConfig("key1", "impl1");
-        holder.setUrl(config);
+        holder.setConfig(config);
         try {
             ext.echo(holder, "haha");
             fail();
