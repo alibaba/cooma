@@ -4,21 +4,18 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import com.metaframe.cooma.ext1.SimpleExt;
+import com.metaframe.cooma.ext1.impl.SimpleExtImpl1;
+import com.metaframe.cooma.ext1.impl.SimpleExtImpl2;
+import com.metaframe.cooma.ext2.ConfigHolder;
+import com.metaframe.cooma.ext2.NoDefaultExt;
+import com.metaframe.cooma.ext4.AdaptiveMethodNoConfig_Ext;
+import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
 import org.junit.Test;
 
-import com.metaframe.cooma.ext1.Ext1;
-import com.metaframe.cooma.ext1.impl.Ext1Impl1;
-import com.metaframe.cooma.ext1.impl.Ext1Impl2;
-import com.metaframe.cooma.ext2.Ext2;
-import com.metaframe.cooma.ext2.UrlHolder;
-import com.metaframe.cooma.ext3.Ext3;
-import com.metaframe.cooma.ext4.Ext4;
-import com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod;
 import com.metaframe.cooma.ext5.impl.Ext5Wrapper1;
 import com.metaframe.cooma.ext5.impl.Ext5Wrapper2;
 import com.metaframe.cooma.ext6_inject.Ext6;
@@ -31,34 +28,34 @@ import com.metaframe.cooma.ext7.Ext7;
 public class ExtensionLoaderTest {
     @Test
     public void test_getDefault() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getDefaultExtension();
-        assertThat(ext, instanceOf(Ext1Impl1.class));
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getDefaultExtension();
+        assertThat(ext, instanceOf(SimpleExtImpl1.class));
         
-        String name = ExtensionLoader.getExtensionLoader(Ext1.class).getDefaultExtensionName();
+        String name = ExtensionLoader.getExtensionLoader(SimpleExt.class).getDefaultExtensionName();
         assertEquals("impl1", name);
     }
     
     @Test
     public void test_getDefault_NULL() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getDefaultExtension();
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getDefaultExtension();
         assertNull(ext);
         
-        String name = ExtensionLoader.getExtensionLoader(Ext2.class).getDefaultExtensionName();
+        String name = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getDefaultExtensionName();
         assertNull(name);
     }
     
     @Test
     public void test_getExtension() throws Exception {
-        assertTrue(ExtensionLoader.getExtensionLoader(Ext1.class).getExtension("impl1") instanceof Ext1Impl1);
-        assertTrue(ExtensionLoader.getExtensionLoader(Ext1.class).getExtension("impl2") instanceof Ext1Impl2);
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("impl1") instanceof SimpleExtImpl1);
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("impl2") instanceof SimpleExtImpl2);
     }
     
     @Test
     public void test_getExtension_WithWrapper() throws Exception {
-        Ext5NoAdaptiveMethod impl1 = ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getExtension("impl1");
+        NoAdaptiveMethodExt impl1 = ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("impl1");
         assertThat(impl1, anyOf(instanceOf(Ext5Wrapper1.class), instanceOf(Ext5Wrapper2.class)));
         
-        Ext5NoAdaptiveMethod impl2 = ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getExtension("impl2") ;
+        NoAdaptiveMethodExt impl2 = ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("impl2") ;
         assertThat(impl2, anyOf(instanceOf(Ext5Wrapper1.class), instanceOf(Ext5Wrapper2.class)));
         
         
@@ -84,25 +81,25 @@ public class ExtensionLoaderTest {
     @Test
     public void test_getExtension_ExceptionNoExtension() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(Ext1.class).getExtension("XXX");
+            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("XXX");
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext1.Ext1 by name XXX"));
+            assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext1.SimpleExt by name XXX"));
         }
     }
     
     @Test
     public void test_getExtension_ExceptionNoExtension_NameOnWrapperNoAffact() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getExtension("XXX");
+            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("XXX");
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod by name XXX"));
+            assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext5.NoAdaptiveMethodExt by name XXX"));
         }
     }
     
     @Test
     public void test_getExtension_ExceptionNullArg() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(Ext1.class).getExtension(null);
+            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension(null);
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
         }
@@ -110,12 +107,12 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_hasExtension() throws Exception {
-        assertTrue(ExtensionLoader.getExtensionLoader(Ext1.class).hasExtension("impl1"));
-        assertFalse(ExtensionLoader.getExtensionLoader(Ext1.class).hasExtension("impl1,impl2"));
-        assertFalse(ExtensionLoader.getExtensionLoader(Ext1.class).hasExtension("xxx"));
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).hasExtension("impl1"));
+        assertFalse(ExtensionLoader.getExtensionLoader(SimpleExt.class).hasExtension("impl1,impl2"));
+        assertFalse(ExtensionLoader.getExtensionLoader(SimpleExt.class).hasExtension("xxx"));
         
         try {
-            ExtensionLoader.getExtensionLoader(Ext1.class).hasExtension(null);
+            ExtensionLoader.getExtensionLoader(SimpleExt.class).hasExtension(null);
             fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
@@ -124,7 +121,7 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_getSupportedExtensions() throws Exception {
-        Set<String> exts = ExtensionLoader.getExtensionLoader(Ext1.class).getSupportedExtensions();
+        Set<String> exts = ExtensionLoader.getExtensionLoader(SimpleExt.class).getSupportedExtensions();
         
         Set<String> expected = new HashSet<String>();
         expected.add("impl1");
@@ -150,7 +147,7 @@ public class ExtensionLoaderTest {
     
     @Test
     public void test_getAdaptiveExtension_defaultExtension() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
@@ -160,9 +157,9 @@ public class ExtensionLoaderTest {
 
     @Test
     public void test_getAdaptiveExtension() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext1", "impl2");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
 
         String echo = ext.echo(config, "haha");
         assertEquals("Ext1Impl2-echo", echo);
@@ -170,7 +167,7 @@ public class ExtensionLoaderTest {
 
     @Test
     public void test_getAdaptiveExtension_customizeKey() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
 
@@ -184,7 +181,7 @@ public class ExtensionLoaderTest {
 
     @Test
     public void test_getAdaptiveExtension_UrlNpe() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         try {
             ext.echo(null, "haha");
@@ -197,27 +194,27 @@ public class ExtensionLoaderTest {
     @Test
     public void test_getAdaptiveExtension_ExceptionWhenNoAdaptiveMethodOnInterface() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveExtension();
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
-                            containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
+                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.NoAdaptiveMethodExt"),
+                            containsString("No adaptive method on extension com.metaframe.cooma.ext5.NoAdaptiveMethodExt, refuse to create the adaptive class")));
         }
         // 多次get，都会报错且相同
         try {
-            ExtensionLoader.getExtensionLoader(Ext5NoAdaptiveMethod.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveExtension();
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), 
-                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod"),
-                            containsString("No adaptive method on extension com.metaframe.cooma.ext5.Ext5NoAdaptiveMethod, refuse to create the adaptive class")));
+                    allOf(containsString("Fail to create adaptive extension interface com.metaframe.cooma.ext5.NoAdaptiveMethodExt"),
+                            containsString("No adaptive method on extension com.metaframe.cooma.ext5.NoAdaptiveMethodExt, refuse to create the adaptive class")));
         }
     }
 
     @Test
     public void test_getAdaptiveExtension_ExceptionWhenNotAdativeMethod() throws Exception {
-        Ext1 ext = ExtensionLoader.getExtensionLoader(Ext1.class).getAdaptiveExtension();
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
@@ -228,61 +225,28 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("method "));
             assertThat(
                     expected.getMessage(),
-                    containsString("of interface com.metaframe.cooma.ext1.Ext1 is not adaptive method!"));
+                    containsString("of interface com.metaframe.cooma.ext1.SimpleExt is not adaptive method!"));
         }
     }
     
     @Test
     public void test_getAdaptiveExtension_ExceptionWhenNoUrlAttrib() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(Ext4.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(AdaptiveMethodNoConfig_Ext.class).getAdaptiveExtension();
             fail();
         } catch (Exception expected) {
             assertThat(expected.getMessage(), containsString("fail to create adaptive class for interface "));
             assertThat(expected.getMessage(), containsString(": not found config parameter or config attribute in parameters of method "));
         }
     }
-    
-    @Test
-    public void test_getAdaptiveExtension_protocolKey() throws Exception {
-        Ext3 ext = ExtensionLoader.getExtensionLoader(Ext3.class).getAdaptiveExtension();
-    
-        Config config = Config.fromKv("protocol", "impl3", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        String echo = ext.echo(config, "s");
-        assertEquals("Ext3Impl3-echo", echo);
-    
-        config = config.addConfig("key1", "impl2");
-        echo = ext.echo(config, "s");
-        assertEquals("Ext3Impl2-echo", echo);
-        
-        String yell = ext.yell(config, "d");
-        assertEquals("Ext3Impl3-yell", yell);
-    }
-    
-    
-    @Test
-    public void test_getAdaptiveExtension_lastProtocolKey() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
-        
-        
-        Config config = Config.fromKv("protocol", "impl1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        String yell = ext.yell(config, "s");
-        assertEquals("Ext2Impl1-yell", yell);
-        
-        config = config.addConfig("key1", "impl2");
-        yell = ext.yell(config, "s");
-        assertEquals("Ext2Impl2-yell", yell);
-    }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveExtension() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
         
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "ext2", "impl1");
+        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
         
-        UrlHolder holder = new UrlHolder();
+        ConfigHolder holder = new ConfigHolder();
         holder.setUrl(config);
     
         String echo = ext.echo(holder, "haha");
@@ -290,12 +254,12 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension_noExtension() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveExtension_noExtension() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
-        UrlHolder holder = new UrlHolder();
+        ConfigHolder holder = new ConfigHolder();
         holder.setUrl(config);
         
         try {
@@ -305,7 +269,7 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("Fail to get extension("));
         }
         
-        config = config.addConfig("ext2", "XXX");
+        config = config.addConfig("no.default.ext", "XXX");
         holder.setUrl(config);
         try {
             ext.echo(holder, "haha");
@@ -316,27 +280,27 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension_UrlNpe() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveExtension_UrlNpe() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
 
         try {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.metaframe.cooma.ext2.UrlHolder argument == null", e.getMessage());
+            assertEquals("com.metaframe.cooma.ext2.ConfigHolder argument == null", e.getMessage());
         }
         
         try {
-            ext.echo(new UrlHolder(), "haha");
+            ext.echo(new ConfigHolder(), "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.metaframe.cooma.ext2.UrlHolder argument getUrl() == null", e.getMessage());
+            assertEquals("com.metaframe.cooma.ext2.ConfigHolder argument getUrl() == null", e.getMessage());
         }
     }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
         
@@ -347,17 +311,17 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("method "));
             assertThat(
                     expected.getMessage(),
-                    containsString("of interface com.metaframe.cooma.ext2.Ext2 is not adaptive method!"));
+                    containsString("of interface com.metaframe.cooma.ext1.SimpleExt is not adaptive method!"));
         }
     }
 
     @Test
-    public void test_urlHolder_getAdaptiveExtension_ExceptionWhenNameNotProvided() throws Exception {
-        Ext2 ext = ExtensionLoader.getExtensionLoader(Ext2.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveExtension_ExceptionWhenNameNotProvided() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
-        UrlHolder holder = new UrlHolder();
+        ConfigHolder holder = new ConfigHolder();
         holder.setUrl(config);
         
         try {
@@ -373,7 +337,7 @@ public class ExtensionLoaderTest {
             ext.echo(holder, "haha");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension(com.metaframe.cooma.ext2.Ext2) name from config"));
+            assertThat(expected.getMessage(), containsString("Fail to get extension(com.metaframe.cooma.ext2.NoDefaultExt) name from config"));
         }
     }
     
@@ -385,9 +349,8 @@ public class ExtensionLoaderTest {
         
         assertEquals("Ext6Impl1-echo-Ext1Impl1-echo", ext.echo(config, "ha"));
         
-        config = config.addConfig("ext1", "impl2");
+        config = config.addConfig("simple.ext", "impl2");
         assertEquals("Ext6Impl1-echo-Ext1Impl2-echo", ext.echo(config, "ha"));
-        
     }
     
     @Test

@@ -6,7 +6,7 @@ import com.metaframe.cooma.Config;
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-public class UrlHolder {
+public class ConfigHolder {
     private Double Num;
     
     private Config config;
