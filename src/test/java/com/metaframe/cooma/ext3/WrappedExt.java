@@ -12,6 +12,4 @@ public interface WrappedExt {
     String echo(Config config, String s);
 
     String yell(Config config, String s);
-
-    String bang(Config config, int i);
 }
