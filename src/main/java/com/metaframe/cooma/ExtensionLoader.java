@@ -176,7 +176,10 @@ public class ExtensionLoader<T> {
 
     /**
      * 取得Adaptive实例。
+     * <p>
      * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。
+     * <p>
+     * Thread-safe.
      *
      * @deprecated 推荐使用自动注入关联扩展的Adaptive实例的方式。
      * @since 0.1.0
@@ -185,8 +188,19 @@ public class ExtensionLoader<T> {
     public T getAdaptiveExtension() {
         if(createAdaptiveInstanceError == null) {
             try {
-                return createAdaptiveInstance();
-            } catch (Throwable t) {
+                T adaptiveInstance =  adaptiveInstanceHolder.get();
+                if(adaptiveInstance == null) {
+                    synchronized (adaptiveInstanceHolder) {
+                        adaptiveInstance =  adaptiveInstanceHolder.get();
+                        if(null == adaptiveInstance) { // double check
+                            adaptiveInstance = createAdaptiveInstance();
+                        }
+                    }
+                }
+
+                return adaptiveInstance;
+            }
+            catch (Throwable t) {
                 createAdaptiveInstanceError = t;
                 throw new IllegalStateException("Fail to create adaptive extension " + type +
                         ", cause: " + t.getMessage(), t);
@@ -288,88 +302,71 @@ public class ExtensionLoader<T> {
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
 
-    /**
-     * Thread-safe.
-     */
     private T createAdaptiveInstance() {
-        T adaptiveInstance =  adaptiveInstanceHolder.get();
-        if(null != adaptiveInstance) {
-            return adaptiveInstance;
-        }
+        checkAndSetAdaptiveInfo0();
 
-        getExtensionClasses();
-
-        synchronized (adaptiveInstanceHolder) {
-            adaptiveInstance = adaptiveInstanceHolder.get();
-            if(null != adaptiveInstance) { // double check
-                return adaptiveInstance;
-            }
-
-            checkAndSetAdaptiveInfo0();
-
-            Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
-                // FIXME 添加toString方法支持！ #13
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    //                if(method.getDeclaringClass().equals(Object.class)) {
-    //
-    //                    return
-    //                }
-                    if(!method2ConfigArgIndex.containsKey(method)) {
-                        throw new UnsupportedOperationException("method " + method.getName() + " of interface "
-                                + type.getName() + " is not adaptive method!");
-                    }
-
-                    int confArgIdx = method2ConfigArgIndex.get(method);
-                    Object confArg = args[confArgIdx];
-                    Config config;
-                    if(method2ConfigGetter.containsKey(method)) {
-                        if(confArg == null) {
-                            throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
-                                    " argument == null");
-                        }
-                        Method configGetter = method2ConfigGetter.get(method);
-                        config = (Config) configGetter.invoke(confArg);
-                        if(config == null) {
-                            throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
-                                    " argument " + configGetter.getName() + "() == null");
-                        }
-                    }
-                    else {
-                        if(confArg == null) {
-                            throw new IllegalArgumentException("config == null");
-                        }
-                        config = (Config) confArg;
-                    }
-
-                    String[] value = method.getAnnotation(Adaptive.class).value();
-                    if(value.length == 0) {
-                        // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
-                        value = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
-                    }
-
-                    String extName = null;
-                    for(int i = 0; i < value.length; ++i) {
-                        if(!config.contains(value[i])) {
-                            if(i == value.length - 1)
-                                extName = defaultExtension;
-                            continue;
-                        }
-                        extName = config.get(value[i]);
-                        break;
-                    }
-                    if(extName == null)
-                        throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from config(" + config + ") use keys())");
-
-                    return  method.invoke(ExtensionLoader.this.getExtension(extName), args);
+        Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
+            // FIXME 添加toString方法支持！ #13
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//                if(method.getDeclaringClass().equals(Object.class)) {
+//
+//                    return
+//                }
+                if(!method2ConfigArgIndex.containsKey(method)) {
+                    throw new UnsupportedOperationException("method " + method.getName() + " of interface "
+                            + type.getName() + " is not adaptive method!");
                 }
-            });
 
-            T adaptive = type.cast(p);
+                int confArgIdx = method2ConfigArgIndex.get(method);
+                Object confArg = args[confArgIdx];
+                Config config;
+                if(method2ConfigGetter.containsKey(method)) {
+                    if(confArg == null) {
+                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
+                                " argument == null");
+                    }
+                    Method configGetter = method2ConfigGetter.get(method);
+                    config = (Config) configGetter.invoke(confArg);
+                    if(config == null) {
+                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
+                                " argument " + configGetter.getName() + "() == null");
+                    }
+                }
+                else {
+                    if(confArg == null) {
+                        throw new IllegalArgumentException("config == null");
+                    }
+                    config = (Config) confArg;
+                }
 
-            adaptiveInstanceHolder.set(adaptive);
-            return adaptiveInstanceHolder.get();
-        }
+                String[] value = method.getAnnotation(Adaptive.class).value();
+                if(value.length == 0) {
+                    // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
+                    value = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
+                }
+
+                String extName = null;
+                for(int i = 0; i < value.length; ++i) {
+                    if(!config.contains(value[i])) {
+                        if(i == value.length - 1)
+                            extName = defaultExtension;
+                        continue;
+                    }
+                    extName = config.get(value[i]);
+                    break;
+                }
+                if(extName == null)
+                    throw new IllegalStateException("Fail to get extension(" + type.getName() +
+                        ") name from config(" + config + ") use keys())");
+
+                return  method.invoke(ExtensionLoader.this.getExtension(extName), args);
+            }
+        });
+
+        T adaptive = type.cast(p);
+
+        adaptiveInstanceHolder.set(adaptive);
+        return adaptiveInstanceHolder.get();
     }
 
     private void checkAndSetAdaptiveInfo0() {
@@ -453,7 +450,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * Thread-safe
+     * Thread-safe.
      */
     private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = extClassesHolder.get();
