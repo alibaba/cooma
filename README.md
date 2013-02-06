@@ -3,7 +3,7 @@ Cooma is a simple microcontainer implementation of Java.
 Home Page: https://github.com/metaframe/cooma/wiki
 
 Related Product
-================
+=========================
 
 - [Spring](http://www.springsource.org/)
 - [Google Guice](http://code.google.com/p/google-guice/)
@@ -15,6 +15,6 @@ Related Product
 Design Principle
 =========================
 
-- Simple(readability)
-- Concept Independence
-- Developer Friendly
+- Tiny and simple. Less than 1000 lines of code.
+- Concept independence.
+- Developer friendly.
