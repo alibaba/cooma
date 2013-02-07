@@ -509,7 +509,7 @@ public class ExtensionLoader<T> {
                 urls = ClassLoader.getSystemResources(fileName);
             }
 
-            if(urls == null) { // FIXME throw exception to notify no extension found?
+            if(urls == null) { // 找到的urls为null，或是没有找到文件，即认为是没有找到扩展点
                 return extName2Class;
             }
 
