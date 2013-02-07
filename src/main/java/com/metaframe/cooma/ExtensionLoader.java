@@ -173,7 +173,7 @@ public class ExtensionLoader<T> {
      * @since 0.1.0
      */
     public String getExtensionName(Class<?> extensionClass) {
-        // FIXME 要先去加载有哪些类！
+        getExtensionClasses(); // 先保证加载了扩展点类
         return extClass2Name.get(extensionClass);
     }
 
