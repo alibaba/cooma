@@ -528,20 +528,29 @@ public class ExtensionLoader<T> {
             reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"));
             String line;
             while ((line = reader.readLine()) != null) {
+                String config = line;
+
                 // delete comments
-                final int ci = line.indexOf('#');
-                if (ci >= 0) line = line.substring(0, ci);
-                line = line.trim();
-                if (line.length() == 0) continue;
+                final int ci = config.indexOf('#');
+                if (ci >= 0) config = config.substring(0, ci);
+                config = config.trim();
+                if (config.length() == 0) continue;
 
                 try {
                     String name = null;
-                    int i = line.indexOf('=');
+                    String body = null;
+                    int i = config.indexOf('=');
                     if (i > 0) {
-                        name = line.substring(0, i).trim();
-                        line = line.substring(i + 1).trim();
+                        name = config.substring(0, i).trim();
+                        body = config.substring(i + 1).trim();
                     }
-                    Class<?> clazz = Class.forName(line, true, classLoader);
+                    // 没有配置文件中没有扩展点名，从实现类的Extension注解上读取。
+                    if (name == null || name.length() == 0) {
+                        throw new IllegalStateException(
+                                "missing extension name, config value: " + config);
+                    }
+
+                    Class<?> clazz = Class.forName(body, true, classLoader);
                     if (! type.isAssignableFrom(clazz)) {
                         throw new IllegalStateException("Error when load extension class(interface: " +
                                 type + ", class line: " + clazz.getName() + "), class "
@@ -570,16 +579,6 @@ public class ExtensionLoader<T> {
                         else {
                             clazz.getConstructor();
 
-                            // 没有配置文件中没有扩展点名，从实现类的Extension注解上读取。
-                            if (name == null || name.length() == 0) {
-                                name = findAnnotationName(clazz);
-                                if(name == null || name.length() == 0) {
-                                    throw new IllegalStateException(
-                                            "No such extension name for the class " +
-                                            clazz.getName() + " in the config " + url);
-                                }
-                            }
-
                             String[] nameList = NAME_SEPARATOR.split(name);
                             for (String n : nameList) {
                                 if (! extClass2Name.containsKey(clazz)) {
@@ -599,7 +598,10 @@ public class ExtensionLoader<T> {
                         }
                     }
                 } catch (Throwable t) {
-                    IllegalStateException e = new IllegalStateException("Failed to load extension class(interface: " + type + ", class line: " + line + ") in " + url + ", cause: " + t.getMessage(), t);
+                    IllegalStateException e = new IllegalStateException("Failed to load config line(" + line +
+                            ") of config file( " + url + ") for extension(" + type +
+                            "), cause: " + t.getMessage(), t);
+                    logger.warn("", e);
                     extClassLoadExceptions.put(line, e);
                 }
             } // end of while read lines
