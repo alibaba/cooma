@@ -434,12 +434,11 @@ public class ExtensionLoader<T> {
 
     // Holder<Map<ext-name, ext-class>>
     private final Holder<Map<String, Class<?>>> extClassesHolder = new Holder<Map<String,Class<?>>>();
+    private final ConcurrentMap<Class<?>, String> extClass2Name = new ConcurrentHashMap<Class<?>, String>();
 
     private volatile Class<?> adaptiveClass = null;
 
     private Set<Class<?>> wrapperClasses;
-
-    private final ConcurrentMap<Class<?>, String> extClass2Name = new ConcurrentHashMap<Class<?>, String>();
 
     private Map<String, IllegalStateException> extClassLoadExceptions = new ConcurrentHashMap<String, IllegalStateException>();
 
@@ -585,7 +584,7 @@ public class ExtensionLoader<T> {
                             String[] nameList = NAME_SEPARATOR.split(name);
                             for (String n : nameList) {
                                 if (! extClass2Name.containsKey(clazz)) {
-                                    extClass2Name.put(clazz, n); // FIXME 实现类的扩展点名，只记录了一个！
+                                    extClass2Name.put(clazz, n); // 实现类到扩展点名的Map中，只记录了一个。
                                 }
 
                                 Class<?> c = extName2Class.get(n);
