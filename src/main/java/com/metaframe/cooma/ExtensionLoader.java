@@ -310,7 +310,6 @@ public class ExtensionLoader<T> {
         checkAndSetAdaptiveInfo0();
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
-            // FIXME 添加toString方法支持！ #13
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 //                if(method.getDeclaringClass().equals(Object.class)) {
 //
