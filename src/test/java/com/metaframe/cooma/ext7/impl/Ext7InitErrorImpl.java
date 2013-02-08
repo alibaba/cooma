@@ -7,9 +7,9 @@ import com.metaframe.cooma.ext7.InitErrorExt;
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class Ext7InitErrorImpl implements InitErrorExt {
-    
+
     static {
-        if(true) {
+        if (true) {
             throw new RuntimeException("intended!");
         }
     }

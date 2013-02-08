@@ -10,11 +10,11 @@ public class SimpleExtImpl1 implements SimpleExt {
     public String echo(Config config, String s) {
         return "Ext1Impl1-echo";
     }
-    
+
     public String yell(Config config, String s) {
         return "Ext1Impl1-yell";
     }
-    
+
     public String bang(Config config, int i) {
         return "bang1";
     }

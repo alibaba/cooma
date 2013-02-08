@@ -12,7 +12,7 @@ public interface SimpleExt {
     // 没有使用key的@Adaptive ！
     @Adaptive
     String echo(Config config, String s);
-    
+
     @Adaptive({"key1", "key2"})
     String yell(Config config, String s);
 

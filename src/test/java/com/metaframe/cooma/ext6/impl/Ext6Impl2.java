@@ -1,9 +1,9 @@
 package com.metaframe.cooma.ext6.impl;
 
-import java.util.List;
-
 import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext6.InjectExt;
+
+import java.util.List;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
