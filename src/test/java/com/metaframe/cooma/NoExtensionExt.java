@@ -16,9 +16,9 @@
 package com.metaframe.cooma;
 
 /**
- * 没有注解。
+ * 没有@Extesion注解。
  *
- * @author ding.lid
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public interface NoExtensionExt {
     @Adaptive
