@@ -149,7 +149,7 @@ public class ExtensionLoader<T> {
      * @return 有指定缺省的扩展，则<code>true</code>，否则<code>false</code>。
      * @since 0.1.0
      */
-    public boolean hasDefaultExtension(String name) {
+    public boolean hasDefaultExtension() {
         return !(null == defaultExtension || defaultExtension.length() == 0);
 
     }
@@ -642,11 +642,6 @@ public class ExtensionLoader<T> {
             // ignore
         }
         return false;
-    }
-
-    private String findAnnotationName(Class<?> clazz) {
-        Extension extension = clazz.getAnnotation(Extension.class);
-        return extension == null ? null : extension.value().trim();
     }
 
     private static ClassLoader getClassLoader() {
