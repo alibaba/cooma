@@ -19,6 +19,7 @@ import com.metaframe.cooma.ext4.AdaptiveMethodNoConfig_Ext;
 import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
 import com.metaframe.cooma.ext6.InjectExt;
 import com.metaframe.cooma.ext7.InitErrorExt;
+import com.metaframe.cooma.ext8.InvalidNameExt;
 import org.junit.Test;
 
 import com.metaframe.cooma.ext6.impl.Ext6Impl2;
@@ -422,6 +423,16 @@ public class ExtensionLoaderTest {
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("Failed to load config line(error=com.metaframe.cooma.ext7.impl.Ext7InitErrorImpl) of config file( file:/E:/CodeRepository/open/cooma/target/test-classes/META-INF/services/com.metaframe.cooma.ext7.InitErrorExt) for extension(interface com.metaframe.cooma.ext7.InitErrorExt)"));
             assertThat(expected.getCause().getCause(), instanceOf(ExceptionInInitializerError.class));
+        }
+    }
+
+    @Test
+    public void test_InvalidExtName() throws Exception {
+        try {
+            ExtensionLoader.getExtensionLoader(InvalidNameExt.class);
+            fail();
+        } catch (IllegalStateException expected) {
+            assertThat(expected.getMessage(), containsString("default name(invalid-name&) of extension com.metaframe.cooma.ext8.InvalidNameExt is invalid"));
         }
     }
 }
