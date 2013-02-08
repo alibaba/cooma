@@ -136,11 +136,7 @@ public class ExtensionLoader<T> {
     public boolean hasExtension(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
-        try {
-            return getExtensionClass(name) != null;
-        } catch (Throwable t) {
-            return false;
-        }
+        return hasExtensionClass(name);
     }
 
     /**
@@ -263,10 +259,7 @@ public class ExtensionLoader<T> {
 
     @SuppressWarnings("unchecked")
     private T createExtension(String name) {
-        Class<?> clazz = getExtensionClasses().get(name);
-        if (clazz == null) {
-            throw findExtensionClassLoadException(name);
-        }
+        Class<?> clazz = getExtensionClass(name);
         try {
             T instance = injectExtension((T) clazz.newInstance());
             Set<Class<?>> wrapperClasses = this.wrapperClasses;
@@ -458,6 +451,12 @@ public class ExtensionLoader<T> {
         if (clazz == null)
             throw findExtensionClassLoadException(name);
         return clazz;
+    }
+
+    private boolean hasExtensionClass(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("Extension name == null");
+        return getExtensionClasses().get(name) != null;
     }
 
     /**
