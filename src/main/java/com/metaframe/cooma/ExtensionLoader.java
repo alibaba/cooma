@@ -47,6 +47,7 @@ public class ExtensionLoader<T> {
     private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
+    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-z0-9_]+");
 
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
@@ -248,11 +249,15 @@ public class ExtensionLoader<T> {
             if(value != null && (value = value.trim()).length() > 0) {
                 String[] names = NAME_SEPARATOR.split(value);
                 if(names.length > 1) {
-                    throw new IllegalStateException("more than 1 default extension name on extension " + type.getName()
-                            + ": " + Arrays.toString(names));
+                    throw new IllegalStateException("more than 1 default extension name on extension " +
+                            type.getName() + ": " + Arrays.toString(names));
                 }
                 if(names.length == 1 && names[0].trim().length() > 0) {
                     defaultExt = names[0].trim();
+                }
+                if(!isValidExtName(defaultExt)) {
+                    throw new IllegalStateException("default name(" + defaultExt +
+                            ") of extension " + type.getName() + " is invalid!");
                 }
             }
         }
@@ -590,23 +595,30 @@ public class ExtensionLoader<T> {
 
                             String[] nameList = NAME_SEPARATOR.split(name);
                             for (String n : nameList) {
-                                if (! extClass2Name.containsKey(clazz)) {
-                                    extClass2Name.put(clazz, n); // 实现类到扩展点名的Map中，只记录了一个。
+                                if(!isValidExtName(n)) {
+                                    throw new IllegalStateException("name(" + n +
+                                            ") of extension " + type.getName() + "is invalid!");
                                 }
 
-                                Class<?> c = extName2Class.get(n);
-                                if (c == null) {
+                                if(extName2Class.containsKey(n)) {
+                                    if (extName2Class.get(n) != clazz) {
+                                        throw new IllegalStateException("Duplicate extension " +
+                                                type.getName() + " name " + n +
+                                                " on " + clazz.getName() + " and " + clazz.getName());
+                                    }
+                                }
+                                else {
                                     extName2Class.put(n, clazz);
                                 }
-                                else if (c != clazz) {
-                                    throw new IllegalStateException("Duplicate extension " +
-                                            type.getName() + " name " + n +
-                                            " on " + c.getName() + " and " + clazz.getName());
+
+                                if (! extClass2Name.containsKey(clazz)) {
+                                    extClass2Name.put(clazz, n); // 实现类到扩展点名的Map中，记录了一个就可以了
                                 }
                             }
                         }
                     }
-                } catch (Throwable t) {
+                }
+                catch (Throwable t) {
                     IllegalStateException e = new IllegalStateException("Failed to load config line(" + line +
                             ") of config file( " + url + ") for extension(" + type +
                             "), cause: " + t.getMessage(), t);
@@ -614,7 +626,8 @@ public class ExtensionLoader<T> {
                     extClassLoadExceptions.put(line, e);
                 }
             } // end of while read lines
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             logger.error("Exception when load extension class(interface: " +
                     type + ", class file: " + url + ") in " + url, t);
         }
@@ -664,4 +677,7 @@ public class ExtensionLoader<T> {
         return type.isAnnotationPresent(Extension.class);
     }
 
+    private static boolean isValidExtName(String name) {
+        return NAME_PATTERN.matcher(name).matches();
+    }
 }
