@@ -1,9 +1,9 @@
 package com.metaframe.cooma.ext4;
 
-import java.util.List;
-
 import com.metaframe.cooma.Adaptive;
 import com.metaframe.cooma.Extension;
+
+import java.util.List;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)

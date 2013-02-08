@@ -1,6 +1,5 @@
 package com.metaframe.cooma.ext3;
 
-import com.metaframe.cooma.Adaptive;
 import com.metaframe.cooma.Config;
 import com.metaframe.cooma.Extension;
 

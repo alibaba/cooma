@@ -9,8 +9,8 @@ import com.metaframe.cooma.Extension;
 @Extension("impl1")
 public interface NoAdaptiveMethodExt {
     String echo(Config config, String s);
-    
+
     String yell(Config config, String s);
-    
+
     String bang(Config config, int i);
 }

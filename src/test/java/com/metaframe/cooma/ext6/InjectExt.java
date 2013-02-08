@@ -6,7 +6,7 @@ import com.metaframe.cooma.Extension;
 
 /**
  * 无Default
- * 
+ *
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension

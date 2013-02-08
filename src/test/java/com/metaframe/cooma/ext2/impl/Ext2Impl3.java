@@ -1,6 +1,5 @@
 package com.metaframe.cooma.ext2.impl;
 
-import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext2.ConfigHolder;
 import com.metaframe.cooma.ext2.NoDefaultExt;
 

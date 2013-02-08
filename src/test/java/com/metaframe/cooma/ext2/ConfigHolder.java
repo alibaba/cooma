@@ -8,13 +8,13 @@ import com.metaframe.cooma.Config;
  */
 public class ConfigHolder {
     private Double Num;
-    
+
     private Config config;
-    
+
     private String name;
-    
+
     private int age;
-    
+
     public Double getNum() {
         return Num;
     }
