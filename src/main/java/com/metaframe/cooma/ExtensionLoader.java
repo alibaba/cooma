@@ -92,6 +92,10 @@ public class ExtensionLoader<T> {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
 
+        // 加载扩展点类
+        // 如果没有这个名字的扩展点类，会抛异常，这样不用创建不必要的Holder。
+        getExtensionClass(name);
+
         // 引入的Holder是为了下面用Holder作“细粒度锁”，而不是锁整个extInstances
         Holder<T> holder = extInstances.get(name);
         if (holder == null) {
@@ -151,15 +155,6 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
-     *
-     * @since 0.1.0
-     */
-    public String getDefaultExtensionName() {
-        return defaultExtension;
-    }
-
-    /**
      * @since 0.1.0
      */
     public Set<String> getSupportedExtensions() {
@@ -180,6 +175,15 @@ public class ExtensionLoader<T> {
     public String getExtensionName(Class<?> extensionClass) {
         getExtensionClasses(); // 先保证加载了扩展点类
         return extClass2Name.get(extensionClass);
+    }
+
+    /**
+     * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
+     *
+     * @since 0.1.0
+     */
+    public String getDefaultExtensionName() {
+        return defaultExtension;
     }
 
     /**
