@@ -1,0 +1,2 @@
+racing=com.metaframe.demo.cooma.car.impl.RacingCar
+sport=com.metaframe.demo.cooma.car.impl.SportCar
