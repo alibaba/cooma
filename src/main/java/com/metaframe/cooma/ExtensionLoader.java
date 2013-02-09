@@ -102,19 +102,40 @@ public class ExtensionLoader<T> {
             extInstances.putIfAbsent(name, new Holder<T>());
             holder = extInstances.get(name);
         }
-
-        T instance = holder.get();
-        if (instance == null) {
-            synchronized (holder) { // 以holder为锁，减小锁粒度
-                instance = holder.get();
-                if (instance == null) { // double check
-                    instance = createExtension(name);
-                    holder.set(instance);
-                }
-            }
+        Holder<Throwable> throwableHolder = createExtInstanceErrors.get(name);
+        if(throwableHolder == null) {
+            createExtInstanceErrors.put(name, new Holder<Throwable>());
+            throwableHolder = createExtInstanceErrors.get(name);
         }
 
-        return instance;
+        if(throwableHolder.get() != null) {
+            throw new IllegalStateException("Fail to create adaptive extension " + type +
+                    ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
+        }
+        if(holder.get() != null) {
+            return holder.get();
+        }
+
+        synchronized (holder) {
+            holder = extInstances.get(name);
+            throwableHolder = createExtInstanceErrors.get(name);
+            if(throwableHolder.get() != null) { // double check
+                throw new IllegalStateException("Fail to create adaptive extension " + type +
+                        ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
+            }
+            if(holder.get() != null) {
+                return holder.get();
+            }
+
+            try {
+                holder.set(createExtension(name));
+                return holder.get();
+            } catch (Throwable t) {
+                throwableHolder.set(t);
+                throw new IllegalStateException("Fail to create adaptive extension " + type +
+                        ", cause: " + t.getMessage(), t);
+            }
+        }
     }
 
     /**
@@ -206,27 +227,36 @@ public class ExtensionLoader<T> {
      */
     @Deprecated
     public T getAdaptiveExtension() {
-        if (createAdaptiveInstanceError == null) {
-            try {
-                T adaptiveInstance = adaptiveInstanceHolder.get();
-                if (adaptiveInstance == null) {
-                    synchronized (adaptiveInstanceHolder) {
-                        adaptiveInstance = adaptiveInstanceHolder.get();
-                        if (null == adaptiveInstance) { // double check
-                            adaptiveInstance = createAdaptiveInstance();
-                        }
-                    }
-                }
+        Throwable createError = createAdaptiveInstanceError.get();
+        T adaptiveInstance = this.adaptiveInstance.get();
+        if(null != createError) {
+            throw new IllegalStateException("Fail to create adaptive extension " + type +
+                    ", cause: " + createError.getMessage(), createError);
+        }
+        if(null != adaptiveInstance) {
+            return adaptiveInstance;
+        }
 
+
+        synchronized (this.adaptiveInstance) {
+            createError = createAdaptiveInstanceError.get();
+            adaptiveInstance = this.adaptiveInstance.get();
+            if(null != createError) { // double check
+                throw new IllegalStateException("Fail to create adaptive extension " + type +
+                        ", cause: " + createError.getMessage(), createError);
+            }
+            if(null != adaptiveInstance) {
                 return adaptiveInstance;
+            }
+
+            try {
+                this.adaptiveInstance.set(createAdaptiveInstance());
+                return this.adaptiveInstance.get();
             } catch (Throwable t) {
-                createAdaptiveInstanceError = t;
+                createAdaptiveInstanceError.set(t);
                 throw new IllegalStateException("Fail to create adaptive extension " + type +
                         ", cause: " + t.getMessage(), t);
             }
-        } else {
-            throw new IllegalStateException("Fail to create adaptive extension " + type +
-                    ", cause: " + createAdaptiveInstanceError.getMessage(), createAdaptiveInstanceError);
         }
     }
 
@@ -243,6 +273,7 @@ public class ExtensionLoader<T> {
     private final String defaultExtension;
 
     private final ConcurrentMap<String, Holder<T>> extInstances = new ConcurrentHashMap<String, Holder<T>>();
+    private final ConcurrentMap<String, Holder<Throwable>> createExtInstanceErrors = new ConcurrentHashMap<String, Holder<Throwable>>();
 
     private ExtensionLoader(Class<T> type) {
         this.type = type;
@@ -315,8 +346,8 @@ public class ExtensionLoader<T> {
     // get & create Adaptive Instance
     // ====================================
 
-    private final Holder<T> adaptiveInstanceHolder = new Holder<T>();
-    private volatile Throwable createAdaptiveInstanceError;
+    private final Holder<T> adaptiveInstance = new Holder<T>();
+    private volatile Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
 
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
@@ -382,8 +413,8 @@ public class ExtensionLoader<T> {
 
         T adaptive = type.cast(p);
 
-        adaptiveInstanceHolder.set(adaptive);
-        return adaptiveInstanceHolder.get();
+        adaptiveInstance.set(adaptive);
+        return adaptiveInstance.get();
     }
 
     private void checkAndSetAdaptiveInfo0() {
