@@ -102,7 +102,7 @@ public class ExtensionLoader<T> {
      * @param name 扩展名。
      * @return 指定名字的扩展实例
      * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
-     * @throws IllegalStateException 指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
+     * @throws IllegalStateException    指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
      * @since 0.1.0
      */
     public T getExtension(String name) {
@@ -120,27 +120,27 @@ public class ExtensionLoader<T> {
             holder = extInstances.get(name);
         }
         Holder<Throwable> throwableHolder = createExtInstanceErrors.get(name);
-        if(throwableHolder == null) {
+        if (throwableHolder == null) {
             createExtInstanceErrors.put(name, new Holder<Throwable>());
             throwableHolder = createExtInstanceErrors.get(name);
         }
 
-        if(throwableHolder.get() != null) {
+        if (throwableHolder.get() != null) {
             throw new IllegalStateException("Fail to create adaptive extension " + type +
                     ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
         }
-        if(holder.get() != null) {
+        if (holder.get() != null) {
             return holder.get();
         }
 
         synchronized (holder) {
             holder = extInstances.get(name);
             throwableHolder = createExtInstanceErrors.get(name);
-            if(throwableHolder.get() != null) { // double check
+            if (throwableHolder.get() != null) { // double check
                 throw new IllegalStateException("Fail to create adaptive extension " + type +
                         ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
             }
-            if(holder.get() != null) {
+            if (holder.get() != null) {
                 return holder.get();
             }
 
@@ -247,11 +247,11 @@ public class ExtensionLoader<T> {
     public T getAdaptiveExtension() {
         Throwable createError = createAdaptiveInstanceError.get();
         T adaptiveInstance = this.adaptiveInstance.get();
-        if(null != createError) {
+        if (null != createError) {
             throw new IllegalStateException("Fail to create adaptive extension " + type +
                     ", cause: " + createError.getMessage(), createError);
         }
-        if(null != adaptiveInstance) {
+        if (null != adaptiveInstance) {
             return adaptiveInstance;
         }
 
@@ -259,11 +259,11 @@ public class ExtensionLoader<T> {
         synchronized (this.adaptiveInstance) {
             createError = createAdaptiveInstanceError.get();
             adaptiveInstance = this.adaptiveInstance.get();
-            if(null != createError) { // double check
+            if (null != createError) { // double check
                 throw new IllegalStateException("Fail to create adaptive extension " + type +
                         ", cause: " + createError.getMessage(), createError);
             }
-            if(null != adaptiveInstance) {
+            if (null != adaptiveInstance) {
                 return adaptiveInstance;
             }
 
@@ -375,10 +375,18 @@ public class ExtensionLoader<T> {
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                if(method.getDeclaringClass().equals(Object.class)) {
-//
-//                    return
-//                }
+                if(method.getDeclaringClass().equals(Object.class)) {
+                    String methodName = method.getName();
+                    if(methodName.equals("toString")) {
+                        return "Adaptive Instance for " + type.getName();
+                    }
+                    if(methodName.equals("hashCode")) {
+                        return 1;
+                    }
+                    throw new UnsupportedOperationException("not support method " + method +
+                            " of Adaptive Instance for " + type.getName());
+                }
+
                 if (!method2ConfigArgIndex.containsKey(method)) {
                     throw new UnsupportedOperationException("method " + method.getName() + " of interface "
                             + type.getName() + " is not adaptive method!");
