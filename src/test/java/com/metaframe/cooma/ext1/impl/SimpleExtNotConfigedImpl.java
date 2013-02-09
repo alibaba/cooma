@@ -8,15 +8,15 @@ import com.metaframe.cooma.ext1.SimpleExt;
  */
 public class SimpleExtNotConfigedImpl implements SimpleExt {
     public String echo(Config config, String s) {
-        return "Ext1Impl3-echo";
+        return "Ext1Impl4-echo";
     }
 
     public String yell(Config config, String s) {
-        return "Ext1Impl3-yell";
+        return "Ext1Impl4-yell";
     }
 
     public String bang(Config config, int i) {
-        return "bang3";
+        return "bang4";
     }
 
 }

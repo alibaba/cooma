@@ -3,6 +3,7 @@ package com.metaframe.cooma;
 import com.metaframe.cooma.ext1.SimpleExt;
 import com.metaframe.cooma.ext1.impl.SimpleExtImpl1;
 import com.metaframe.cooma.ext1.impl.SimpleExtImpl2;
+import com.metaframe.cooma.ext1.impl.SimpleExtNotConfigedImpl;
 import com.metaframe.cooma.ext2.ConfigHolder;
 import com.metaframe.cooma.ext2.NoDefaultExt;
 import com.metaframe.cooma.ext3.WrappedExt;
@@ -131,7 +132,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getExtension_ExceptionNoExtension_NameOnWrapperNoAffact() throws Exception {
+    public void test_getExtension_ExceptionNoExtension_NameOnWrapperNoEffective() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("XXX");
         } catch (IllegalStateException expected) {
@@ -163,15 +164,34 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_hasExtension_wrapperIsNotExt() throws Exception {
-        assertTrue(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("impl1"));
-        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("impl1,impl2"));
-        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("xxx"));
+    public void test_hasDefaultExtension() throws Exception {
+        assertTrue(ExtensionLoader.getExtensionLoader(SimpleExt.class).hasDefaultExtension());
+        assertFalse(ExtensionLoader.getExtensionLoader(NoDefaultExt.class).hasDefaultExtension());
+    }
 
-        assertFalse(ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension("wrapper1"));
+    @Test
+    public void test_getExtensionName() throws Exception {
+        ExtensionLoader<SimpleExt> extensionLoader = ExtensionLoader.getExtensionLoader(SimpleExt.class);
+        SimpleExt impl1 = extensionLoader.getExtension("impl1");
+
+        assertEquals("impl1", extensionLoader.getExtensionName(impl1));
+        assertEquals("impl1", extensionLoader.getExtensionName(new SimpleExtImpl1()));
+
+        assertNull(extensionLoader.getExtensionName(new SimpleExtNotConfigedImpl()));
+    }
+
+    @Test
+    public void test_hasExtension_wrapperIsNotExt() throws Exception {
+        ExtensionLoader<WrappedExt> extensionLoader = ExtensionLoader.getExtensionLoader(WrappedExt.class);
+
+        assertTrue(extensionLoader.hasExtension("impl1"));
+        assertFalse(extensionLoader.hasExtension("impl1,impl2"));
+        assertFalse(extensionLoader.hasExtension("xxx"));
+
+        assertFalse(extensionLoader.hasExtension("wrapper1"));
 
         try {
-            ExtensionLoader.getExtensionLoader(WrappedExt.class).hasExtension(null);
+            extensionLoader.hasExtension(null);
             fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
@@ -180,25 +200,25 @@ public class ExtensionLoaderTest {
 
     @Test
     public void test_getSupportedExtensions() throws Exception {
-        Set<String> exts = ExtensionLoader.getExtensionLoader(SimpleExt.class).getSupportedExtensions();
+        Set<String> extensions = ExtensionLoader.getExtensionLoader(SimpleExt.class).getSupportedExtensions();
 
         Set<String> expected = new HashSet<String>();
         expected.add("impl1");
         expected.add("impl2");
         expected.add("impl3");
 
-        assertEquals(expected, exts);
+        assertEquals(expected, extensions);
     }
 
     @Test
     public void test_getSupportedExtensions_wrapperIsNotExt() throws Exception {
-        Set<String> exts = ExtensionLoader.getExtensionLoader(WrappedExt.class).getSupportedExtensions();
+        Set<String> extensions = ExtensionLoader.getExtensionLoader(WrappedExt.class).getSupportedExtensions();
 
         Set<String> expected = new HashSet<String>();
         expected.add("impl1");
         expected.add("impl2");
 
-        assertEquals(expected, exts);
+        assertEquals(expected, extensions);
     }
 
     @Test
@@ -269,7 +289,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNotAdativeMethod() throws Exception {
+    public void test_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
 
 
