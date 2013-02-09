@@ -81,8 +81,12 @@ public class ExtensionLoaderTest {
 
     @Test
     public void test_getDefault_NULL() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getDefaultExtension();
-        assertNull(ext);
+        try {
+            ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getDefaultExtension();
+        } catch (IllegalStateException expected) {
+            assertThat(expected.getMessage(), containsString("No default extension on extension com.metaframe.cooma.ext2.NoDefaultExt"));
+        }
+
 
         String name = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getDefaultExtensionName();
         assertNull(name);
@@ -126,6 +130,7 @@ public class ExtensionLoaderTest {
     public void test_getExtension_ExceptionNoExtension() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("XXX");
+            fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext1.SimpleExt by name XXX"));
         }
@@ -135,6 +140,7 @@ public class ExtensionLoaderTest {
     public void test_getExtension_ExceptionNoExtension_NameOnWrapperNoEffective() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getExtension("XXX");
+            fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("No such extension com.metaframe.cooma.ext5.NoAdaptiveMethodExt by name XXX"));
         }
@@ -144,6 +150,7 @@ public class ExtensionLoaderTest {
     public void test_getExtension_ExceptionNullArg() throws Exception {
         try {
             ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension(null);
+            fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
         }
