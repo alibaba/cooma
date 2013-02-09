@@ -86,6 +86,7 @@ public class ExtensionLoader<T> {
      * @param name 扩展名。
      * @return 指定名字的扩展实例
      * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     * @throws IllegalStateException 指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
      * @since 0.1.0
      */
     public T getExtension(String name) {
@@ -139,13 +140,14 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 返回缺省的扩展，如果没有设置则返回<code>null</code>。
+     * 返回缺省的扩展。
      *
+     * @throws IllegalStateException 指定的扩展没有设置缺省扩展点
      * @since 0.1.0
      */
     public T getDefaultExtension() {
         if (null == defaultExtension || defaultExtension.length() == 0) {
-            return null;
+            throw new IllegalStateException("No default extension on extension " + type.getName());
         }
         return getExtension(defaultExtension);
     }
