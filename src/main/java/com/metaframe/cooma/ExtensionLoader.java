@@ -155,6 +155,8 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 获取扩展点实现的所有扩展点名。
+     *
      * @since 0.1.0
      */
     public Set<String> getSupportedExtensions() {
@@ -163,6 +165,9 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 获取指定扩展实例对应的扩展点名。
+     *
+     * @return 返回指定扩展类对应的扩展点名。如果该类不是这个扩展点的实现，则返回<code>null</code>。
      * @since 0.1.0
      */
     public String getExtensionName(T extensionInstance) {
@@ -170,6 +175,9 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 获取指定扩展类对应的扩展点名。
+     *
+     * @return 返回指定扩展类对应的扩展点名。如果该类不是这个扩展点的实现，则返回<code>null</code>。
      * @since 0.1.0
      */
     public String getExtensionName(Class<?> extensionClass) {
