@@ -34,5 +34,10 @@ public class CarDemo {
 
         Car sportCar = extensionLoader.getExtension("sport");
         sportCar.run(Config.fromKv("k1", "v1")); // 缺省使用RubberWheel
+
+        System.out.println("=================================");
+
+        Car adaptiveExtension = extensionLoader.getAdaptiveExtension();
+        adaptiveExtension.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
     }
 }

@@ -236,14 +236,13 @@ public class ExtensionLoader<T> {
     /**
      * 取得Adaptive实例。
      * <p/>
-     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。
+     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。<br />
+     * 推荐使用自动注入关联扩展的Adaptive实例的方式。
      * <p/>
      * Thread-safe.
      *
      * @since 0.1.0
-     * @deprecated 推荐使用自动注入关联扩展的Adaptive实例的方式。
      */
-    @Deprecated
     public T getAdaptiveExtension() {
         Throwable createError = createAdaptiveInstanceError.get();
         T adaptiveInstance = this.adaptiveInstance.get();
@@ -375,12 +374,12 @@ public class ExtensionLoader<T> {
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if(method.getDeclaringClass().equals(Object.class)) {
+                if (method.getDeclaringClass().equals(Object.class)) {
                     String methodName = method.getName();
-                    if(methodName.equals("toString")) {
+                    if (methodName.equals("toString")) {
                         return "Adaptive Instance for " + type.getName();
                     }
-                    if(methodName.equals("hashCode")) {
+                    if (methodName.equals("hashCode")) {
                         return 1;
                     }
                     throw new UnsupportedOperationException("not support method " + method +
