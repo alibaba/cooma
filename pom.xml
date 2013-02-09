@@ -73,7 +73,23 @@
 	<scm>
 		<url>https://github.com/metaframe/cooma</url>
 		<connection>scm:git:git@github.com:metaframe/cooma.git</connection>
+		<developerConnection>scm:git:git@github.com:metaframe/cooma.git</developerConnection>
 	</scm>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/metaframe/cooma/issues</url>
+	</issueManagement>
+	<developers>
+		<developer>
+			<name>Jerry Lee</name>
+			<id>oldratlee</id>
+			<email>oldratlee(AT)gmail(DOT)com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
 	<build>
 		<plugins>
 			<plugin>
@@ -86,15 +102,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<developers>
-		<developer>
-			<name>Jerry Lee</name>
-			<id>oldratlee</id>
-			<email>oldratlee(AT)gmail(DOT)com</email>
-			<roles>
-				<role>Developer</role>
-			</roles>
-			<timezone>+8</timezone>
-		</developer>
-	</developers>
 </project>
