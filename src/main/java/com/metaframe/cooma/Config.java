@@ -71,6 +71,7 @@ public final class Config {
                     break;
                 case 2:
                     cs.put(kv[0], kv[1]);
+                    break;
                 default:
                     throw new IllegalArgumentException("input config(" + configString +
                             ") is illegal: key(" + kv[0] + ") has more than 1 value!");
@@ -186,7 +187,7 @@ public final class Config {
      * @since 0.1.0
      */
     public int getInt(String key) {
-        return Integer.parseInt(get(key));
+        return getInt(key, 0);
     }
 
     /**
@@ -204,7 +205,7 @@ public final class Config {
      * @since 0.1.0
      */
     public long getLong(String key) {
-        return Long.parseLong(get(key));
+        return getLong(key, 0);
     }
 
     /**
