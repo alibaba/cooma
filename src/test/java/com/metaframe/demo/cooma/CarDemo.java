@@ -37,7 +37,7 @@ public class CarDemo {
 
         System.out.println("=================================");
 
-        Car adaptiveExtension = extensionLoader.getAdaptiveExtension();
-        adaptiveExtension.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
+        Car adaptiveInstance = extensionLoader.getAdaptiveInstance();
+        adaptiveInstance.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
     }
 }

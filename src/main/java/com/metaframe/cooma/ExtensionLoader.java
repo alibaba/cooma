@@ -243,7 +243,7 @@ public class ExtensionLoader<T> {
      *
      * @since 0.1.0
      */
-    public T getAdaptiveExtension() {
+    public T getAdaptiveInstance() {
         getExtensionClasses(); // 加载扩展点，保证会发现手写的AdaptiveClass
 
         Throwable createError = createAdaptiveInstanceError.get();
@@ -345,7 +345,7 @@ public class ExtensionLoader<T> {
                     Class<?> pt = method.getParameterTypes()[0];
                     if (pt.isInterface() && withExtensionAnnotation(pt)) {
                         try {
-                            Object adaptive = getExtensionLoader(pt).getAdaptiveExtension();
+                            Object adaptive = getExtensionLoader(pt).getAdaptiveInstance();
                             method.invoke(instance, adaptive);
                         } catch (Exception e) {
                             logger.error("fail to inject via method " + method.getName()
