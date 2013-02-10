@@ -18,7 +18,6 @@ package com.metaframe.demo.cooma.car.impl;
 
 import com.metaframe.cooma.Config;
 import com.metaframe.demo.cooma.car.Car;
-import com.metaframe.demo.cooma.wheel.Wheel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
