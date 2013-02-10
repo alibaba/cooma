@@ -244,6 +244,8 @@ public class ExtensionLoader<T> {
      * @since 0.1.0
      */
     public T getAdaptiveExtension() {
+        getExtensionClasses(); // 加载扩展点，保证会发现手写的AdaptiveClass
+
         Throwable createError = createAdaptiveInstanceError.get();
         T adaptiveInstance = this.adaptiveInstance.get();
         if (null != createError) {
@@ -253,7 +255,6 @@ public class ExtensionLoader<T> {
         if (null != adaptiveInstance) {
             return adaptiveInstance;
         }
-
 
         synchronized (this.adaptiveInstance) {
             createError = createAdaptiveInstanceError.get();
@@ -369,8 +370,12 @@ public class ExtensionLoader<T> {
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
 
-    private T createAdaptiveInstance() {
+    private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
         checkAndSetAdaptiveInfo0();
+
+        if (adaptiveClass != null) {
+            return type.cast(adaptiveClass.newInstance());
+        }
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -436,10 +441,7 @@ public class ExtensionLoader<T> {
             }
         });
 
-        T adaptive = type.cast(p);
-
-        adaptiveInstance.set(adaptive);
-        return adaptiveInstance.get();
+        return type.cast(p);
     }
 
     private void checkAndSetAdaptiveInfo0() {
