@@ -254,8 +254,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_defaultExtension() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_defaultExtension() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
@@ -264,8 +264,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_useTypeNameAsKey() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_useTypeNameAsKey() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
 
@@ -274,8 +274,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_customizeKey() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_customizeKey() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
 
@@ -288,8 +288,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ConfigNpe() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_ConfigNpe() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
         try {
             ext.echo(null, "haha");
@@ -300,9 +300,9 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNoAdaptiveMethodOnInterface() throws Exception {
+    public void test_getAdaptiveInstance_ExceptionWhenNoAdaptiveMethodOnInterface() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveInstance();
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(),
@@ -311,7 +311,7 @@ public class ExtensionLoaderTest {
         }
         // 多次get，都会报错且相同
         try {
-            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveInstance();
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(),
@@ -321,8 +321,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_ExceptionWhenNotAdaptiveMethod() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
@@ -338,9 +338,9 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ExceptionWhenNoConfigAttrib() throws Exception {
+    public void test_getAdaptiveInstance_ExceptionWhenNoConfigAttrib() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(AdaptiveMethodNoConfig_Ext.class).getAdaptiveExtension();
+            ExtensionLoader.getExtensionLoader(AdaptiveMethodNoConfig_Ext.class).getAdaptiveInstance();
             fail();
         } catch (Exception expected) {
             assertThat(expected.getMessage(), containsString("fail to create adaptive class for interface "));
@@ -349,20 +349,20 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_ManualAdaptiveClassExt() throws Exception {
+    public void test_getAdaptiveInstance_ManualAdaptiveClassExt() throws Exception {
         ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);
         Config config = Config.fromKv("key", "impl2");
 
         ManualAdaptiveClassExt impl1 = extensionLoader.getExtension("impl1");
         assertEquals("Ext9Impl1-echo", impl1.echo(config, ""));
 
-        ManualAdaptiveClassExt adaptiveExtension = extensionLoader.getAdaptiveExtension();
-        assertEquals("Ext9Impl2-echo" + ManualAdaptive.class.getName(), adaptiveExtension.echo(config, ""));
+        ManualAdaptiveClassExt adaptiveInstance = extensionLoader.getAdaptiveInstance();
+        assertEquals("Ext9Impl2-echo" + ManualAdaptive.class.getName(), adaptiveInstance.echo(config, ""));
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveInstance() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
 
@@ -374,8 +374,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension_noExtension() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveInstance_noExtension() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
@@ -400,8 +400,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension_ConfigNpe() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveInstance_ConfigNpe() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
         try {
             ext.echo(null, "haha");
@@ -419,8 +419,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension_ExceptionWhenNotAdaptiveMethod() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveInstance_ExceptionWhenNotAdaptiveMethod() throws Exception {
+        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
@@ -436,8 +436,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_configHolder_getAdaptiveExtension_ExceptionWhenNameNotProvided() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveExtension();
+    public void test_configHolder_getAdaptiveInstance_ExceptionWhenNameNotProvided() throws Exception {
+        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
@@ -462,8 +462,8 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_inject() throws Exception {
-        InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getAdaptiveExtension();
+    public void test_getAdaptiveInstance_inject() throws Exception {
+        InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getAdaptiveInstance();
 
         Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key", "impl1");
 
@@ -474,7 +474,7 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getAdaptiveExtension_InjectNotExtFail() throws Exception {
+    public void test_getAdaptiveInstance_InjectNotExtFail() throws Exception {
         InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getExtension("impl2");
 
         Ext6Impl2 impl = (Ext6Impl2) ext;
