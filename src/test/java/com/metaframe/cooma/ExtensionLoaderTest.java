@@ -31,6 +31,8 @@ import com.metaframe.cooma.ext6.InjectExt;
 import com.metaframe.cooma.ext6.impl.Ext6Impl2;
 import com.metaframe.cooma.ext7.InitErrorExt;
 import com.metaframe.cooma.ext8.InvalidNameExt;
+import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
+import com.metaframe.cooma.ext9.impl.ManualAdaptive;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -344,6 +346,18 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("fail to create adaptive class for interface "));
             assertThat(expected.getMessage(), containsString(": not found config parameter or config attribute in parameters of method "));
         }
+    }
+
+    @Test
+    public void test_getAdaptiveExtension_ManualAdaptiveClassExt() throws Exception {
+        ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);
+        Config config = Config.fromKv("key", "impl2");
+
+        ManualAdaptiveClassExt impl1 = extensionLoader.getExtension("impl1");
+        assertEquals("Ext9Impl1-echo", impl1.echo(config, ""));
+
+        ManualAdaptiveClassExt adaptiveExtension = extensionLoader.getAdaptiveExtension();
+        assertEquals("Ext9Impl2-echo" + ManualAdaptive.class.getName(), adaptiveExtension.echo(config, ""));
     }
 
     @Test
