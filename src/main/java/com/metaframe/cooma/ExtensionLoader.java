@@ -344,6 +344,12 @@ public class ExtensionLoader<T> {
                         && Modifier.isPublic(method.getModifiers())) {
                     Class<?> pt = method.getParameterTypes()[0];
                     if (pt.isInterface() && withExtensionAnnotation(pt)) {
+                        if(pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
+                            logger.warn("Ignore self set(" + method + ") for class(" +
+                                    instance.getClass() + ") when inject.");
+                            continue;
+                        }
+
                         try {
                             Object adaptive = getExtensionLoader(pt).getAdaptiveInstance();
                             method.invoke(instance, adaptive);
