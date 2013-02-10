@@ -16,7 +16,6 @@
 
 package com.metaframe.cooma;
 
-import com.metaframe.cooma.internal.utils.ConcurrentHashSet;
 import com.metaframe.cooma.internal.utils.Holder;
 import com.metaframe.cooma.internal.utils.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -323,10 +323,9 @@ public class ExtensionLoader<T> {
         Class<?> clazz = getExtensionClass(name);
         try {
             T instance = injectExtension((T) clazz.newInstance());
-            Set<Class<?>> wrapperClasses = this.wrapperClasses;
-            if (wrapperClasses != null && wrapperClasses.size() > 0) {
-                for (Class<?> wrapperClass : wrapperClasses) {
-                    instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));
+            if (name2Wrapper != null && name2Wrapper.size() > 0) {
+                for (Map.Entry<String, Class<? extends T>> entry : name2Wrapper.entrySet()) {
+                    instance = injectExtension(entry.getValue().getConstructor(type).newInstance(instance));
                 }
             }
             return instance;
@@ -344,7 +343,7 @@ public class ExtensionLoader<T> {
                         && Modifier.isPublic(method.getModifiers())) {
                     Class<?> pt = method.getParameterTypes()[0];
                     if (pt.isInterface() && withExtensionAnnotation(pt)) {
-                        if(pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
+                        if (pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
                             logger.warn("Ignore self set(" + method + ") for class(" +
                                     instance.getClass() + ") when inject.");
                             continue;
@@ -515,7 +514,7 @@ public class ExtensionLoader<T> {
 
     private volatile Class<?> adaptiveClass = null;
 
-    private Set<Class<?>> wrapperClasses;
+    private volatile Map<String, Class<? extends T>> name2Wrapper;
 
     private Map<String, IllegalStateException> extClassLoadExceptions = new ConcurrentHashMap<String, IllegalStateException>();
 
@@ -544,8 +543,8 @@ public class ExtensionLoader<T> {
             synchronized (extClassesHolder) {
                 classes = extClassesHolder.get();
                 if (classes == null) { // double check
-                    classes = loadExtensionClasses0();
-                    extClassesHolder.set(classes);
+                    loadExtensionClasses0();
+                    classes = extClassesHolder.get();
                 }
             }
         }
@@ -578,8 +577,9 @@ public class ExtensionLoader<T> {
         return new IllegalStateException(buf.toString());
     }
 
-    private Map<String, Class<?>> loadExtensionClasses0() {
+    private void loadExtensionClasses0() {
         Map<String, Class<?>> extName2Class = new HashMap<String, Class<?>>();
+        Map<String, Class<? extends T>> tmpName2Wrapper = new LinkedHashMap<String, Class<? extends T>>();
         String fileName = null;
         try {
             ClassLoader classLoader = getClassLoader();
@@ -591,22 +591,22 @@ public class ExtensionLoader<T> {
                 urls = ClassLoader.getSystemResources(fileName);
             }
 
-            if (urls == null) { // 找到的urls为null，或是没有找到文件，即认为是没有找到扩展点
-                return extName2Class;
-            }
-
-            while (urls.hasMoreElements()) {
-                java.net.URL url = urls.nextElement();
-                readExtension0(extName2Class, classLoader, url);
+            if (urls != null) { // 找到的urls为null，或是没有找到文件，即认为是没有找到扩展点
+                while (urls.hasMoreElements()) {
+                    java.net.URL url = urls.nextElement();
+                    readExtension0(extName2Class, tmpName2Wrapper, classLoader, url);
+                }
             }
         } catch (Throwable t) {
             logger.error("Exception when load extension class(interface: " +
                     type + ", description file: " + fileName + ").", t);
         }
-        return extName2Class;
+
+        extClassesHolder.set(extName2Class);
+        name2Wrapper = tmpName2Wrapper;
     }
 
-    private void readExtension0(Map<String, Class<?>> extName2Class, ClassLoader classLoader, URL url) {
+    private void readExtension0(Map<String, Class<?>> extName2Class, Map<String, Class<? extends T>> name2Wrapper, ClassLoader classLoader, URL url) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"));
@@ -634,7 +634,7 @@ public class ExtensionLoader<T> {
                                 "missing extension name, config value: " + config);
                     }
 
-                    Class<?> clazz = Class.forName(body, true, classLoader);
+                    Class<? extends T> clazz = Class.forName(body, true, classLoader).asSubclass(type);
                     if (!type.isAssignableFrom(clazz)) {
                         throw new IllegalStateException("Error when load extension class(interface: " +
                                 type + ", class line: " + clazz.getName() + "), class "
@@ -650,23 +650,17 @@ public class ExtensionLoader<T> {
                                     + ", " + clazz.getClass().getName());
                         }
                     } else {
-                        if (hasCopyConstructor(clazz)) {
-                            Set<Class<?>> wrappers = wrapperClasses;
-                            if (wrappers == null) {
-                                wrapperClasses = new ConcurrentHashSet<Class<?>>();
-                                wrappers = wrapperClasses;
+                        String[] nameList = NAME_SEPARATOR.split(name);
+                        for (String n : nameList) {
+                            if (!isValidExtName(n)) {
+                                throw new IllegalStateException("name(" + n +
+                                        ") of extension " + type.getName() + "is invalid!");
                             }
-                            wrappers.add(clazz);
-                        } else {
-                            clazz.getConstructor();
 
-                            String[] nameList = NAME_SEPARATOR.split(name);
-                            for (String n : nameList) {
-                                if (!isValidExtName(n)) {
-                                    throw new IllegalStateException("name(" + n +
-                                            ") of extension " + type.getName() + "is invalid!");
-                                }
-
+                            if (hasCopyConstructor(clazz)) {
+                                name2Wrapper.put(name, clazz);
+                            } else {
+                                clazz.getConstructor();
                                 if (extName2Class.containsKey(n)) {
                                     if (extName2Class.get(n) != clazz) {
                                         throw new IllegalStateException("Duplicate extension " +
