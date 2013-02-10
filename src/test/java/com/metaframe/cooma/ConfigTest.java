@@ -16,13 +16,14 @@
 
 package com.metaframe.cooma;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
@@ -151,7 +152,8 @@ public class ConfigTest {
         assertEquals(0, config.getInt("k4")); // 没有值，使用缺省值0！
 
         assertEquals(33, config.getInt("k1", 333));
-        assertEquals(-13, config.getInt("k2", 333));try {
+        assertEquals(-13, config.getInt("k2", 333));
+        try {
             assertEquals(0, config.getInt("k3", 333));
         } catch (NumberFormatException expected) {
             // Ignore
@@ -173,7 +175,8 @@ public class ConfigTest {
         assertEquals(0, config.getLong("k4")); // 没有值，使用缺省值0！
 
         assertEquals(1234567890123456789L, config.getLong("k1", 333));
-        assertEquals(-13, config.getLong("k2", 333));try {
+        assertEquals(-13, config.getLong("k2", 333));
+        try {
             assertEquals(0, config.getLong("k3", 333));
         } catch (NumberFormatException expected) {
             // Ignore
