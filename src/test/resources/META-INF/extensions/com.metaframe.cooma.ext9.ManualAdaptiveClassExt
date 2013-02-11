@@ -1,5 +1,5 @@
 # Adaptive Class, 名字现在是没有用处的
-adaptive=com.metaframe.cooma.ext9.impl.ManualAdaptive
+*adaptive=com.metaframe.cooma.ext9.impl.ManualAdaptive
 
 impl1=com.metaframe.cooma.ext9.impl.ExtImpl1
 impl2=com.metaframe.cooma.ext9.impl.ExtImpl2

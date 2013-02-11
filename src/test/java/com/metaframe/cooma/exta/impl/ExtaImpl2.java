@@ -17,7 +17,6 @@
 package com.metaframe.cooma.exta.impl;
 
 import com.metaframe.cooma.Config;
-import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
 import com.metaframe.cooma.exta.ImplNoDefaultConstructorExt;
 
 /**

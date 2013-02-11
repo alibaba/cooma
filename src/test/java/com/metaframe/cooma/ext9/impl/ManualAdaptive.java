@@ -16,7 +16,6 @@
 
 package com.metaframe.cooma.ext9.impl;
 
-import com.metaframe.cooma.Adaptive;
 import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ExtensionLoader;
 import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
@@ -24,7 +23,6 @@ import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-@Adaptive
 public class ManualAdaptive implements ManualAdaptiveClassExt {
     public String echo(Config config, String s) {
         ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);

@@ -61,6 +61,9 @@ public class ExtensionLoader<T> {
 
     private static final String EXTENSION_CONF_DIRECTORY = "META-INF/extensions/";
 
+    private static final String PREFIX_ADAPTIVE_CLASS = "*";
+    private static final String PREFIX_WRAPPER_CLASS = "+";
+
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-z0-9_]+");
 
@@ -641,7 +644,7 @@ public class ExtensionLoader<T> {
                                 + clazz.getName() + "is not subtype of interface.");
                     }
 
-                    if (clazz.isAnnotationPresent(Adaptive.class)) {
+                    if (name.startsWith(PREFIX_ADAPTIVE_CLASS)) {
                         if (adaptiveClass == null) {
                             adaptiveClass = clazz;
                         } else if (!adaptiveClass.equals(clazz)) {
@@ -650,6 +653,10 @@ public class ExtensionLoader<T> {
                                     + ", " + clazz.getClass().getName());
                         }
                     } else {
+                        final boolean isWrapper = name.startsWith(PREFIX_WRAPPER_CLASS);
+                        if (isWrapper)
+                            name = name.substring(PREFIX_WRAPPER_CLASS.length());
+
                         String[] nameList = NAME_SEPARATOR.split(name);
                         for (String n : nameList) {
                             if (!isValidExtName(n)) {
@@ -657,13 +664,19 @@ public class ExtensionLoader<T> {
                                         ") of extension " + type.getName() + "is invalid!");
                             }
 
-                            if (hasCopyConstructor(clazz)) {
-                                name2Wrapper.put(name, clazz);
+                            if (isWrapper) {
+                                try {
+                                    clazz.getConstructor(type);
+                                    name2Wrapper.put(name, clazz);
+                                } catch (NoSuchMethodException e) {
+                                    throw new IllegalStateException("wrapper class(" + clazz +
+                                            ") has NO copy constructor!", e);
+                                }
                             } else {
                                 try {
                                     clazz.getConstructor();
                                 } catch (NoSuchMethodException e) {
-                                    throw new IllegalStateException("class(" + clazz +
+                                    throw new IllegalStateException("extension class(" + clazz +
                                             ") has NO default constructor!", e);
                                 }
                                 if (extName2Class.containsKey(n)) {
@@ -707,16 +720,6 @@ public class ExtensionLoader<T> {
     // =========================
     // small helper methods
     // =========================
-
-    private boolean hasCopyConstructor(Class<?> clazz) {
-        try {
-            clazz.getConstructor(type);
-            return true;
-        } catch (NoSuchMethodException e) {
-            // ignore
-        }
-        return false;
-    }
 
     private static ClassLoader getClassLoader() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
