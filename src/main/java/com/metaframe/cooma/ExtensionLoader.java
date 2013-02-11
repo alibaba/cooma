@@ -660,7 +660,12 @@ public class ExtensionLoader<T> {
                             if (hasCopyConstructor(clazz)) {
                                 name2Wrapper.put(name, clazz);
                             } else {
-                                clazz.getConstructor();
+                                try {
+                                    clazz.getConstructor();
+                                } catch (NoSuchMethodException e) {
+                                    throw new IllegalStateException("class(" + clazz +
+                                            ") has NO default constructor!", e);
+                                }
                                 if (extName2Class.containsKey(n)) {
                                     if (extName2Class.get(n) != clazz) {
                                         throw new IllegalStateException("Duplicate extension " +
@@ -679,7 +684,7 @@ public class ExtensionLoader<T> {
                     }
                 } catch (Throwable t) {
                     IllegalStateException e = new IllegalStateException("Failed to load config line(" + line +
-                            ") of config file( " + url + ") for extension(" + type +
+                            ") of config file(" + url + ") for extension(" + type +
                             "), cause: " + t.getMessage(), t);
                     logger.warn("", e);
                     extClassLoadExceptions.put(line, e);
