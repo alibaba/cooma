@@ -33,8 +33,10 @@ import com.metaframe.cooma.ext7.InitErrorExt;
 import com.metaframe.cooma.ext8.InvalidNameExt;
 import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
 import com.metaframe.cooma.ext9.impl.ManualAdaptive;
+import com.metaframe.cooma.exta.ImplNoDefaultConstructorExt;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -491,7 +493,7 @@ public class ExtensionLoaderTest {
             loader.getExtension("error");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Failed to load config line(error=com.metaframe.cooma.ext7.impl.Ext7InitErrorImpl) of config file( file:/E:/CodeRepository/open/cooma/target/test-classes/META-INF/services/com.metaframe.cooma.ext7.InitErrorExt) for extension(interface com.metaframe.cooma.ext7.InitErrorExt)"));
+            assertThat(expected.getMessage(), containsString("Failed to load config line(error=com.metaframe.cooma.ext7.impl.Ext7InitErrorImpl) of config file(file:/E:/CodeRepository/open/cooma/target/test-classes/META-INF/services/com.metaframe.cooma.ext7.InitErrorExt) for extension(interface com.metaframe.cooma.ext7.InitErrorExt)"));
             assertThat(expected.getCause().getCause(), instanceOf(ExceptionInInitializerError.class));
         }
     }
@@ -504,5 +506,11 @@ public class ExtensionLoaderTest {
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("default name(invalid-name&) of extension com.metaframe.cooma.ext8.InvalidNameExt is invalid"));
         }
+    }
+
+    @Test
+    public void test_ImplNoDefaultConstructor() throws Exception {
+        ExtensionLoader<ImplNoDefaultConstructorExt> extensionLoader = ExtensionLoader.getExtensionLoader(ImplNoDefaultConstructorExt.class);
+        assertEquals(new HashSet<String>(Arrays.asList("impl2")), extensionLoader.getSupportedExtensions());
     }
 }
