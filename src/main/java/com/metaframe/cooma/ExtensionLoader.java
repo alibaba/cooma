@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
 public class ExtensionLoader<T> {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
 
-    private static final String SERVICES_DIRECTORY = "META-INF/services/";
+    private static final String EXTENSION_CONF_DIRECTORY = "META-INF/extensions/";
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-z0-9_]+");
@@ -583,7 +583,7 @@ public class ExtensionLoader<T> {
         String fileName = null;
         try {
             ClassLoader classLoader = getClassLoader();
-            fileName = SERVICES_DIRECTORY + type.getName();
+            fileName = EXTENSION_CONF_DIRECTORY + type.getName();
             Enumeration<java.net.URL> urls;
             if (classLoader != null) {
                 urls = classLoader.getResources(fileName);

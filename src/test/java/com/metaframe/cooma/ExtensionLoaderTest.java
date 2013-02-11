@@ -493,7 +493,8 @@ public class ExtensionLoaderTest {
             loader.getExtension("error");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Failed to load config line(error=com.metaframe.cooma.ext7.impl.Ext7InitErrorImpl) of config file(file:/E:/CodeRepository/open/cooma/target/test-classes/META-INF/services/com.metaframe.cooma.ext7.InitErrorExt) for extension(interface com.metaframe.cooma.ext7.InitErrorExt)"));
+            assertThat(expected.getMessage(), containsString("Failed to load config line(error=com.metaframe.cooma.ext7.impl.Ext7InitErrorImpl)"));
+            assertThat(expected.getMessage(), containsString("com.metaframe.cooma.ext7.InitErrorExt) for extension(interface com.metaframe.cooma.ext7.InitErrorExt)"));
             assertThat(expected.getCause().getCause(), instanceOf(ExceptionInInitializerError.class));
         }
     }
