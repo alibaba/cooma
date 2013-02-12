@@ -20,7 +20,7 @@
 
 	<groupId>com.metaframe</groupId>
 	<artifactId>cooma</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Cooma Microcontainer</name>
 	<description>Simple Microcontainer(Java)</description>
