@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -84,10 +85,10 @@ public class ExtensionLoader<T> {
         if (type == null)
             throw new IllegalArgumentException("Extension type == null");
         if (!type.isInterface()) {
-            throw new IllegalArgumentException("Extension type(" + type + ") is not interface!");
+            throw new IllegalArgumentException("Extension type(" + type.getName() + ") is not interface!");
         }
         if (!withExtensionAnnotation(type)) {
-            throw new IllegalArgumentException("type(" + type +
+            throw new IllegalArgumentException("type(" + type.getName() +
                     ") is not a extension, because WITHOUT @Extension Annotation!");
         }
 
@@ -109,6 +110,10 @@ public class ExtensionLoader<T> {
      * @since 0.1.0
      */
     public T getExtension(String name) {
+        return getExtension(name, null);
+    }
+
+    public T getExtension(String name, List<String> wrappers) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
 
@@ -129,33 +134,37 @@ public class ExtensionLoader<T> {
         }
 
         if (throwableHolder.get() != null) {
-            throw new IllegalStateException("Fail to create adaptive extension " + type +
-                    ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
+            throw new IllegalStateException("Fail to get extension " + name +
+                    " of extension point " + type.getName() + ", cause: " +
+                    throwableHolder.get().getMessage(), throwableHolder.get());
         }
-        if (holder.get() != null) {
-            return holder.get();
+        if (holder.get() == null) {
+            synchronized (holder) {
+                holder = extInstances.get(name);
+                throwableHolder = createExtInstanceErrors.get(name);
+                if (throwableHolder.get() != null) { // double check
+                    throw new IllegalStateException("Fail to get extension " + name +
+                            " of extension point " + type.getName() + ", cause: " +
+                            throwableHolder.get().getMessage(), throwableHolder.get());
+                }
+                if (holder.get() == null) {
+                    try {
+                        holder.set(createExtension(name));
+                    } catch (Throwable t) {
+                        throwableHolder.set(t);
+                        throw new IllegalStateException("Fail to get extension " + name +
+                                " of extension point " + type.getName() + ", cause: " + t.getMessage(), t);
+                    }
+                }
+            }
         }
 
-        synchronized (holder) {
-            holder = extInstances.get(name);
-            throwableHolder = createExtInstanceErrors.get(name);
-            if (throwableHolder.get() != null) { // double check
-                throw new IllegalStateException("Fail to create adaptive extension " + type +
-                        ", cause: " + throwableHolder.get().getMessage(), throwableHolder.get());
-            }
-            if (holder.get() != null) {
-                return holder.get();
-            }
-
-            try {
-                holder.set(createExtension(name));
-                return holder.get();
-            } catch (Throwable t) {
-                throwableHolder.set(t);
-                throw new IllegalStateException("Fail to create adaptive extension " + type +
-                        ", cause: " + t.getMessage(), t);
-            }
+        T instance = holder.get();
+        if (wrappers != null) for (String wrapper : wrappers) {
+            instance = createWrapper(wrapper, instance);
         }
+
+        return instance;
     }
 
     /**
@@ -252,8 +261,8 @@ public class ExtensionLoader<T> {
         Throwable createError = createAdaptiveInstanceError.get();
         T adaptiveInstance = this.adaptiveInstance.get();
         if (null != createError) {
-            throw new IllegalStateException("Fail to create adaptive extension " + type +
-                    ", cause: " + createError.getMessage(), createError);
+            throw new IllegalStateException("Fail to create adaptive extension for extension point " +
+                    type.getName() + ", cause: " + createError.getMessage(), createError);
         }
         if (null != adaptiveInstance) {
             return adaptiveInstance;
@@ -263,8 +272,8 @@ public class ExtensionLoader<T> {
             createError = createAdaptiveInstanceError.get();
             adaptiveInstance = this.adaptiveInstance.get();
             if (null != createError) { // double check
-                throw new IllegalStateException("Fail to create adaptive extension " + type +
-                        ", cause: " + createError.getMessage(), createError);
+                throw new IllegalStateException("Fail to create adaptive extension for extension point " +
+                        type.getName() + ", cause: " + createError.getMessage(), createError);
             }
             if (null != adaptiveInstance) {
                 return adaptiveInstance;
@@ -275,8 +284,8 @@ public class ExtensionLoader<T> {
                 return this.adaptiveInstance.get();
             } catch (Throwable t) {
                 createAdaptiveInstanceError.set(t);
-                throw new IllegalStateException("Fail to create adaptive extension " + type +
-                        ", cause: " + t.getMessage(), t);
+                throw new IllegalStateException("Fail to create adaptive extension for extension point " +
+                        type.getName() + ", cause: " + t.getMessage(), t);
             }
         }
     }
@@ -325,16 +334,18 @@ public class ExtensionLoader<T> {
     private T createExtension(String name) {
         Class<?> clazz = getExtensionClass(name);
         try {
-            T instance = injectExtension((T) clazz.newInstance());
-            if (name2Wrapper != null && name2Wrapper.size() > 0) {
-                for (Map.Entry<String, Class<? extends T>> entry : name2Wrapper.entrySet()) {
-                    instance = injectExtension(entry.getValue().getConstructor(type).newInstance(instance));
-                }
-            }
-            return instance;
+            return injectExtension((T) clazz.newInstance());
         } catch (Throwable t) {
-            throw new IllegalStateException("Extension instance(name: " + name + ", class: " +
-                    type + ")  could not be instantiated: " + t.getMessage(), t);
+            throw new IllegalStateException("Fail to create extension " + name +
+                    " of extension point " + type.getName() + ", cause: " + t.getMessage(), t);
+        }
+    }
+
+    private T createWrapper(String name, T instance) {
+        try {
+            return injectExtension(name2Wrapper.get(name).getConstructor(type).newInstance(instance));
+        } catch (Throwable e) {
+            throw new IllegalStateException("Fail to create wrapper(" + name + ") for extension point " + type);
         }
     }
 
@@ -356,8 +367,9 @@ public class ExtensionLoader<T> {
                             Object adaptive = getExtensionLoader(pt).getAdaptiveInstance();
                             method.invoke(instance, adaptive);
                         } catch (Exception e) {
-                            logger.error("fail to inject via method " + method.getName()
-                                    + " of interface " + type.getName() + ", cause: " + e.getMessage(), e);
+                            logger.error("Fail to inject via method " + method.getName()
+                                    + " of interface to extension implementation " + instance.getClass() +
+                                    " for extension point " + type.getName() + ", cause: " + e.getMessage(), e);
                         }
                     }
                 }
@@ -500,7 +512,7 @@ public class ExtensionLoader<T> {
             }
 
             if (!method2ConfigArgIndex.containsKey(method)) {
-                throw new IllegalStateException("fail to create adaptive class for interface " + type.getName()
+                throw new IllegalStateException("Fail to create adaptive class for extension point " + type.getName()
                         + ": not found config parameter or config attribute in parameters of method " + method.getName());
 
             }
@@ -601,8 +613,8 @@ public class ExtensionLoader<T> {
                 }
             }
         } catch (Throwable t) {
-            logger.error("Exception when load extension class(interface: " +
-                    type + ", description file: " + fileName + ").", t);
+            logger.error("Exception when load extension point(interface: " +
+                    type.getName() + ", description file: " + fileName + ").", t);
         }
 
         extClassesHolder.set(extName2Class);
@@ -640,7 +652,7 @@ public class ExtensionLoader<T> {
                     Class<? extends T> clazz = Class.forName(body, true, classLoader).asSubclass(type);
                     if (!type.isAssignableFrom(clazz)) {
                         throw new IllegalStateException("Error when load extension class(interface: " +
-                                type + ", class line: " + clazz.getName() + "), class "
+                                type.getName() + ", class line: " + clazz.getName() + "), class "
                                 + clazz.getName() + "is not subtype of interface.");
                     }
 
@@ -697,7 +709,7 @@ public class ExtensionLoader<T> {
                     }
                 } catch (Throwable t) {
                     IllegalStateException e = new IllegalStateException("Failed to load config line(" + line +
-                            ") of config file(" + url + ") for extension(" + type +
+                            ") of config file(" + url + ") for extension(" + type.getName() +
                             "), cause: " + t.getMessage(), t);
                     logger.warn("", e);
                     extClassLoadExceptions.put(line, e);
@@ -705,7 +717,7 @@ public class ExtensionLoader<T> {
             } // end of while read lines
         } catch (Throwable t) {
             logger.error("Exception when load extension class(interface: " +
-                    type + ", class file: " + url + ") in " + url, t);
+                    type.getName() + ", class file: " + url + ") in " + url, t);
         } finally {
             if (reader != null) {
                 try {
