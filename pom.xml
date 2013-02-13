@@ -14,8 +14,9 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.metaframe</groupId>
@@ -70,10 +71,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>metaframe-repository</id>
+			<name>Metaframe Maven Repository</name>
+			<url>http://metaframe.github.com/repo</url>
+		</repository>
+	</repositories>
 	<scm>
 		<url>https://github.com/metaframe/cooma</url>
 		<connection>scm:git:git@github.com:metaframe/cooma.git</connection>
-		<developerConnection>scm:git:git@github.com:metaframe/cooma.git</developerConnection>
+		<developerConnection>scm:git:git@github.com:metaframe/cooma.git
+		</developerConnection>
 	</scm>
 	<issueManagement>
 		<system>github</system>
@@ -97,6 +106,36 @@
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<attach>true</attach>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<attach>true</attach>
+					<charset>UTF-8</charset>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
