@@ -56,7 +56,7 @@ import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ExtensionLoaderTest {
     @Test

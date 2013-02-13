@@ -23,7 +23,7 @@ import com.metaframe.cooma.Extension;
 /**
  * 扩展点实现没有缺省构造函数
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension("impl1")
 public interface ImplNoDefaultConstructorExt {

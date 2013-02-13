@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext7.InitErrorExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext7InitErrorImpl implements InitErrorExt {
 

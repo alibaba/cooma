@@ -21,7 +21,7 @@ import com.metaframe.cooma.ExtensionLoader;
 import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ManualAdaptive implements ManualAdaptiveClassExt {
     public String echo(Config config, String s) {

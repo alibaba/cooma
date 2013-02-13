@@ -22,7 +22,7 @@ import com.metaframe.cooma.ext6.InjectExt;
 import java.util.List;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext6Impl2 implements InjectExt {
     List<String> list;

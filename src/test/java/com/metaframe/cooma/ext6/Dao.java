@@ -17,7 +17,7 @@
 package com.metaframe.cooma.ext6;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public interface Dao {
     public void update();

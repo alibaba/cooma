@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext3.WrappedExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext3Impl1 implements WrappedExt {
     public String echo(Config config, String s) {

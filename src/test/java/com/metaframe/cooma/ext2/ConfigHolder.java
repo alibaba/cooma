@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ConfigHolder {
     private Double Num;

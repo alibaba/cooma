@@ -20,7 +20,7 @@ import com.metaframe.cooma.ext2.ConfigHolder;
 import com.metaframe.cooma.ext2.NoDefaultExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext2Impl1 implements NoDefaultExt {
     public String echo(ConfigHolder holder, String s) {

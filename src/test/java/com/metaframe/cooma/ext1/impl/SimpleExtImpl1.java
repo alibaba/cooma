@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext1.SimpleExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class SimpleExtImpl1 implements SimpleExt {
     public String echo(Config config, String s) {

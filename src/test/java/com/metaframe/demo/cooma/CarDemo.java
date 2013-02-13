@@ -21,7 +21,7 @@ import com.metaframe.cooma.ExtensionLoader;
 import com.metaframe.demo.cooma.car.Car;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class CarDemo {
     public static void main(String[] args) {
