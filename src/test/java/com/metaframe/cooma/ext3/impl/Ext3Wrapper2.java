@@ -22,7 +22,7 @@ import com.metaframe.cooma.ext3.WrappedExt;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext3Wrapper2 implements WrappedExt {
     WrappedExt instance;

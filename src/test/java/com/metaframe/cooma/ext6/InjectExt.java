@@ -23,7 +23,7 @@ import com.metaframe.cooma.Extension;
 /**
  * 无Default
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension
 public interface InjectExt {

@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ext5.NoAdaptiveMethodExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext5Impl2 implements NoAdaptiveMethodExt {
     public String echo(Config config, String s) {

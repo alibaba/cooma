@@ -20,7 +20,7 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.exta.ImplNoDefaultConstructorExt;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ExtaImpl1 implements ImplNoDefaultConstructorExt {
     public ExtaImpl1(String xx) {

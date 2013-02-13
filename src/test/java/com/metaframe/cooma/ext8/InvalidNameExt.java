@@ -24,7 +24,7 @@ import com.metaframe.cooma.Extension;
  * 用于测试：
  * 非法的扩展点名
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension("invalid-name&")
 public interface InvalidNameExt {

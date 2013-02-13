@@ -22,7 +22,7 @@ import java.io.StringWriter;
 /**
  * StringUtils
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @since 0.1.0
  */
 public final class StringUtils {

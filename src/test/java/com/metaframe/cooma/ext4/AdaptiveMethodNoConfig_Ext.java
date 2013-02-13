@@ -22,7 +22,7 @@ import com.metaframe.cooma.Extension;
 import java.util.List;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension
 public interface AdaptiveMethodNoConfig_Ext {

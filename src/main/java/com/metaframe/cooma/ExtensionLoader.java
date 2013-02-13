@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  * <li>wrap the specified extension wrapper.
  * </ul>
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see Config
  * @see Extension
  * @see Adaptive

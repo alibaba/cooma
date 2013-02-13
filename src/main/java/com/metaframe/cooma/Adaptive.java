@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * The information used by {@link ExtensionLoader} to generate Adaptive Instance.
  *
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see ExtensionLoader
  * @see Config
  * @since 0.1.0

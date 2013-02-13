@@ -23,7 +23,7 @@ import com.metaframe.cooma.ext6.InjectExt;
 import junit.framework.Assert;
 
 /**
- * @author Jerry Lee(oldratlee<at>gmail<dot>com)
+ * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext6Impl1 implements InjectExt {
     SimpleExt simpleExt;
