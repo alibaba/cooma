@@ -455,7 +455,7 @@ public class ExtensionLoader<T> {
                 }
                 if (extName == null)
                     throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from config(" + config + ") use keys())");
+                            ") name from config(" + config + ") use keys(" + Arrays.toString(value) + ")");
 
                 return method.invoke(ExtensionLoader.this.getExtension(extName), args);
             }
