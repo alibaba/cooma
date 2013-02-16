@@ -236,17 +236,6 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getExtensionName() throws Exception {
-        ExtensionLoader<SimpleExt> extensionLoader = ExtensionLoader.getExtensionLoader(SimpleExt.class);
-        SimpleExt impl1 = extensionLoader.getExtension("impl1");
-
-        assertEquals("impl1", extensionLoader.getExtensionName(impl1));
-        assertEquals("impl1", extensionLoader.getExtensionName(new SimpleExtImpl1()));
-
-        assertNull(extensionLoader.getExtensionName(new SimpleExtNotConfigedImpl()));
-    }
-
-    @Test
     public void test_hasExtension_wrapperIsNotExt() throws Exception {
         ExtensionLoader<WrappedExt> extensionLoader = ExtensionLoader.getExtensionLoader(WrappedExt.class);
 

@@ -236,27 +236,6 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 获取指定扩展实例对应的扩展点名。
-     *
-     * @return 返回指定扩展类对应的扩展点名。如果该类不是这个扩展点的实现，则返回<code>null</code>。
-     * @since 0.1.0
-     */
-    public String getExtensionName(T extensionInstance) {
-        return getExtensionName(extensionInstance.getClass());
-    }
-
-    /**
-     * 获取指定扩展类对应的扩展点名。
-     *
-     * @return 返回指定扩展类对应的扩展点名。如果该类不是这个扩展点的实现，则返回<code>null</code>。
-     * @since 0.1.0
-     */
-    public String getExtensionName(Class<?> extensionClass) {
-        getExtensionClasses(); // 先保证加载了扩展点类
-        return extClass2Name.get(extensionClass);
-    }
-
-    /**
      * 返回缺省的扩展点名，如果没有设置缺省则返回<code>null</code>。
      *
      * @since 0.1.0
