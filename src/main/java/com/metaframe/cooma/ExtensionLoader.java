@@ -429,9 +429,10 @@ public class ExtensionLoader<T> {
 
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
+    private final Map<Method, String[]> method2AdaptiveKeys = new HashMap<Method, String[]>();
 
     private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
-        checkAndSetAdaptiveInfo0();
+        checkAndCollectAdaptiveInfo0();
 
         if (adaptiveClass != null) {
             return type.cast(adaptiveClass.newInstance());
@@ -477,25 +478,20 @@ public class ExtensionLoader<T> {
                     config = (Config) confArg;
                 }
 
-                String[] value = method.getAnnotation(Adaptive.class).value();
-                if (value.length == 0) {
-                    // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
-                    value = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
-                }
-
+                String[] adaptiveKeys = method2AdaptiveKeys.get(method);
                 String extName = null;
-                for (int i = 0; i < value.length; ++i) {
-                    if (!config.contains(value[i])) {
-                        if (i == value.length - 1)
+                for (int i = 0; i < adaptiveKeys.length; ++i) {
+                    if (!config.contains(adaptiveKeys[i])) {
+                        if (i == adaptiveKeys.length - 1)
                             extName = defaultExtension;
                         continue;
                     }
-                    extName = config.get(value[i]);
+                    extName = config.get(adaptiveKeys[i]);
                     break;
                 }
                 if (extName == null)
                     throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from config(" + config + ") use keys(" + Arrays.toString(value) + ")");
+                            ") name from config(" + config + ") use keys(" + Arrays.toString(adaptiveKeys) + ")");
 
                 return method.invoke(ExtensionLoader.this.getExtension(extName), args);
             }
@@ -504,7 +500,12 @@ public class ExtensionLoader<T> {
         return type.cast(p);
     }
 
-    private void checkAndSetAdaptiveInfo0() {
+    /**
+     * 收到Adaptive Instance需要的信息。
+     * 1. Configs在方法的参数的位置
+     * 2. Method的Adaptive Keys
+     */
+    private void checkAndCollectAdaptiveInfo0() {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
         for (Method m : methods) {
@@ -517,13 +518,13 @@ public class ExtensionLoader<T> {
         if (!hasAdaptiveAnnotation)
             throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
 
-        // 收集获取Config的信息：Config是哪个参数；或者是，Config在哪个参数的哪个属性上
+        // 收集获取Config的信息
         for (Method method : methods) {
             Adaptive annotation = method.getAnnotation(Adaptive.class);
             // 如果不Adaptive方法，不需要收集Config信息
             if (annotation == null) continue;
 
-            // 找类型为Configs的参数
+            // 1. 找 Configs类型的参数
             Class<?>[] parameterTypes = method.getParameterTypes();
             for (int i = 0; i < parameterTypes.length; ++i) {
                 if (Config.class.isAssignableFrom(parameterTypes[i])) {
@@ -531,31 +532,39 @@ public class ExtensionLoader<T> {
                     break;
                 }
             }
-            if (method2ConfigArgIndex.containsKey(method)) continue;
-
-            // 找到参数的Configs属性
-            LBL_PARAMETER_TYPES:
-            for (int i = 0; i < parameterTypes.length; ++i) {
-                Method[] ms = parameterTypes[i].getMethods();
-                for (Method m : ms) {
-                    String name = m.getName();
-                    if ((name.startsWith("get") || name.length() > 3)
-                            && Modifier.isPublic(m.getModifiers())
-                            && !Modifier.isStatic(m.getModifiers())
-                            && m.getParameterTypes().length == 0
-                            && Config.class.isAssignableFrom(m.getReturnType())) {
-                        method2ConfigArgIndex.put(method, i);
-                        method2ConfigGetter.put(method, m);
-                        break LBL_PARAMETER_TYPES;
+            if (!method2ConfigArgIndex.containsKey(method)) {
+                // 2. 找 有属性是Configs类型的参数
+                LBL_PARAMETER_TYPES:
+                for (int i = 0; i < parameterTypes.length; ++i) {
+                    Method[] ms = parameterTypes[i].getMethods();
+                    for (Method m : ms) {
+                        String name = m.getName();
+                        if ((name.startsWith("get") || name.length() > 3)
+                                && Modifier.isPublic(m.getModifiers())
+                                && !Modifier.isStatic(m.getModifiers())
+                                && m.getParameterTypes().length == 0
+                                && Config.class.isAssignableFrom(m.getReturnType())) {
+                            method2ConfigArgIndex.put(method, i);
+                            method2ConfigGetter.put(method, m);
+                            break LBL_PARAMETER_TYPES;
+                        }
                     }
+                }
+
+                if (!method2ConfigArgIndex.containsKey(method)) {
+                    throw new IllegalStateException("Fail to create adaptive class for extension point " + type.getName() +
+                            ", since not found config parameter or config attribute in parameters for adaptive method " + method.getName());
+
                 }
             }
 
-            if (!method2ConfigArgIndex.containsKey(method)) {
-                throw new IllegalStateException("Fail to create adaptive class for extension point " + type.getName()
-                        + ": not found config parameter or config attribute in parameters of method " + method.getName());
-
+            // 3. 收集方法上的Adaptive Keys
+           String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
+            if (adaptiveKeys.length == 0) {
+                // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
+                adaptiveKeys = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
             }
+            method2AdaptiveKeys.put(method, adaptiveKeys);
         }
     }
 
