@@ -32,11 +32,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -103,17 +103,13 @@ public class ExtensionLoader<T> {
     /**
      * 获取指定名字的扩展实例。
      *
-     * @param name 扩展名。
+     * @param name 扩展名
      * @return 指定名字的扩展实例
      * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
      * @throws IllegalStateException    指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
      * @since 0.1.0
      */
     public T getExtension(String name) {
-        return getExtension(name, null);
-    }
-
-    public T getExtension(String name, List<String> wrappers) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
 
@@ -159,12 +155,22 @@ public class ExtensionLoader<T> {
             }
         }
 
-        T instance = holder.get();
-        if (wrappers != null) for (String wrapper : wrappers) {
-            instance = createWrapper(wrapper, instance);
-        }
+        return holder.get();
+    }
 
-        return instance;
+    /**
+     * 获取指定名字的扩展实例。
+     *
+     * @param name     扩展名
+     * @param wrappers 返回的实例上，要启用的Wrapper。
+     * @return 指定名字的扩展实例
+     * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
+     * @throws IllegalStateException    指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
+     * @since 0.2.0
+     */
+    public T getExtension(String name, List<String> wrappers) {
+        T instance = getExtension(name);
+        return createWrapper(instance, wrappers);
     }
 
     /**
@@ -178,6 +184,20 @@ public class ExtensionLoader<T> {
             throw new IllegalStateException("No default extension on extension " + type.getName());
         }
         return getExtension(defaultExtension);
+    }
+
+    /**
+     * 返回缺省的扩展。
+     *
+     * @param wrappers 返回的实例上，要启用的Wrapper。
+     * @throws IllegalStateException 指定的扩展没有设置缺省扩展点
+     * @since 0.2.1
+     */
+    public T getDefaultExtension(List<String> wrappers) {
+        if (null == defaultExtension || defaultExtension.length() == 0) {
+            throw new IllegalStateException("No default extension on extension " + type.getName());
+        }
+        return getExtension(defaultExtension, wrappers);
     }
 
     /**
@@ -212,7 +232,7 @@ public class ExtensionLoader<T> {
      */
     public Set<String> getSupportedExtensions() {
         Map<String, Class<?>> classes = getExtensionClasses();
-        return Collections.unmodifiableSet(new TreeSet<String>(classes.keySet()));
+        return Collections.unmodifiableSet(new HashSet<String>(classes.keySet()));
     }
 
     /**
@@ -290,6 +310,22 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 取得Adaptive实例。
+     * <p/>
+     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。<br />
+     * 推荐使用自动注入关联扩展的Adaptive实例的方式。
+     * <p/>
+     * Thread-safe.
+     *
+     * @param wrappers 返回的实例上，要启用的Wrapper。
+     * @since 0.2.1
+     */
+    public T getAdaptiveInstance(List<String> wrappers) {
+        T instance = getAdaptiveInstance();
+        return createWrapper(instance, wrappers);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getName() + "<" + type.getName() + ">";
@@ -341,12 +377,16 @@ public class ExtensionLoader<T> {
         }
     }
 
-    private T createWrapper(String name, T instance) {
-        try {
-            return injectExtension(name2Wrapper.get(name).getConstructor(type).newInstance(instance));
-        } catch (Throwable e) {
-            throw new IllegalStateException("Fail to create wrapper(" + name + ") for extension point " + type);
+    private T createWrapper(T instance, List<String> wrappers) {
+        for (String name : wrappers) {
+            try {
+                instance = injectExtension(name2Wrapper.get(name).getConstructor(type).newInstance(instance));
+            } catch (Throwable e) {
+                throw new IllegalStateException("Fail to create wrapper(" + name + ") for extension point " + type);
+            }
         }
+
+        return instance;
     }
 
     private T injectExtension(T instance) {
