@@ -378,7 +378,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (Exception expected) {
             assertThat(expected.getMessage(), containsString("Fail to create adaptive extension for extension point "));
-            assertThat(expected.getMessage(), containsString(": not found config parameter or config attribute in parameters of method "));
+            assertThat(expected.getMessage(), containsString("since not found config parameter or config attribute in parameters for adaptive method "));
         }
     }
 
