@@ -51,6 +51,13 @@ public class CarDemo {
         System.out.println("=================================");
 
         Car countedSportCar = extensionLoader.getExtension("sport", Arrays.asList("run_counter"));
-        countedSportCar.run(Config.fromKv("k1", "v1"));
+        countedSportCar.run(Config.fromKv("k1", "v1")); // 缺省使用RubberWheel
+
+        // 演示 在Adaptive Instance上Wrapper的使用
+
+        System.out.println("=================================");
+
+        Car countedAdaptiveInstance = extensionLoader.getAdaptiveInstance(Arrays.asList("run_counter"));
+        countedAdaptiveInstance.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
     }
 }
