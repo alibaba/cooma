@@ -20,12 +20,16 @@ import com.metaframe.cooma.Config;
 import com.metaframe.cooma.ExtensionLoader;
 import com.metaframe.demo.cooma.car.Car;
 
+import java.util.Arrays;
+
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class CarDemo {
     public static void main(String[] args) {
         ExtensionLoader<Car> extensionLoader = ExtensionLoader.getExtensionLoader(Car.class);
+
+        // 演示 扩展的获得、关联扩展点的注入（Car扩展点引用了Wheel）
 
         Car racingCar = extensionLoader.getExtension("racing");
         racingCar.run(Config.fromKv("wheel", "wood")); // 通过Key指定要哪种轮子
@@ -35,9 +39,18 @@ public class CarDemo {
         Car sportCar = extensionLoader.getExtension("sport");
         sportCar.run(Config.fromKv("k1", "v1")); // 缺省使用RubberWheel
 
+        // 演示 Adaptive Instance的使用
+
         System.out.println("=================================");
 
         Car adaptiveInstance = extensionLoader.getAdaptiveInstance();
         adaptiveInstance.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
+
+        // 演示 Wrapper的使用
+
+        System.out.println("=================================");
+
+        Car countedSportCar = extensionLoader.getExtension("sport", Arrays.asList("run_counter"));
+        countedSportCar.run(Config.fromKv("k1", "v1"));
     }
 }
