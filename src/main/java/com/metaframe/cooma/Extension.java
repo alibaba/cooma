@@ -23,9 +23,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mark a interface as an extension interface.
+ * 把一个接口标识成扩展点。
+ * <p/>
+ * 没有此注释的接口{@link ExtensionLoader}会拒绝接管。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @see ExtensionLoader
  * @since 0.1.0
  */
 @Documented

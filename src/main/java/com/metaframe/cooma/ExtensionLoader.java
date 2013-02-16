@@ -42,18 +42,17 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 /**
- * Load extension.<p>
+ * 加载和管理扩展。
+ * <p/>
  * <ul>
- * <li>Manage extension instance, instance is singleton.
- * <li>query extension
- * <li>inject adaptive instance to the attribute of extension, if the attribute is an extension too.
- * <li>wrap the specified extension wrapper.
+ * <li>管理的扩展实例是<b>单例</b>。
+ * <li>Wrapper实例每次获得扩展实例重新创建，并Wrap到扩展实例上。
  * </ul>
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
- * @see Config
  * @see Extension
  * @see Adaptive
+ * @see Config
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  * @since 0.1.0
  */
@@ -71,13 +70,13 @@ public class ExtensionLoader<T> {
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
     /**
-     * Factory Method of {@link ExtensionLoader}.
+     * {@link ExtensionLoader}的工厂方法。
      *
-     * @param type Extension type class
-     * @param <T>  Extension type
-     * @return {@link ExtensionLoader} instance.
-     * @throws IllegalArgumentException type argument is null;
-     *                                  or type is not a extension since WITHOUT {@link Extension} Annotation.
+     * @param type 扩展点接口类型
+     * @param <T>  扩展点类型
+     * @return {@link ExtensionLoader}实例
+     * @throws IllegalArgumentException 参数为<code>null</code>；
+     *                                  或是扩展点接口上没有{@link Extension}注解。
      * @since 0.1.0
      */
     @SuppressWarnings("unchecked")
@@ -294,8 +293,6 @@ public class ExtensionLoader<T> {
      * <p/>
      * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。<br />
      * 推荐使用自动注入关联扩展的Adaptive实例的方式。
-     * <p/>
-     * Thread-safe.
      *
      * @param wrappers 返回的实例上，要启用的Wrapper。
      * @since 0.2.1
@@ -538,7 +535,7 @@ public class ExtensionLoader<T> {
             }
 
             // 3. 收集方法上的Adaptive Keys
-           String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
+            String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
             if (adaptiveKeys.length == 0) {
                 // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
                 adaptiveKeys = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};

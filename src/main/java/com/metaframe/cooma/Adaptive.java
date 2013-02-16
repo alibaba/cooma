@@ -23,11 +23,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The information used by {@link ExtensionLoader} to generate Adaptive Instance.
+ * 提供信息用于{@link ExtensionLoader}生成自适应实例（Adaptive Instance）。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see ExtensionLoader
  * @see Config
+ * @see Extension
  * @since 0.1.0
  */
 @Documented
@@ -36,20 +37,20 @@ import java.lang.annotation.Target;
 public @interface Adaptive {
 
     /**
-     * the key names of the {@link Config}, the corresponding value in {@link Config} used as the extension name which adaptive instance adapt to.
-     * <br>
-     * If these keys have no corresponding value in the {@link Config}, use the default extension(set by the {@link Extension} on the extension interface).
+     * {@link Config}的Key列表，这些Key在{@link Config}中对应的Value是自适应实例方法调用时真正执行调用的扩展的名称。
+     * <br/>
+     * 如果这些Key在{@link Config}中都没有Value，自适应实例会使用缺省扩展（在扩展点接口的{@link Extension}上设置的）。
      * <p/>
-     * eg. <code>String[] {"key1", "key2"}</code>, means:
+     * eg. <code>String[] {"key1", "key2"}</code>表示：
      * <ol>
-     * <li>use the value of <code>key1</code> as the extension name which adaptive instance adapt to;
-     * <li>if <code>key1</code> has no corresponding value in the {@link Config}, use the value of <code>key2</code> as the extension name;
-     * <li>if <code>key2</code> has no corresponding value in the {@link Config}, use the default extension;
-     * <li>if has no default extension, throw {@link IllegalStateException} when inject the adaptive instance.
+     * <li>使用<code>key1</code>的值作为自适应实例真正调用的扩展实现的名称。
+     * <li>如果<code>key1</code>没有对应的值，则使用<code>key2</code>的值作为自适应实例真正调用的扩展实现的名称。
+     * <li>如果<code>key2</code>没有对应的值，则使用缺省扩展。
+     * <li>如果没有缺省扩展，则在获取自适应实例时，会抛出{@link IllegalStateException}。
      * </ol>
      * <p/>
-     * if default value of key names is the low case of extension interface name, separate word by dot.
-     * eg. Extension interface <code>com.metaframe.cooma.FooBizService</code>, the key names is <code>String[] {"foo.biz.service"}</code>
+     * 缺省是扩展点接口名的点分小写形式。
+     * eg. 扩展点接口名<code>com.metaframe.cooma.FooBizService</code>, 缺省key是<code>String[] {"foo.biz.service"}</code>。
      *
      * @see Extension#value()
      * @since 0.1.0
