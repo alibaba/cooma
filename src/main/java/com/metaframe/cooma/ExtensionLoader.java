@@ -113,8 +113,8 @@ public class ExtensionLoader<T> {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
 
-        // 加载扩展点类
-        // 如果没有这个名字的扩展点类，会抛异常，这样不用创建不必要的Holder。
+        // 先一下加载扩展点类，如果没有这个名字的扩展点类，会抛异常，
+        // 这样不用创建不必要的Holder。
         getExtensionClass(name);
 
         // 引入的Holder是为了下面用Holder作“细粒度锁”，而不是锁整个extInstances
@@ -211,7 +211,7 @@ public class ExtensionLoader<T> {
     public boolean hasExtension(String name) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("Extension name == null");
-        return hasExtensionClass(name);
+        return getExtensionClasses().get(name) != null;
     }
 
     /**
@@ -569,12 +569,6 @@ public class ExtensionLoader<T> {
         if (clazz == null)
             throw findExtensionClassLoadException(name);
         return clazz;
-    }
-
-    private boolean hasExtensionClass(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("Extension name == null");
-        return getExtensionClasses().get(name) != null;
     }
 
     /**
