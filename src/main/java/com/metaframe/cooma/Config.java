@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Configuration info of extensions, pass among extensions.
+ * 扩展的配置信息，在扩展之间传递。
  * <p/>
- * {@link Config} are <b>immutable</b> instance, so thread-safe.
+ * {@link Config}是<b>不可用</b>的实例，所以实例是<b>线程安全</b>。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @since 0.1.0
@@ -47,11 +47,11 @@ public final class Config {
     private static final Pattern KV_SEPARATOR = Pattern.compile("\\s*[=]\\s*");
 
     /**
-     * Parse config string to {@link Config} instance.
+     * 把字符串转成{@link Config}。
      * <p/>
-     * a config string like <code>key1=value1&key2=value2</code>.
+     * 字符串的格式是<code>key1=value1&key2=value2</code>.
      *
-     * @param configString config string.
+     * @param configString 配置字符串.
      * @since 0.1.0
      */
     public static Config fromString(String configString) {
@@ -82,6 +82,8 @@ public final class Config {
     }
 
     /**
+     * 把{@link Map}转成{@link Config}。
+     *
      * @since 0.1.0
      */
     public static Config fromMap(Map<String, String> configs) {
@@ -107,6 +109,9 @@ public final class Config {
     }
 
     /**
+     * 把方法参数两两组合作为Key-Value转成{@link Config}。
+     * 如果方法参数个数是奇数，作为最后一个参数作为Key，对应的Value是<code>null</code>。
+     *
      * @since 0.1.0
      */
     public static Config fromKv(String... kvPairs) {
@@ -114,6 +119,8 @@ public final class Config {
     }
 
     /**
+     * 在{@link Config}加入新参数。
+     *
      * @since 0.1.0
      */
     public Config addConfig(String... kvPairs) {
@@ -123,6 +130,8 @@ public final class Config {
     }
 
     /**
+     * 在{@link Config}加入新参数。
+     *
      * @since 0.1.0
      */
     public Config addConfig(Map<String, String> configs) {
@@ -132,10 +141,40 @@ public final class Config {
     }
 
     /**
+     * {@link Config}转成{@link Map}。
+     *
      * @since 0.1.0
      */
     public Map<String, String> toMap() {
         return new HashMap<String, String>(configs);
+    }
+
+    private transient volatile String toString;
+
+    /**
+     * {@link Config}转成字符串。
+     */
+    @Override
+    public String toString() {
+        if (toString != null) return toString;
+
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        for (Map.Entry<String, String> c : configs.entrySet()) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                sb.append("&");
+            }
+
+            sb.append(c.getKey().trim());
+
+            String value = c.getValue();
+            if (value != null && (value = value.trim()).length() > 0) {
+                sb.append("=").append(value);
+            }
+        }
+        return toString = sb.toString();
     }
 
     /**
@@ -242,30 +281,5 @@ public final class Config {
         } else if (!configs.equals(other.configs))
             return false;
         return true;
-    }
-
-    private transient volatile String toString;
-
-    @Override
-    public String toString() {
-        if (toString != null) return toString;
-
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        for (Map.Entry<String, String> c : configs.entrySet()) {
-            if (isFirst) {
-                isFirst = false;
-            } else {
-                sb.append("&");
-            }
-
-            sb.append(c.getKey().trim());
-
-            String value = c.getValue();
-            if (value != null && (value = value.trim()).length() > 0) {
-                sb.append("=").append(value);
-            }
-        }
-        return toString = sb.toString();
     }
 }
