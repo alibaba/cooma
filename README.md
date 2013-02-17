@@ -1,6 +1,42 @@
 Cooma is a simple microcontainer implementation of Java.
 
-Home Page: https://github.com/metaframe/cooma/wiki
+Home Page <https://github.com/metaframe/cooma/wiki>
+
+Code compile and browse tutorial
+==================================
+
+Checkout
+--------------
+
+```bash
+git clone https://github.com/metaframe/cooma.git
+```
+
+Compile
+---------------
+
+```bash
+mvn install -Dmaven.test.skip
+```
+
+Browse
+---------------
+
+Eclipse:
+
+```bash
+mvn eclipse:eclipse -DdownloadSources
+
+Eclipse -> File -> Import -> Existing Projects into Workspace -> Browse -> Finished
+```
+
+Idea:
+
+```bash
+mvn idea:idea -DdownloadSources
+
+Idea -> File -> Open -> Browse project directory -> OK
+```
 
 Related Product
 =========================
@@ -15,6 +51,6 @@ Related Product
 Design Principle
 =========================
 
-- Tiny and simple. Less than 1000 lines of code.
+- Tiny and simple. Less than 1000 lines of code(not including code comments).
 - Concept independence.
-- Developer friendly.
+- Integration friendly.
