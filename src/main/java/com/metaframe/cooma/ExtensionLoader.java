@@ -65,7 +65,7 @@ public class ExtensionLoader<T> {
     private static final String PREFIX_WRAPPER_CLASS = "+";
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*,+\\s*");
-    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-z0-9_]+");
+    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_]+");
 
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
