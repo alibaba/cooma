@@ -33,6 +33,7 @@ import com.metaframe.cooma.ext6.InjectExt;
 import com.metaframe.cooma.ext6.impl.Ext6Impl2;
 import com.metaframe.cooma.ext7.InitErrorExt;
 import com.metaframe.cooma.ext8.InvalidNameExt;
+import com.metaframe.cooma.ext8.InvalidNameExt2;
 import com.metaframe.cooma.ext9.ManualAdaptiveClassExt;
 import com.metaframe.cooma.ext9.impl.ManualAdaptive;
 import com.metaframe.cooma.exta.ImplNoDefaultConstructorExt;
@@ -520,6 +521,7 @@ public class ExtensionLoaderTest {
         }
     }
 
+    //新增测试 a-Z 中的 ] [ 等非法符号
     @Test
     public void test_InvalidExtName() throws Exception {
         try {
@@ -527,6 +529,18 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("default name(invalid-name&) of extension com.metaframe.cooma.ext8.InvalidNameExt is invalid"));
+        }
+    }
+    
+    //
+    @Test
+    public void test_InvalidExtName2() throws Exception {
+        try {
+            ExtensionLoader.getExtensionLoader(InvalidNameExt2.class);
+            fail();
+        } catch (IllegalStateException expected) {
+            assertThat(expected.getMessage(),
+                       containsString("default name(invalidname]) of extension com.metaframe.cooma.ext8.InvalidNameExt2 is invalid"));
         }
     }
 
