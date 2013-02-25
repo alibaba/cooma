@@ -1,9 +1,9 @@
 Cooma is a simple and flexible microcontainer implementation of Java.
 
-Documentation page: <https://github.com/metaframe/cooma/wiki>  
-Report problems or suggestions: <https://github.com/metaframe/cooma/issues>  
-Code Project page: <https://github.com/metaframe/cooma>  
-MailList: <mailto:metaframe-cooma@googlegroups.com>
+Documentation page: <https://github.com/AlibabaTech/cooma/wiki>  
+Report problems or suggestions: <https://github.com/AlibabaTech/cooma/issues>  
+Code Project page: <https://github.com/AlibabaTech/cooma>  
+MailList: <mailto:java-cooma@googlegroups.com>
 
 Code compile and browse tutorial
 ==================================
@@ -12,7 +12,7 @@ Checkout
 --------------
 
 ```bash
-git clone https://github.com/metaframe/cooma.git
+git clone https://github.com/AlibabaTech/cooma.git
 ```
 
 Compile
