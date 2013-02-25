@@ -27,19 +27,17 @@ import java.lang.annotation.Target;
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see ExtensionLoader
- * @see Config
  * @see Extension
  * @since 0.1.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ElementType.PARAMETER})
 public @interface Adaptive {
-
     /**
-     * {@link Config}的Key列表，这些Key在{@link Config}中对应的Value是自适应实例方法调用时真正执行调用的扩展的名称。
+     * Key列表，这些Key在所注解参数的对应的Value是自适应实例方法调用时真正执行调用的扩展的名称。
      * <br/>
-     * 如果这些Key在{@link Config}中都没有Value，自适应实例会使用缺省扩展（在扩展点接口的{@link Extension}上设置的）。
+     * 如果这些Key在中所注解参数都没有Value，自适应实例会使用缺省扩展（在扩展点接口的{@link Extension}上设置的）。
      * <p/>
      * eg. <code>String[] {"key1", "key2"}</code>表示：
      * <ol>
@@ -56,4 +54,8 @@ public @interface Adaptive {
      * @since 0.1.0
      */
     String[] value() default {};
+
+    public static interface AdaptiveValueExtractor {
+        String getValue(Object source, String... keys);
+    }
 }

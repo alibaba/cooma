@@ -22,6 +22,5 @@ package com.alibaba.cooma;
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public interface NoExtensionExt {
-    @Adaptive
-    String echo(String s);
+    String echo(@Adaptive Config config);
 }

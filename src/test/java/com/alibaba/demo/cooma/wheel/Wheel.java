@@ -25,6 +25,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension("rubber")
 public interface Wheel {
-    @Adaptive("wheel")
-    void roll(Config config);
+    void roll(@Adaptive("wheel") Config config);
 }

@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.ext2;
+package com.alibaba.cooma;
 
-import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Extension;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 无Default。
- * 使用ConfigHolder。
+ * 提供信息用于{@link com.alibaba.cooma.ExtensionLoader}生成自适应实例（Adaptive Instance）。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @see com.alibaba.cooma.ExtensionLoader
+ * @see com.alibaba.cooma.Extension
+ * @since 0.1.0
  */
-@Extension
-public interface NoDefaultExt {
-    String echo(@Adaptive ConfigHolder holder, String s);
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER})
+public @interface FooAnnotation {
+    String[] value() default {};
 }

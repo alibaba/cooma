@@ -28,6 +28,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface InitErrorExt {
-    @Adaptive("key")
-    String echo(Config config, String s);
+    String echo(@Adaptive("key") Config config, String s);
 }

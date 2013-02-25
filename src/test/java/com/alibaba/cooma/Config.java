@@ -16,8 +16,10 @@
 
 package com.alibaba.cooma;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -28,7 +30,7 @@ import java.util.regex.Pattern;
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @since 0.1.0
  */
-public final class Config {
+public final class Config implements Map<String, String> {
 
     private final Map<String, String> configs;
 
@@ -264,6 +266,55 @@ public final class Config {
         int result = 1;
         result = prime * result + ((configs == null) ? 0 : configs.hashCode());
         return result;
+    }
+
+    public int size() {
+        return configs.size();
+    }
+
+    public boolean isEmpty() {
+        return configs.isEmpty();
+    }
+
+    public boolean containsKey(Object key) {
+        return configs.containsKey(key);
+    }
+
+    public boolean containsValue(Object value) {
+        return configs.containsValue(value);
+    }
+
+    public String get(Object key) {
+
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String put(String key, String value) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String remove(Object key) {
+        return configs.get(key);
+    }
+
+    public void putAll(Map<? extends String, ? extends String> m) {
+        configs.putAll(m);
+    }
+
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<String> keySet() {
+        return configs.keySet();
+    }
+
+    public Collection<String> values() {
+        return configs.values();
+    }
+
+    public Set<Entry<String, String>> entrySet() {
+        return configs.entrySet();
     }
 
     @Override
