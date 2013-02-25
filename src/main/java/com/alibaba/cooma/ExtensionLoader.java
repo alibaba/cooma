@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -52,7 +53,6 @@ import java.util.regex.Pattern;
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see Extension
  * @see Adaptive
- * @see Config
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  * @since 0.1.0
  */
@@ -435,29 +435,15 @@ public class ExtensionLoader<T> {
 
                 int confArgIdx = method2ConfigArgIndex.get(method);
                 Object confArg = args[confArgIdx];
-                Config config;
-                if (method2ConfigGetter.containsKey(method)) {
-                    if (confArg == null) {
-                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
-                                " argument == null");
-                    }
-                    Method configGetter = method2ConfigGetter.get(method);
-                    config = (Config) configGetter.invoke(confArg);
-                    if (config == null) {
-                        throw new IllegalArgumentException(method.getParameterTypes()[confArgIdx].getName() +
-                                " argument " + configGetter.getName() + "() == null");
-                    }
-                } else {
-                    if (confArg == null) {
-                        throw new IllegalArgumentException("config == null");
-                    }
-                    config = (Config) confArg;
+                Map<String, String> config = (Map<String, String>) confArg;
+                if (confArg == null) {
+                    throw new IllegalArgumentException("adaptive argument == null");
                 }
 
                 String[] adaptiveKeys = method2AdaptiveKeys.get(method);
                 String extName = null;
                 for (int i = 0; i < adaptiveKeys.length; ++i) {
-                    if (!config.contains(adaptiveKeys[i])) {
+                    if (!config.containsKey(adaptiveKeys[i])) {
                         if (i == adaptiveKeys.length - 1)
                             extName = defaultExtension;
                         continue;
@@ -478,7 +464,7 @@ public class ExtensionLoader<T> {
 
     /**
      * 收到Adaptive Instance需要的信息。
-     * 1. Configs在方法的参数的位置
+     * 1. 注解所在方法的参数的位置
      * 2. Method的Adaptive Keys
      */
     private void checkAndCollectAdaptiveInfo0() {
@@ -496,51 +482,41 @@ public class ExtensionLoader<T> {
 
         // 收集获取Config的信息
         for (Method method : methods) {
-            Adaptive annotation = method.getAnnotation(Adaptive.class);
-            // 如果不Adaptive方法，不需要收集Config信息
-            if (annotation == null) continue;
+            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 
-            // 1. 找 Configs类型的参数
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            for (int i = 0; i < parameterTypes.length; ++i) {
-                if (Config.class.isAssignableFrom(parameterTypes[i])) {
-                    method2ConfigArgIndex.put(method, i);
-                    break;
-                }
-            }
-            if (!method2ConfigArgIndex.containsKey(method)) {
-                // 2. 找 有属性是Configs类型的参数
-                LBL_PARAMETER_TYPES:
-                for (int i = 0; i < parameterTypes.length; ++i) {
-                    Method[] ms = parameterTypes[i].getMethods();
-                    for (Method m : ms) {
-                        String name = m.getName();
-                        if ((name.startsWith("get") || name.length() > 3)
-                                && Modifier.isPublic(m.getModifiers())
-                                && !Modifier.isStatic(m.getModifiers())
-                                && m.getParameterTypes().length == 0
-                                && Config.class.isAssignableFrom(m.getReturnType())) {
-                            method2ConfigArgIndex.put(method, i);
-                            method2ConfigGetter.put(method, m);
-                            break LBL_PARAMETER_TYPES;
+
+            // 1. 找 有@Adaptive的方法参数
+            int adaptiveArgIdx = -1;
+            Adaptive adaptive = null;
+            for (int i = 0; i < parameterAnnotations.length; i++) {
+                Annotation[] annotations = parameterAnnotations[i];
+                for (Annotation a : annotations) {
+                    if (a instanceof Adaptive) {
+                        if(adaptiveArgIdx < 0) {
+                            adaptiveArgIdx = i;
+                            adaptive = (Adaptive) a;
                         }
+                        else {
+                            throw new IllegalStateException("at most 1 parameter can annotated by @Adaptive for method " +
+                                method.getName() + "for extension " + type.getName());
+                        }
+
                     }
                 }
-
-                if (!method2ConfigArgIndex.containsKey(method)) {
-                    throw new IllegalStateException("Fail to create adaptive class for extension point " + type.getName() +
-                            ", since not found config parameter or config attribute in parameters for adaptive method " + method.getName());
-
-                }
             }
+            if(adaptive == null) continue; // 如果不是Adaptive方法，不需要收集信息
+            method2ConfigArgIndex.put(method, adaptiveArgIdx);
 
-            // 3. 收集方法上的Adaptive Keys
+            // 2. 收集方法上的Adaptive Keys
             String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
             if (adaptiveKeys.length == 0) {
                 // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
                 adaptiveKeys = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
             }
             method2AdaptiveKeys.put(method, adaptiveKeys);
+
+            // FIXME 把方法参数类型当作是Map。实际类型应该不做限制，如何从这个类型上extract Value？
+            // FIXME extract对参数本身。extract可以不是对参数，而是参数某个属性，如何配置？  method2ConfigGetter
         }
     }
 

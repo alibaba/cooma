@@ -26,6 +26,5 @@ import java.util.List;
  */
 @Extension
 public interface AdaptiveMethodNoConfig_Ext {
-    @Adaptive
-    String bark(String name, List<Object> list); // 没有Config参数的方法
+    String bark(@Adaptive String name, List<Object> list); // 没有Config参数的方法
 }

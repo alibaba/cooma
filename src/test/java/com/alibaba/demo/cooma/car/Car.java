@@ -25,6 +25,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface Car {
-    @Adaptive("car")
-    void run(Config config);
+    void run(@Adaptive("car") Config config);
 }

@@ -26,11 +26,9 @@ import com.alibaba.cooma.Extension;
 @Extension("impl1")
 public interface SimpleExt {
     // 没有使用key的@Adaptive ！
-    @Adaptive
-    String echo(Config config, String s);
+    String echo(@Adaptive Config config, String s);
 
-    @Adaptive({"key1", "key2"})
-    String yell(Config config, String s);
+    String yell(@Adaptive({"key1", "key2"}) Config config, String s);
 
     // 无@Adaptive ！
     String bang(Config config, int i);

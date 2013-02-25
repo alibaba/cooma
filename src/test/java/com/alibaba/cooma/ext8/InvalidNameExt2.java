@@ -27,7 +27,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension("invalidName]")
 public interface InvalidNameExt2 {
-
-    @Adaptive("key")
-    String echo(Config config, String s);
+    String echo(@Adaptive("key") Config config, String s);
 }

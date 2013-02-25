@@ -27,6 +27,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension("impl1")
 public interface ImplNoDefaultConstructorExt {
-    @Adaptive("key")
-    String echo(Config config, String s);
+    String echo(@Adaptive("key") Config config, String s);
 }
