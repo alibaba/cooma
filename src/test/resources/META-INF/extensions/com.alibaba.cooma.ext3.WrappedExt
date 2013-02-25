@@ -1,0 +1,4 @@
+impl1=com.alibaba.cooma.ext3.impl.Ext3Impl1
+impl2=com.alibaba.cooma.ext3.impl.Ext3Impl2
++wrapper1=com.alibaba.cooma.ext3.impl.Ext3Wrapper1
++wrapper2=com.alibaba.cooma.ext3.impl.Ext3Wrapper2

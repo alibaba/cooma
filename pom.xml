@@ -19,13 +19,13 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.metaframe</groupId>
+	<groupId>com.alibaba</groupId>
 	<artifactId>cooma</artifactId>
 	<version>0.2.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Cooma Microcontainer</name>
 	<description>Simple Microcontainer(Java)</description>
-	<url>https://github.com/metaframe/cooma/wiki</url>
+	<url>https://github.com/AlibabaTech/cooma/wiki</url>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
 		<license>
@@ -71,22 +71,15 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>metaframe-repository</id>
-			<name>Metaframe Maven Repository</name>
-			<url>http://metaframe.github.com/repo</url>
-		</repository>
-	</repositories>
 	<scm>
-		<url>https://github.com/metaframe/cooma</url>
-		<connection>scm:git:git@github.com:metaframe/cooma.git</connection>
-		<developerConnection>scm:git:git@github.com:metaframe/cooma.git
+		<url>https://github.com/AlibabaTech/cooma</url>
+		<connection>scm:git:git@github.com:AlibabaTech/cooma.git</connection>
+		<developerConnection>scm:git:git@github.com:AlibabaTech/cooma.git
 		</developerConnection>
 	</scm>
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/metaframe/cooma/issues</url>
+		<url>https://github.com/AlibabaTech/cooma/issues</url>
 	</issueManagement>
 	<developers>
 		<developer>

@@ -1,0 +1,5 @@
+# Adaptive Class, 名字现在是没有用处的
+*adaptive=com.alibaba.cooma.ext9.impl.ManualAdaptive
+
+impl1=com.alibaba.cooma.ext9.impl.ExtImpl1
+impl2=com.alibaba.cooma.ext9.impl.ExtImpl2

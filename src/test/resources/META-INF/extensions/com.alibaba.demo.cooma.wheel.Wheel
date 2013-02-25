@@ -1,0 +1,2 @@
+rubber=com.alibaba.demo.cooma.wheel.impl.RubberWheel
+wood=com.alibaba.demo.cooma.wheel.impl.WoodWheel
