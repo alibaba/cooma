@@ -2,7 +2,7 @@ Cooma is a simple and flexible microcontainer implementation of Java.
 
 Documentation page: <https://github.com/metaframe/cooma/wiki>  
 Report problems or suggestions: <https://github.com/metaframe/cooma/issues>  
-Code Project page: <https://github.com/metaframe/cooma>
+Code Project page: <https://github.com/metaframe/cooma>  
 MailList: <mailto:metaframe-cooma@googlegroups.com>
 
 Code compile and browse tutorial

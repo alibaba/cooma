@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.metaframe.cooma.ext8;
 
 import com.metaframe.cooma.Adaptive;
@@ -21,10 +22,10 @@ import com.metaframe.cooma.Extension;
 
 /**
  * 用于测试： 非法的扩展点名
- * 
+ *
  * @author Zava
  */
-@Extension("invalidname]")
+@Extension("invalidName]")
 public interface InvalidNameExt2 {
 
     @Adaptive("key")
