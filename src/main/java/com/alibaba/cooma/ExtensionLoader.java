@@ -434,7 +434,15 @@ public class ExtensionLoader<T> {
                 }
 
                 int confArgIdx = method2ConfigArgIndex.get(method);
-                Object confArg = args[confArgIdx];
+                Method getter = method2ConfigGetter.get(method);
+                Object confArg;
+                if(getter == null) {
+                    confArg = args[confArgIdx];
+                }
+                else {
+                    confArg = getter.invoke(args[confArgIdx]);
+                }
+
                 Map<String, String> config = (Map<String, String>) confArg;
                 if (confArg == null) {
                     throw new IllegalArgumentException("adaptive argument == null");
@@ -506,6 +514,17 @@ public class ExtensionLoader<T> {
             }
             if(adaptive == null) continue; // 如果不是Adaptive方法，不需要收集信息
             method2ConfigArgIndex.put(method, adaptiveArgIdx);
+
+            if(adaptive.path().length() > 0) {
+                try {
+                    String path = adaptive.path();
+                    Class<?> parameterType = method.getParameterTypes()[adaptiveArgIdx];
+                    Method getter = parameterType.getMethod("get" + path.substring(0, 1).toLowerCase() + path.substring(1));
+                    method2ConfigGetter.put(method, getter);
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalStateException("Path is Invalid!"); // TODO Improve message!
+                }
+            }
 
             // 2. 收集方法上的Adaptive Keys
             String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
