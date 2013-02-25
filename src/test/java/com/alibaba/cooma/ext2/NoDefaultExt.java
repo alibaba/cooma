@@ -27,5 +27,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface NoDefaultExt {
-    String echo(@Adaptive ConfigHolder holder, String s);
+    String echo(@Adaptive(path = "config") ConfigHolder holder, String s);
 }

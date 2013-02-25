@@ -55,6 +55,8 @@ public @interface Adaptive {
      */
     String[] value() default {};
 
+    String path() default "";
+
     public static interface AdaptiveValueExtractor {
         String getValue(Object source, String... keys);
     }
