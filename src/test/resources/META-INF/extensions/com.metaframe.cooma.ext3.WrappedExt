@@ -1,4 +1,0 @@
-impl1=com.metaframe.cooma.ext3.impl.Ext3Impl1
-impl2=com.metaframe.cooma.ext3.impl.Ext3Impl2
-+wrapper1=com.metaframe.cooma.ext3.impl.Ext3Wrapper1
-+wrapper2=com.metaframe.cooma.ext3.impl.Ext3Wrapper2
