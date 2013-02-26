@@ -21,9 +21,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
- * 提供信息用于{@link ExtensionLoader}生成自适应实例（Adaptive Instance）。
+ * 提供信息，让自适应实例（Adaptive Instance）找到运行调用时要调用的扩展名称。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see ExtensionLoader
@@ -57,7 +58,31 @@ public @interface Adaptive {
 
     String path() default "";
 
-    public static interface AdaptiveValueExtractor {
-        String getValue(Object source, String... keys);
+    Class<? extends ValueExtractor> extractor() default DefaultExtractor.class;
+
+    public static interface ValueExtractor {
+        Object getValue(Class<?> type, Object argument, Adaptive adaptive);
+    }
+
+    public static class DefaultExtractor implements ValueExtractor {
+        public String getValue(Class<?> type, Object argument, Adaptive adaptive) {
+            if (type == String.class) return (String) argument;
+
+            final String[] keys = adaptive.value();
+
+            if (Map.class.isAssignableFrom(type)) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = (Map<String, Object>) argument;
+                for (String key : keys) {
+                    String value = map.get(key).toString();
+                    if (value != null) {
+                        return value;
+                    }
+                }
+                return null;
+            }
+
+            return null;
+        }
     }
 }
