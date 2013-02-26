@@ -436,10 +436,9 @@ public class ExtensionLoader<T> {
                 int confArgIdx = method2ConfigArgIndex.get(method);
                 Method getter = method2ConfigGetter.get(method);
                 Object confArg;
-                if(getter == null) {
+                if (getter == null) {
                     confArg = args[confArgIdx];
-                }
-                else {
+                } else {
                     confArg = getter.invoke(args[confArgIdx]);
                 }
 
@@ -500,22 +499,21 @@ public class ExtensionLoader<T> {
                 Annotation[] annotations = parameterAnnotations[i];
                 for (Annotation a : annotations) {
                     if (a instanceof Adaptive) {
-                        if(adaptiveArgIdx < 0) {
+                        if (adaptiveArgIdx < 0) {
                             adaptiveArgIdx = i;
                             adaptive = (Adaptive) a;
-                        }
-                        else {
+                        } else {
                             throw new IllegalStateException("at most 1 parameter can annotated by @Adaptive for method " +
-                                method.getName() + "for extension " + type.getName());
+                                    method.getName() + "for extension " + type.getName());
                         }
 
                     }
                 }
             }
-            if(adaptive == null) continue; // 如果不是Adaptive方法，不需要收集信息
+            if (adaptive == null) continue; // 如果不是Adaptive方法，不需要收集信息
             method2ConfigArgIndex.put(method, adaptiveArgIdx);
 
-            if(adaptive.path().length() > 0) {
+            if (adaptive.path().length() > 0) {
                 try {
                     String path = adaptive.path();
                     Class<?> parameterType = method.getParameterTypes()[adaptiveArgIdx];
