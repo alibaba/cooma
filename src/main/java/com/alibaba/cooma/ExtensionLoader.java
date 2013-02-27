@@ -426,6 +426,9 @@ public class ExtensionLoader<T> {
                     if (methodName.equals("hashCode")) {
                         return 1;
                     }
+                    if(methodName.equals("equals")) {
+                        return this == args[0];
+                    }
                     throw new UnsupportedOperationException("not support method " + method +
                             " of Adaptive Instance for " + type.getName());
                 }
