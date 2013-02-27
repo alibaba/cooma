@@ -39,7 +39,6 @@ import java.util.Map;
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
-// FIXME 每次扩展点调用都要收集参数上的信息，再extract。期望把收集操作提到方法外。
 public class DefaultNameExtractor extends AbstractNameExtractor {
     private final int IS_STRING = 0;
     private final int IS_MAP = 1;
@@ -72,7 +71,9 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
                     String path = adaptive.path();
                     getter = type.getMethod(StringUtils.attribute2Getter(path));
                 } catch (NoSuchMethodException e) {
-                    throw new IllegalStateException("Path is Invalid!"); // FIXME Improve message!
+                    throw new IllegalStateException("no attrib " + adaptive.path() +
+                            " for type " + type.getName() + " of method " + method.getName() +
+                            " of extension " + extension.getName());
                 }
             }
 

@@ -129,12 +129,12 @@ public class ConfigTest {
 
         assertTrue(config.getBoolean("k1"));
         assertFalse(config.getBoolean("k2"));
-        assertFalse(config.getBoolean("k3")); // FIXME 不是Boolean值，当False？！
+        assertFalse(config.getBoolean("k3")); // 不是Boolean值，当False！
         assertFalse(config.getBoolean("k4"));
 
         assertTrue(config.getBoolean("k1", false));
         assertFalse(config.getBoolean("k2", true));
-        assertFalse(config.getBoolean("k3", true)); // FIXME 不是Boolean值，当False？！
+        assertFalse(config.getBoolean("k3", true)); // 不是Boolean值，当False！
         assertTrue(config.getBoolean("k4", true));
     }
 
