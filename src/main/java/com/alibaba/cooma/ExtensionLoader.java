@@ -441,7 +441,7 @@ public class ExtensionLoader<T> {
                 int confArgIdx = adaptiveMethod2ArgIndex.get(method);
                 Object arg = args[confArgIdx];
                 NameExtractor nameExtractor = adaptiveMethod2Extractor.get(method);
-                String extName = nameExtractor.getValue(arg);
+                String extName = nameExtractor.extract(arg);
                 if (extName == null) extName = defaultExtension;
                 if (extName == null)
                     throw new IllegalStateException("Fail to get extension(" + type.getName() +
