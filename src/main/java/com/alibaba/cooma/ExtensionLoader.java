@@ -406,6 +406,7 @@ public class ExtensionLoader<T> {
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
     private final Map<Method, String[]> method2AdaptiveKeys = new HashMap<Method, String[]>();
+    private volatile Map<Method, Adaptive.NameExtractor> method2Extrators;
 
     private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
         checkAndCollectAdaptiveInfo0();
@@ -415,6 +416,8 @@ public class ExtensionLoader<T> {
         }
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
+
+
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 if (method.getDeclaringClass().equals(Object.class)) {
                     String methodName = method.getName();
@@ -442,13 +445,14 @@ public class ExtensionLoader<T> {
                     confArg = getter.invoke(args[confArgIdx]);
                 }
 
-                Map<String, String> config = (Map<String, String>) confArg;
                 if (confArg == null) {
                     throw new IllegalArgumentException("adaptive argument == null");
                 }
 
                 String[] adaptiveKeys = method2AdaptiveKeys.get(method);
                 String extName = null;
+                Map<String, String> config = (Map<String, String>) confArg;
+
                 for (int i = 0; i < adaptiveKeys.length; ++i) {
                     if (!config.containsKey(adaptiveKeys[i])) {
                         if (i == adaptiveKeys.length - 1)
@@ -474,23 +478,37 @@ public class ExtensionLoader<T> {
      * 1. 注解所在方法的参数的位置
      * 2. Method的Adaptive Keys
      */
-    private void checkAndCollectAdaptiveInfo0() {
+    private void checkAndCollectAdaptiveInfo0() throws IllegalAccessException, InstantiationException {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
+
+        final Map<Method, Adaptive.NameExtractor> m2Extrators = new HashMap<Method, Adaptive.NameExtractor>();
         for (Method m : methods) {
-            if (m.isAnnotationPresent(Adaptive.class)) {
-                hasAdaptiveAnnotation = true;
-                break;
+            Annotation[][] parameterAnnotations = m.getParameterAnnotations();
+            Adaptive adaptive = null;
+            for (Annotation[] annotations : parameterAnnotations) {
+                for (Annotation a : annotations) {
+                    if (a instanceof Adaptive) {
+                        hasAdaptiveAnnotation = true;
+                        if (adaptive != null) {
+                            throw new IllegalStateException("at most 1 parameter can be annotated by @Adaptive for method " +
+                                    m.getName() + " of extension " + type.getName());
+                        }
+                        adaptive = (Adaptive) a;
+                    }
+                }
             }
+            if(adaptive == null) continue;
+            m2Extrators.put(m, adaptive.extractor().newInstance());
         }
         // 接口上没有Adaptive方法，则不需要生成Adaptive类
         if (!hasAdaptiveAnnotation)
             throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
+        method2Extrators = m2Extrators;
 
         // 收集获取Config的信息
         for (Method method : methods) {
             Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-
 
             // 1. 找 有@Adaptive的方法参数
             int adaptiveArgIdx = -1;
@@ -506,7 +524,6 @@ public class ExtensionLoader<T> {
                             throw new IllegalStateException("at most 1 parameter can annotated by @Adaptive for method " +
                                     method.getName() + "for extension " + type.getName());
                         }
-
                     }
                 }
             }
@@ -525,7 +542,7 @@ public class ExtensionLoader<T> {
             }
 
             // 2. 收集方法上的Adaptive Keys
-            String[] adaptiveKeys = method.getAnnotation(Adaptive.class).value();
+            String[] adaptiveKeys = adaptive.value();
             if (adaptiveKeys.length == 0) {
                 // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
                 adaptiveKeys = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
