@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 /**
- * 提供信息，让自适应实例（Adaptive Instance）找到运行调用时要调用的扩展名称。
+ * 注解到扩展点方法的参数，表示这个参数用于提供信息，让自适应实例（Adaptive Instance）找到运行调用时要调用的扩展名称。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see ExtensionLoader
@@ -58,18 +58,31 @@ public @interface Adaptive {
 
     String path() default "";
 
-    Class<? extends ValueExtractor> extractor() default DefaultExtractor.class;
+    Class<? extends NameExtractor> extractor() default DefaultNameExtractor.class;
 
-    public static interface ValueExtractor {
+    /**
+     * 从方法扩展点的方法参数中提取到扩展名称信息。
+     */
+    public static interface NameExtractor {
+        /**
+         * 从方法扩展点的方法参数中提取到扩展名称信息。
+         *
+         * @param type 方法参数类型。
+         * @param argument 方法参数。
+         * @param adaptive 方法参数的{link Adaptive}注解。
+         * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。
+         */
         Object getValue(Class<?> type, Object argument, Adaptive adaptive);
     }
 
-    public static class DefaultExtractor implements ValueExtractor {
+    public static class DefaultNameExtractor implements NameExtractor {
         public String getValue(Class<?> type, Object argument, Adaptive adaptive) {
+            // 方法参数类型是String，参数值直接作为扩展名称。
             if (type == String.class) return (String) argument;
 
             final String[] keys = adaptive.value();
 
+            // 方法参数类型是Map，则提取Map的Value作为扩展名称。
             if (Map.class.isAssignableFrom(type)) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> map = (Map<String, Object>) argument;
