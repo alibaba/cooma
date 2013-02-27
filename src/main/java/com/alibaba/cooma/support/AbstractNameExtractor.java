@@ -18,15 +18,28 @@ package com.alibaba.cooma.support;
 
 import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.NameExtractor;
+import com.alibaba.cooma.internal.utils.StringUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public abstract class AbstractNameExtractor implements NameExtractor {
+    protected Class<?> extension;
+    protected Method method;
     protected Class<?> type;
     protected Adaptive adaptive;
 
     protected String[] adaptiveKeys;
+
+    public void setExtension(Class<?> extension) {
+        this.extension = extension;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
+    }
 
     public void setParameterType(Class<?> type) {
         this.type = type;
@@ -38,7 +51,12 @@ public abstract class AbstractNameExtractor implements NameExtractor {
     }
 
     public void init() {
-        // nothing need to do.
+        String[] keys = adaptive.value();
+        if (keys.length == 0) {
+            // 没有设置Key，则使用“扩展点接口名的点分隔”作为Key
+            keys = new String[]{StringUtils.toDotSpiteString(extension.getSimpleName())};
+        }
+        adaptiveKeys = keys;
     }
 
     public abstract String getValue(Object argument);

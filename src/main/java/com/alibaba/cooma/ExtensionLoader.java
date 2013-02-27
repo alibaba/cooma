@@ -403,10 +403,9 @@ public class ExtensionLoader<T> {
     private final Holder<T> adaptiveInstance = new Holder<T>();
     private volatile Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
 
-    private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
-    private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
-    private final Map<Method, String[]> method2AdaptiveKeys = new HashMap<Method, String[]>();
-    private volatile Map<Method, NameExtractor> method2Extrators;
+    private volatile Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
+    private volatile Map<Method, String[]> method2AdaptiveKeys;
+    private volatile Map<Method, NameExtractor> method2Extractors;
 
     private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
         checkAndCollectAdaptiveInfo0();
@@ -437,44 +436,13 @@ public class ExtensionLoader<T> {
                 }
 
                 int confArgIdx = method2ConfigArgIndex.get(method);
-                Method getter = method2ConfigGetter.get(method);
-                Object confArg = null;
-                if (getter == null) {
-                    confArg = args[confArgIdx];
-                    if (confArg == null) {
-                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
-                                " argument == null");
-                    }
-                } else {
-                    Object arg = args[confArgIdx];
-                    if (arg == null) {
-                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
-                                " argument == null");
-                    }
-                    confArg = getter.invoke(arg);
-                    if (confArg == null) {
-                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
-                                " argument " + getter.getName() + "() == null");
-                    }
-                }
-
-                String[] adaptiveKeys = method2AdaptiveKeys.get(method);
-                String extName = null;
-                Map<String, String> config = (Map<String, String>) confArg;
-
-                for (int i = 0; i < adaptiveKeys.length; ++i) {
-                    if (!config.containsKey(adaptiveKeys[i])) {
-                        if (i == adaptiveKeys.length - 1)
-                            extName = defaultExtension;
-                        continue;
-                    }
-                    extName = config.get(adaptiveKeys[i]);
-                    break;
-                }
+                Object arg = args[confArgIdx];
+                NameExtractor nameExtractor = method2Extractors.get(method);
+                String extName = nameExtractor.getValue(arg);
+                if (extName == null) extName = defaultExtension;
                 if (extName == null)
                     throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from config(" + config + ") use keys(" + Arrays.toString(adaptiveKeys) + ")");
-
+                            ") name from argument(" + arg + ") use keys(" + Arrays.toString(method2AdaptiveKeys.get(method)) + ")");
                 return method.invoke(ExtensionLoader.this.getExtension(extName), args);
             }
         });
@@ -491,76 +459,49 @@ public class ExtensionLoader<T> {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
 
-        final Map<Method, NameExtractor> m2Extrators = new HashMap<Method, NameExtractor>();
-        for (Method m : methods) {
-            Annotation[][] parameterAnnotations = m.getParameterAnnotations();
+        Map<Method, Integer> m2ConfigArgIndex = new HashMap<Method, Integer>();
+        Map<Method, String[]> m2AdaptiveKeys = new HashMap<Method, String[]>();
+        final Map<Method, NameExtractor> m2Extractors = new HashMap<Method, NameExtractor>();
+        for (Method method : methods) {
             Adaptive adaptive = null;
-            for (Annotation[] annotations : parameterAnnotations) {
+            int argIdx = 0;
+
+            // 找 有@Adaptive注解的方法参数
+            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+            for (int i = 0; i < parameterAnnotations.length; i++) {
+                Annotation[] annotations = parameterAnnotations[i];
                 for (Annotation a : annotations) {
                     if (a instanceof Adaptive) {
                         hasAdaptiveAnnotation = true;
                         if (adaptive != null) {
                             throw new IllegalStateException("at most 1 parameter can be annotated by @Adaptive for method " +
-                                    m.getName() + " of extension " + type.getName());
+                                    method.getName() + " of extension " + type.getName());
                         }
                         adaptive = (Adaptive) a;
+                        argIdx = i;
                     }
                 }
             }
             if (adaptive == null) continue;
-            m2Extrators.put(m, adaptive.extractor().newInstance());
+
+            NameExtractor nameExtractor = adaptive.extractor().newInstance();
+            nameExtractor.setExtension(type);
+            nameExtractor.setMethod(method);
+            nameExtractor.setAdaptive(adaptive);
+            nameExtractor.setParameterType(method.getParameterTypes()[argIdx]);
+            nameExtractor.init();
+            m2Extractors.put(method, nameExtractor);
+
+            m2ConfigArgIndex.put(method, argIdx);
+            m2AdaptiveKeys.put(method, adaptive.value());
         }
         // 接口上没有Adaptive方法，则不需要生成Adaptive类
         if (!hasAdaptiveAnnotation)
             throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
-        method2Extrators = m2Extrators;
 
-        // 收集获取Config的信息
-        for (Method method : methods) {
-            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-
-            // 1. 找 有@Adaptive的方法参数
-            int adaptiveArgIdx = -1;
-            Adaptive adaptive = null;
-            for (int i = 0; i < parameterAnnotations.length; i++) {
-                Annotation[] annotations = parameterAnnotations[i];
-                for (Annotation a : annotations) {
-                    if (a instanceof Adaptive) {
-                        if (adaptiveArgIdx < 0) {
-                            adaptiveArgIdx = i;
-                            adaptive = (Adaptive) a;
-                        } else {
-                            throw new IllegalStateException("at most 1 parameter can annotated by @Adaptive for method " +
-                                    method.getName() + "for extension " + type.getName());
-                        }
-                    }
-                }
-            }
-            if (adaptive == null) continue; // 如果不是Adaptive方法，不需要收集信息
-            method2ConfigArgIndex.put(method, adaptiveArgIdx);
-
-            if (adaptive.path().length() > 0) {
-                try {
-                    String path = adaptive.path();
-                    Class<?> parameterType = method.getParameterTypes()[adaptiveArgIdx];
-                    Method getter = parameterType.getMethod(StringUtils.attribute2Getter(path));
-                    method2ConfigGetter.put(method, getter);
-                } catch (NoSuchMethodException e) {
-                    throw new IllegalStateException("Path is Invalid!"); // TODO Improve message!
-                }
-            }
-
-            // 2. 收集方法上的Adaptive Keys
-            String[] adaptiveKeys = adaptive.value();
-            if (adaptiveKeys.length == 0) {
-                // 没有设置Key，则使用“扩展点接口名的点分隔 作为Key
-                adaptiveKeys = new String[]{StringUtils.toDotSpiteString(type.getSimpleName())};
-            }
-            method2AdaptiveKeys.put(method, adaptiveKeys);
-
-            // FIXME 把方法参数类型当作是Map。实际类型应该不做限制，如何从这个类型上extract Value？
-            // FIXME extract对参数本身。extract可以不是对参数，而是参数某个属性，如何配置？  method2ConfigGetter
-        }
+        method2Extractors = m2Extractors;
+        method2ConfigArgIndex = m2ConfigArgIndex;
+        method2AdaptiveKeys = m2AdaptiveKeys;
     }
 
     // ====================================

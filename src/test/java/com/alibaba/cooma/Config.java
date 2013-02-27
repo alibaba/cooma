@@ -262,10 +262,7 @@ public final class Config implements Map<String, String> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((configs == null) ? 0 : configs.hashCode());
-        return result;
+        return configs.hashCode();
     }
 
     public int size() {
@@ -289,15 +286,15 @@ public final class Config implements Map<String, String> {
     }
 
     public String put(String key, String value) {
-        return configs.put(key, value);
+        throw new UnsupportedOperationException();
     }
 
     public String remove(Object key) {
-        return configs.get(key);
+        throw new UnsupportedOperationException();
     }
 
     public void putAll(Map<? extends String, ? extends String> m) {
-        configs.putAll(m);
+        throw new UnsupportedOperationException();
     }
 
     public void clear() {
@@ -318,18 +315,6 @@ public final class Config implements Map<String, String> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Config other = (Config) obj;
-        if (configs == null) {
-            if (other.configs != null)
-                return false;
-        } else if (!configs.equals(other.configs))
-            return false;
-        return true;
+        return configs.equals(obj);
     }
 }

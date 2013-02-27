@@ -16,10 +16,17 @@
 
 package com.alibaba.cooma;
 
+import java.lang.reflect.Method;
+
 /**
  * 从方法扩展点的方法参数中提取到扩展名称信息。
  */
 public interface NameExtractor {
+
+    void setExtension(Class<?> extension);
+
+    void setMethod(Method method);
+
     /**
      * @param type 方法参数类型。
      */
@@ -38,8 +45,9 @@ public interface NameExtractor {
     /**
      * 从方法扩展点的方法参数中提取到扩展名称信息。
      *
+     *
      * @param argument 方法参数。
      * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。
      */
-    Object getValue(Object argument);
+    String getValue(Object argument);
 }
