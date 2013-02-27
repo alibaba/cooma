@@ -438,15 +438,24 @@ public class ExtensionLoader<T> {
 
                 int confArgIdx = method2ConfigArgIndex.get(method);
                 Method getter = method2ConfigGetter.get(method);
-                Object confArg;
+                Object confArg = null;
                 if (getter == null) {
                     confArg = args[confArgIdx];
+                    if (confArg == null) {
+                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
+                                " argument == null");
+                    }
                 } else {
-                    confArg = getter.invoke(args[confArgIdx]);
-                }
-
-                if (confArg == null) {
-                    throw new IllegalArgumentException("adaptive argument == null");
+                    Object arg = args[confArgIdx];
+                    if (arg == null) {
+                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
+                                " argument == null");
+                    }
+                    confArg = getter.invoke(arg);
+                    if (confArg == null) {
+                        throw new IllegalArgumentException("adaptive " + method.getParameterTypes()[confArgIdx].getName() +
+                                " argument " + getter.getName() + "() == null");
+                    }
                 }
 
                 String[] adaptiveKeys = method2AdaptiveKeys.get(method);
@@ -498,7 +507,7 @@ public class ExtensionLoader<T> {
                     }
                 }
             }
-            if(adaptive == null) continue;
+            if (adaptive == null) continue;
             m2Extrators.put(m, adaptive.extractor().newInstance());
         }
         // 接口上没有Adaptive方法，则不需要生成Adaptive类
@@ -534,7 +543,7 @@ public class ExtensionLoader<T> {
                 try {
                     String path = adaptive.path();
                     Class<?> parameterType = method.getParameterTypes()[adaptiveArgIdx];
-                    Method getter = parameterType.getMethod("get" + path.substring(0, 1).toLowerCase() + path.substring(1));
+                    Method getter = parameterType.getMethod("get" + path.substring(0, 1).toUpperCase() + path.substring(1));
                     method2ConfigGetter.put(method, getter);
                 } catch (NoSuchMethodException e) {
                     throw new IllegalStateException("Path is Invalid!"); // TODO Improve message!
