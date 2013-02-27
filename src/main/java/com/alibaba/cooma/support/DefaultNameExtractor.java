@@ -46,7 +46,9 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
     private final int IS_POJO = 2;
 
     private int dataType;
+    private int pathType = -1;
 
+    private Method getter;
     private List<Method> pojoGetters;
 
     @Override
@@ -57,67 +59,133 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
             dataType = IS_STRING;
         } else if (Map.class.isAssignableFrom(type)) {
             dataType = IS_MAP;
+
+            if (adaptive.path().length() != 0) {
+                throw new IllegalStateException("Not support Adaptive.path to Map parameter type to method " +
+                        method.getName() + " of extension " + extension.getName());
+            }
         } else {
             dataType = IS_POJO;
-            pojoGetters = new ArrayList<Method>();
 
-            Method[] methods = type.getMethods();
-            for (String key : adaptiveKeys) {
-                final String getterName = StringUtils.attribute2Getter(key);
-                Method getter = null;
-                // 如果对应的方法不存在，则忽略这个Key
-                for (Method method : methods) {
-                    if (getterName.equals(method.getName()) &&
-                            !Modifier.isStatic(method.getModifiers()) &&
-                            method.getParameterTypes().length == 0) {
-                        getter = method;
+            if (adaptive.path().length() > 0) {
+                try {
+                    String path = adaptive.path();
+                    getter = type.getMethod(StringUtils.attribute2Getter(path));
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalStateException("Path is Invalid!"); // FIXME Improve message!
+                }
+            }
+
+            Class<?> pojoType = type;
+            if (getter != null) {
+                pojoType = getter.getReturnType();
+            }
+            if (pojoType.equals(String.class)) {
+                pathType = IS_STRING;
+            } else if (Map.class.isAssignableFrom(pojoType)) {
+                pathType = IS_MAP;
+            } else {
+                pathType = IS_POJO;
+                pojoGetters = new ArrayList<Method>();
+                Method[] methods = pojoType.getMethods();
+                for (String key : adaptiveKeys) {
+                    final String getterName = StringUtils.attribute2Getter(key);
+                    Method getter = null;
+                    for (Method method : methods) {
+                        if (getterName.equals(method.getName()) &&
+                                !Modifier.isStatic(method.getModifiers()) &&
+                                method.getParameterTypes().length == 0) {
+                            getter = method;
+                        }
                     }
+                    // 如果Key对应的方法不存在，则异常！
+                    if (getter == null) {
+                        throw new IllegalStateException("No getter method " + getterName +
+                                " on parameter type " + pojoType + " to key " + key +
+                                " from adaptive keys(" + Arrays.toString(adaptiveKeys));
+                    }
+                    pojoGetters.add(getter);
                 }
-                if (getter == null) {
-                    throw new IllegalStateException("No getter method " + getterName +
-                            " on parameter type " + type + " to key " + key +
-                            " from adaptive keys(" + Arrays.toString(adaptiveKeys));
-                }
-                pojoGetters.add(getter);
             }
         }
     }
 
-    @Override
     public String getValue(Object argument) {
+        if (argument == null) {
+            throw new IllegalArgumentException("adaptive " + type.getName() +
+                    " argument == null");
+        }
+
         switch (dataType) {
             // 1. 方法参数类型是String，参数值直接作为扩展名称。
             case IS_STRING:
                 return (String) argument;
             // 2. 方法参数类型是Map，则提取Map的Value作为扩展名称。
             case IS_MAP:
-                @SuppressWarnings("unchecked")
-                Map<String, Object> map = (Map<String, Object>) argument;
-                for (String key : adaptiveKeys) {
-                    String value = map.get(key).toString();
-                    if (value != null) {
-                        return value;
-                    }
-                }
-                return null;
+                return getFromMap(argument, adaptiveKeys);
             // 3. 方法参数作为Pojo，Key作为Pojo上的Get方法，来提取扩展名称。
             case IS_POJO:
-                    for (Method method : pojoGetters) {
-                        try {
-                            Object ret = method.invoke(argument);
-                            if (null != ret) {
-                                return (String) ret;
-                            }
-                        } catch (IllegalAccessException e) {
-                            throw new IllegalStateException("Fail to value via method " +
-                                    method.getName() + ", cause: " + e.getMessage(), e);
-                        } catch (InvocationTargetException e) {
-                            throw new IllegalStateException("Fail to value via method " +
-                                    method.getName() + ", cause: " + e.getMessage(), e);
-                        }
-                    }
-                return null;
+                if (pathType == -1) {
+                    return getFromPojo(argument, pojoGetters);
+                }
+
+                Object attribute = getObject(argument, getter);
+                if (attribute == null) {
+                    throw new IllegalArgumentException("adaptive " + type.getName() +
+                            " argument " + getter.getName() + "() == null");
+                }
+                switch (pathType) {
+                    case IS_STRING:
+                        return (String) attribute;
+                    case IS_MAP:
+                        return getFromMap(attribute, adaptiveKeys);
+                    case IS_POJO:
+                        return getFromPojo(attribute, pojoGetters);
+                }
         }
         return null;
+    }
+
+    private static String getFromMap(Object obj, String[] keys) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = (Map<String, Object>) obj;
+        for (String key : keys) {
+            Object value = map.get(key);
+            if(value == null) {
+                continue;
+            }
+            return value.toString();
+        }
+        return null;
+    }
+
+    private static String getFromPojo(Object obj, List<Method> getter) {
+        for (Method method : getter) {
+            try {
+                Object ret = method.invoke(obj);
+                if (null != ret) {
+                    return (String) ret;
+                }
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException("Fail to value via method " +
+                        method.getName() + ", cause: " + e.getMessage(), e);
+            } catch (InvocationTargetException e) {
+                throw new IllegalStateException("Fail to value via method " +
+                        method.getName() + ", cause: " + e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    private Object getObject(Object argument, Method getter) {
+        try {
+            return getter.invoke(argument);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Fail to value via method " +
+                    method.getName() + ", cause: " + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException("Fail to value via method " +
+                    method.getName() + ", cause: " + e.getMessage(), e);
+        }
     }
 }

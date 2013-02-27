@@ -468,7 +468,7 @@ public class ExtensionLoaderTest {
             ext.echo(holder, "haha");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension(com.alibaba.cooma.ext2.NoDefaultExt) name from config"));
+            assertThat(expected.getMessage(), containsString("Fail to get extension(com.alibaba.cooma.ext2.NoDefaultExt) name from argument"));
         }
     }
 

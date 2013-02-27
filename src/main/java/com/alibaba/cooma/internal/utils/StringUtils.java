@@ -78,7 +78,7 @@ public final class StringUtils {
      * name => getName
      */
     public static String attribute2Getter(String attribute) {
-        return  "get" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
+        return "get" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
     }
 
     private StringUtils() {
