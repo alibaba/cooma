@@ -21,6 +21,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 /**
@@ -67,7 +70,8 @@ public @interface Adaptive {
         /**
          * 从方法扩展点的方法参数中提取到扩展名称信息。
          *
-         * @param type 方法参数类型。
+         *
+         * @param type     方法参数类型。
          * @param argument 方法参数。
          * @param adaptive 方法参数的{link Adaptive}注解。
          * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。
@@ -75,14 +79,15 @@ public @interface Adaptive {
         Object getValue(Class<?> type, Object argument, Adaptive adaptive);
     }
 
+    // FIXME 每次扩展点调用都要收集参数上的信息，再extract。期望把收集操作提到方法外。
     public static class DefaultNameExtractor implements NameExtractor {
         public String getValue(Class<?> type, Object argument, Adaptive adaptive) {
-            // 方法参数类型是String，参数值直接作为扩展名称。
+            // 1. 方法参数类型是String，参数值直接作为扩展名称。
             if (type == String.class) return (String) argument;
 
             final String[] keys = adaptive.value();
 
-            // 方法参数类型是Map，则提取Map的Value作为扩展名称。
+            // 2. 方法参数类型是Map，则提取Map的Value作为扩展名称。
             if (Map.class.isAssignableFrom(type)) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> map = (Map<String, Object>) argument;
@@ -95,6 +100,30 @@ public @interface Adaptive {
                 return null;
             }
 
+            // 3. 方法参数作为Pojo，Key作为Pojo上的Get方法，来提取扩展名称。
+            Method[] methods = type.getMethods();
+            for (String key : keys) {
+                String getterName = "get" + key.substring(0, 1).toLowerCase() + key.substring(1);
+                // 如果对应的方法不存在，则忽略这个Key
+                for(Method method : methods) {
+                    if(getterName.equals(method.getName()) &&
+                            !Modifier.isStatic(method.getModifiers()) &&
+                            method.getParameterTypes().length == 0) {
+                        try {
+                            Object ret = method.invoke(argument);
+                            if(null != ret) {
+                                return (String) ret;
+                            }
+                        } catch (IllegalAccessException e) {
+                            throw new IllegalStateException("Fail to value from key(" +
+                                    key + ") by method " + method.getName() + ", cause: " + e.getMessage(), e);
+                        } catch (InvocationTargetException e) {
+                            throw new IllegalStateException("Fail to value from key(" +
+                                    key + ") by method " + method.getName() + ", cause: " + e.getMessage(), e);
+                        }
+                    }
+                }
+            }
             return null;
         }
     }
