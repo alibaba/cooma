@@ -112,7 +112,7 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
         }
     }
 
-    public String getValue(Object argument) {
+    public String extract(Object argument) {
         if (argument == null) {
             throw new IllegalArgumentException("adaptive " + type.getName() +
                     " argument == null");

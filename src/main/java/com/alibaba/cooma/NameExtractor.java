@@ -65,5 +65,5 @@ public interface NameExtractor {
      * @param argument 方法参数。
      * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。
      */
-    String getValue(Object argument);
+    String extract(Object argument);
 }

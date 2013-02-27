@@ -60,5 +60,5 @@ public abstract class AbstractNameExtractor implements NameExtractor {
         adaptiveKeys = keys;
     }
 
-    public abstract String getValue(Object argument);
+    public abstract String extract(Object argument);
 }
