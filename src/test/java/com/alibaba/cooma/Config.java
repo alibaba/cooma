@@ -285,12 +285,11 @@ public final class Config implements Map<String, String> {
     }
 
     public String get(Object key) {
-
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return configs.get(key);
     }
 
     public String put(String key, String value) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return configs.put(key, value);
     }
 
     public String remove(Object key) {
