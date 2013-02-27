@@ -74,6 +74,13 @@ public final class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * name => getName
+     */
+    public static String attribute2Getter(String attribute) {
+        return  "get" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
+    }
+
     private StringUtils() {
     }
 }

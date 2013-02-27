@@ -543,7 +543,7 @@ public class ExtensionLoader<T> {
                 try {
                     String path = adaptive.path();
                     Class<?> parameterType = method.getParameterTypes()[adaptiveArgIdx];
-                    Method getter = parameterType.getMethod("get" + path.substring(0, 1).toUpperCase() + path.substring(1));
+                    Method getter = parameterType.getMethod(StringUtils.attribute2Getter(path));
                     method2ConfigGetter.put(method, getter);
                 } catch (NoSuchMethodException e) {
                     throw new IllegalStateException("Path is Invalid!"); // TODO Improve message!
