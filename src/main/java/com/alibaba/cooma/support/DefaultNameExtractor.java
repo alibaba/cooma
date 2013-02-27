@@ -59,19 +59,19 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
         } else if (Map.class.isAssignableFrom(type)) {
             dataType = IS_MAP;
 
-            if (adaptive.path().length() != 0) {
-                throw new IllegalStateException("Not support Adaptive.path to Map parameter type to method " +
+            if (adaptive.attribute().length() != 0) {
+                throw new IllegalStateException("Not support Adaptive.attribute to Map parameter type to method " +
                         method.getName() + " of extension " + extension.getName());
             }
         } else {
             dataType = IS_POJO;
 
-            if (adaptive.path().length() > 0) {
+            if (adaptive.attribute().length() > 0) {
                 try {
-                    String path = adaptive.path();
+                    String path = adaptive.attribute();
                     getter = type.getMethod(StringUtils.attribute2Getter(path));
                 } catch (NoSuchMethodException e) {
-                    throw new IllegalStateException("no attrib " + adaptive.path() +
+                    throw new IllegalStateException("no attrib " + adaptive.attribute() +
                             " for type " + type.getName() + " of method " + method.getName() +
                             " of extension " + extension.getName());
                 }

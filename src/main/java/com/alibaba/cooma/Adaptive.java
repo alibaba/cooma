@@ -58,8 +58,13 @@ public @interface Adaptive {
      */
     String[] value() default {};
 
-    String path() default "";
+    /**
+     * 缺省是从方法参数上提取扩展名称，配置此参数表示是从参数的一个属性上执行提取信息的操作。
+     */
+    String attribute() default "";
 
+    /**
+     * Adaptive Instance执行扩展点调用时，从方法参数上提取真实扩展名称。
+     */
     Class<? extends NameExtractor> extractor() default DefaultNameExtractor.class;
-
 }
