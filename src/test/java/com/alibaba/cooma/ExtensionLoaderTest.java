@@ -26,7 +26,6 @@ import com.alibaba.cooma.ext3.impl.Ext3Impl1;
 import com.alibaba.cooma.ext3.impl.Ext3Impl2;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper1;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper2;
-import com.alibaba.cooma.ext4.AdaptiveMethodNoConfig_Ext;
 import com.alibaba.cooma.ext5.NoAdaptiveMethodExt;
 import com.alibaba.cooma.ext6.InjectExt;
 import com.alibaba.cooma.ext6.impl.Ext6Impl2;
@@ -318,7 +317,7 @@ public class ExtensionLoaderTest {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("config == null", e.getMessage());
+            assertEquals("adaptive argument == null", e.getMessage());
         }
     }
 
@@ -357,17 +356,6 @@ public class ExtensionLoaderTest {
             assertThat(
                     expected.getMessage(),
                     containsString("of interface com.alibaba.cooma.ext1.SimpleExt is not adaptive method!"));
-        }
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_ExceptionWhenNoConfigAttrib() throws Exception {
-        try {
-            ExtensionLoader.getExtensionLoader(AdaptiveMethodNoConfig_Ext.class).getAdaptiveInstance();
-            fail();
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("Fail to create adaptive extension for extension point "));
-            assertThat(expected.getMessage(), containsString("since not found config parameter or config attribute in parameters for adaptive method "));
         }
     }
 
