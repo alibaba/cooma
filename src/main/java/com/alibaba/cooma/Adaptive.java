@@ -103,7 +103,7 @@ public @interface Adaptive {
             // 3. 方法参数作为Pojo，Key作为Pojo上的Get方法，来提取扩展名称。
             Method[] methods = type.getMethods();
             for (String key : keys) {
-                String getterName = "get" + key.substring(0, 1).toLowerCase() + key.substring(1);
+                String getterName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
                 // 如果对应的方法不存在，则忽略这个Key
                 for(Method method : methods) {
                     if(getterName.equals(method.getName()) &&

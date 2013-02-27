@@ -317,7 +317,7 @@ public class ExtensionLoaderTest {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("adaptive argument == null", e.getMessage());
+            assertEquals("adaptive com.alibaba.cooma.Config argument == null", e.getMessage());
         }
     }
 
@@ -418,14 +418,14 @@ public class ExtensionLoaderTest {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.alibaba.cooma.ext2.ConfigHolder argument == null", e.getMessage());
+            assertEquals("adaptive com.alibaba.cooma.ext2.ConfigHolder argument == null", e.getMessage());
         }
 
         try {
             ext.echo(new ConfigHolder(), "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("com.alibaba.cooma.ext2.ConfigHolder argument getConfig() == null", e.getMessage());
+            assertEquals("adaptive com.alibaba.cooma.ext2.ConfigHolder argument getConfig() == null", e.getMessage());
         }
     }
 
