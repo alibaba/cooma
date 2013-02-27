@@ -38,6 +38,7 @@ import java.util.Map;
  * </ol>
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @since 0.3.0
  */
 public class DefaultNameExtractor extends AbstractNameExtractor {
     private final int IS_STRING = 0;
@@ -152,7 +153,7 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
         Map<String, Object> map = (Map<String, Object>) obj;
         for (String key : keys) {
             Object value = map.get(key);
-            if(value == null) {
+            if (value == null) {
                 continue;
             }
             return value.toString();
