@@ -403,19 +403,19 @@ public class ExtensionLoader<T> {
     private final Holder<T> adaptiveInstance = new Holder<T>();
     private volatile Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
 
-    private volatile Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
-    private volatile Map<Method, String[]> method2AdaptiveKeys;
-    private volatile Map<Method, NameExtractor> method2Extractors;
+    private volatile Map<Method, Integer> adaptiveMethod2ArgIndex;
+    private volatile Map<Method, String[]> adaptiveMethod2Keys;
+    private volatile Map<Method, NameExtractor> adaptiveMethod2Extractor;
 
     private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
         checkAndCollectAdaptiveInfo0();
 
+        // 有AdaptiveClass（在扩展点配置文件中声明的类）
         if (adaptiveClass != null) {
             return type.cast(adaptiveClass.newInstance());
         }
 
         Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
-
 
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 if (method.getDeclaringClass().equals(Object.class)) {
@@ -433,19 +433,19 @@ public class ExtensionLoader<T> {
                             " of Adaptive Instance for " + type.getName());
                 }
 
-                if (!method2ConfigArgIndex.containsKey(method)) {
-                    throw new UnsupportedOperationException("method " + method.getName() + " of interface "
-                            + type.getName() + " is not adaptive method!");
+                if (!adaptiveMethod2ArgIndex.containsKey(method)) {
+                    throw new UnsupportedOperationException("method " + method.getName() +
+                            " of interface " + type.getName() + " is not adaptive method!");
                 }
 
-                int confArgIdx = method2ConfigArgIndex.get(method);
+                int confArgIdx = adaptiveMethod2ArgIndex.get(method);
                 Object arg = args[confArgIdx];
-                NameExtractor nameExtractor = method2Extractors.get(method);
+                NameExtractor nameExtractor = adaptiveMethod2Extractor.get(method);
                 String extName = nameExtractor.getValue(arg);
                 if (extName == null) extName = defaultExtension;
                 if (extName == null)
                     throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from argument(" + arg + ") use keys(" + Arrays.toString(method2AdaptiveKeys.get(method)) + ")");
+                            ") name from argument(" + arg + ") use keys(" + Arrays.toString(adaptiveMethod2Keys.get(method)) + ")");
                 return method.invoke(ExtensionLoader.this.getExtension(extName), args);
             }
         });
@@ -462,9 +462,9 @@ public class ExtensionLoader<T> {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
 
-        Map<Method, Integer> m2ConfigArgIndex = new HashMap<Method, Integer>();
-        Map<Method, String[]> m2AdaptiveKeys = new HashMap<Method, String[]>();
-        final Map<Method, NameExtractor> m2Extractors = new HashMap<Method, NameExtractor>();
+        final Map<Method, Integer> m2ArgIndex = new HashMap<Method, Integer>();
+        final Map<Method, String[]> m2Keys = new HashMap<Method, String[]>();
+        final Map<Method, NameExtractor> m2Extractor = new HashMap<Method, NameExtractor>();
         for (Method method : methods) {
             Adaptive adaptive = null;
             int argIdx = 0;
@@ -493,18 +493,18 @@ public class ExtensionLoader<T> {
             nameExtractor.setAdaptive(adaptive);
             nameExtractor.setParameterType(method.getParameterTypes()[argIdx]);
             nameExtractor.init();
-            m2Extractors.put(method, nameExtractor);
+            m2Extractor.put(method, nameExtractor);
 
-            m2ConfigArgIndex.put(method, argIdx);
-            m2AdaptiveKeys.put(method, adaptive.value());
+            m2ArgIndex.put(method, argIdx);
+            m2Keys.put(method, adaptive.value());
         }
         // 接口上没有Adaptive方法，则不需要生成Adaptive类
         if (!hasAdaptiveAnnotation)
             throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
 
-        method2Extractors = m2Extractors;
-        method2ConfigArgIndex = m2ConfigArgIndex;
-        method2AdaptiveKeys = m2AdaptiveKeys;
+        adaptiveMethod2Extractor = m2Extractor;
+        adaptiveMethod2ArgIndex = m2ArgIndex;
+        adaptiveMethod2Keys = m2Keys;
     }
 
     // ====================================
