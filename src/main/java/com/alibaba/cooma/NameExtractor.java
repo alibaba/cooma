@@ -21,12 +21,25 @@ package com.alibaba.cooma;
  */
 public interface NameExtractor {
     /**
+     * @param type 方法参数类型。
+     */
+    void setParameterType(Class<?> type);
+
+    /**
+     * @param adaptive 方法参数的{link Adaptive}注解。
+     */
+    void setAdaptive(Adaptive adaptive);
+
+    /**
+     * After Properties set.
+     */
+    void init();
+
+    /**
      * 从方法扩展点的方法参数中提取到扩展名称信息。
      *
-     * @param type     方法参数类型。
      * @param argument 方法参数。
-     * @param adaptive 方法参数的{link Adaptive}注解。
      * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。
      */
-    Object getValue(Class<?> type, Object argument, Adaptive adaptive);
+    Object getValue(Object argument);
 }
