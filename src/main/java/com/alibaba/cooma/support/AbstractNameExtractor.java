@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @since 0.3.0
  */
 public abstract class AbstractNameExtractor implements NameExtractor {
     protected Class<?> extension;
