@@ -17,6 +17,7 @@
 package com.alibaba.cooma.support;
 
 import com.alibaba.cooma.Adaptive;
+import com.alibaba.cooma.internal.utils.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,7 +63,7 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
 
             Method[] methods = type.getMethods();
             for (String key : adaptiveKeys) {
-                final String getterName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1);
+                final String getterName = StringUtils.attribute2Getter(key);
                 Method getter = null;
                 // 如果对应的方法不存在，则忽略这个Key
                 for (Method method : methods) {
@@ -101,8 +102,6 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
                 return null;
             // 3. 方法参数作为Pojo，Key作为Pojo上的Get方法，来提取扩展名称。
             case IS_POJO:
-                Method[] methods = type.getMethods();
-                for (String key : adaptiveKeys) {
                     for (Method method : pojoGetters) {
                         try {
                             Object ret = method.invoke(argument);
@@ -110,14 +109,13 @@ public class DefaultNameExtractor extends AbstractNameExtractor {
                                 return (String) ret;
                             }
                         } catch (IllegalAccessException e) {
-                            throw new IllegalStateException("Fail to value from key(" +
-                                    key + ") by method " + method.getName() + ", cause: " + e.getMessage(), e);
+                            throw new IllegalStateException("Fail to value via method " +
+                                    method.getName() + ", cause: " + e.getMessage(), e);
                         } catch (InvocationTargetException e) {
-                            throw new IllegalStateException("Fail to value from key(" +
-                                    key + ") by method " + method.getName() + ", cause: " + e.getMessage(), e);
+                            throw new IllegalStateException("Fail to value via method " +
+                                    method.getName() + ", cause: " + e.getMessage(), e);
                         }
                     }
-                }
                 return null;
         }
         return null;
