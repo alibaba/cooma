@@ -406,7 +406,7 @@ public class ExtensionLoader<T> {
     private final Map<Method, Integer> method2ConfigArgIndex = new HashMap<Method, Integer>();
     private final Map<Method, Method> method2ConfigGetter = new HashMap<Method, Method>();
     private final Map<Method, String[]> method2AdaptiveKeys = new HashMap<Method, String[]>();
-    private volatile Map<Method, Adaptive.NameExtractor> method2Extrators;
+    private volatile Map<Method, NameExtractor> method2Extrators;
 
     private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
         checkAndCollectAdaptiveInfo0();
@@ -491,7 +491,7 @@ public class ExtensionLoader<T> {
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
 
-        final Map<Method, Adaptive.NameExtractor> m2Extrators = new HashMap<Method, Adaptive.NameExtractor>();
+        final Map<Method, NameExtractor> m2Extrators = new HashMap<Method, NameExtractor>();
         for (Method m : methods) {
             Annotation[][] parameterAnnotations = m.getParameterAnnotations();
             Adaptive adaptive = null;
