@@ -1,8 +1,8 @@
 Cooma is a simple and flexible microcontainer implementation of Java.
 
-Documentation page: <https://github.com/AlibabaTech/cooma/wiki>  
-Report problems or suggestions: <https://github.com/AlibabaTech/cooma/issues>  
-Code Project page: <https://github.com/AlibabaTech/cooma>  
+Documentation page: <https://github.com/alibaba/cooma/wiki>  
+Report problems or suggestions: <https://github.com/alibaba/cooma/issues>  
+Code Project page: <https://github.com/alibaba/cooma>  
 MailList: <mailto:java-cooma@googlegroups.com>
 
 Code compile and browse tutorial
@@ -12,7 +12,7 @@ Checkout
 --------------
 
 ```bash
-git clone https://github.com/AlibabaTech/cooma.git
+git clone https://github.com/alibaba/cooma.git
 ```
 
 Compile
