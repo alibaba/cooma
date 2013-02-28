@@ -60,7 +60,7 @@ public interface NameExtractor {
     void init();
 
     /**
-     * 从方法扩展点的方法参数中提取到扩展名称信息。
+     * 从方法扩展点的方法参数中提取到扩展名称信息，由AdaptiveInstance调用此方法。
      *
      * @param argument 方法参数。
      * @return 返回提取到的扩展名称。<code>null</code>表示提取到的信息为空。

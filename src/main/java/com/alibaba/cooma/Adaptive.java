@@ -16,7 +16,7 @@
 
 package com.alibaba.cooma;
 
-import com.alibaba.cooma.support.DefaultNameExtractor;
+import com.alibaba.cooma.support.MapSourceNameExtractor;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -61,14 +61,20 @@ public @interface Adaptive {
     /**
      * 缺省是从方法参数上提取扩展名称，配置此参数表示是从参数的一个属性上执行提取信息的操作。
      *
+     * @see NameExtractor
      * @since 0.3.0
      */
     String attribute() default "";
+
+    /**
+     * 可以为{@link NameExtractor}提供信息。
+     */
+    String[] attachment() default {};
 
     /**
      * Adaptive Instance执行扩展点调用时，从方法参数上提取真实扩展名称。
      *
      * @since 0.3.0
      */
-    Class<? extends NameExtractor> extractor() default DefaultNameExtractor.class;
+    Class<? extends NameExtractor> extractor() default MapSourceNameExtractor.class;
 }
