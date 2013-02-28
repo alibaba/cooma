@@ -16,13 +16,11 @@
 
 package com.alibaba.cooma.support;
 
-import java.util.Map;
-
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @since 0.3.0
  */
-public class StringSourceNameExtractor extends AbstractNameExtractor {
+public class StringSourceExtractor extends AbstractNameExtractor {
     @Override
     protected void doInit() {
     }

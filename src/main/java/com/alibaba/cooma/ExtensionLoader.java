@@ -488,10 +488,7 @@ public class ExtensionLoader<T> {
             if (adaptive == null) continue;
 
             NameExtractor nameExtractor = adaptive.extractor().newInstance();
-            nameExtractor.setExtension(type);
             nameExtractor.setMethod(method);
-            nameExtractor.setAdaptive(adaptive);
-            nameExtractor.setParameterType(method.getParameterTypes()[argIdx]);
             nameExtractor.init();
             m2Extractor.put(method, nameExtractor);
 
@@ -500,7 +497,8 @@ public class ExtensionLoader<T> {
         }
         // 接口上没有Adaptive方法，则不需要生成Adaptive类
         if (!hasAdaptiveAnnotation)
-            throw new IllegalStateException("No adaptive method on extension " + type.getName() + ", refuse to create the adaptive class!");
+            throw new IllegalStateException("No adaptive method on extension " +
+                    type.getName() + ", refuse to create the adaptive class!");
 
         adaptiveMethod2Extractor = m2Extractor;
         adaptiveMethod2ArgIndex = m2ArgIndex;

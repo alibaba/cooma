@@ -37,12 +37,14 @@ import java.util.List;
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @since 0.3.0
  */
-public class PojoSourceNameExtractor extends AbstractNameExtractor {
+public class PojoSourceExtractor extends AbstractNameExtractor {
     private List<Method> pojoGetters;
 
     @Override
     public void doInit() {
+
         pojoGetters = new ArrayList<Method>();
+
         Method[] methods = parameterType.getMethods();
         for (String key : adaptiveKeys) {
             final String getterName = StringUtils.attribute2Getter(key);
@@ -58,7 +60,7 @@ public class PojoSourceNameExtractor extends AbstractNameExtractor {
             if (getter == null) {
                 throw new IllegalStateException("No getter method " + getterName +
                         " on parameter type " + parameterType + " to key " + key +
-                        " from adaptive keys(" + Arrays.toString(adaptiveKeys));
+                        " from adaptive keys " + Arrays.toString(adaptiveKeys));
             }
             pojoGetters.add(getter);
         }
@@ -69,7 +71,6 @@ public class PojoSourceNameExtractor extends AbstractNameExtractor {
             throw new IllegalArgumentException("adaptive " + parameterType.getName() +
                     " argument == null");
         }
-
         return getFromPojo(argument, pojoGetters);
     }
 
