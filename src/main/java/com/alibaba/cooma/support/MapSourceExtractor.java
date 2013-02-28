@@ -33,15 +33,16 @@ import java.util.Map;
  * </ol>
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @see FromAttribute
  * @since 0.3.0
  */
 public class MapSourceExtractor extends AbstractNameExtractor {
-
     private FromAttribute fromAttribute = null;
     private Method fromGetter = null;
 
     @Override
-    protected void doInit() {Annotation[] annotations = method.getParameterAnnotations()[adaptiveArgumentIndex];
+    protected void doInit() {
+        Annotation[] annotations = method.getParameterAnnotations()[adaptiveArgumentIndex];
         for (Annotation a : annotations) {
             if (a instanceof FromAttribute) {
                 if (fromAttribute != null) {
@@ -75,7 +76,7 @@ public class MapSourceExtractor extends AbstractNameExtractor {
         if (fromAttribute != null) {
             try {
                 sourceObject = fromGetter.invoke(sourceObject);
-                if(null == sourceObject) {
+                if (null == sourceObject) {
                     throw new IllegalArgumentException("adaptive " + parameterType.getName() +
                             " argument " + fromGetter.getName() + "() == null");
                 }

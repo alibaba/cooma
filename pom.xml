@@ -26,7 +26,7 @@
 	<packaging>jar</packaging>
 	<name>Cooma Microcontainer</name>
 	<description>Simple Microcontainer(Java)</description>
-	<url>https://github.com/AlibabaTech/cooma/wiki</url>
+	<url>https://github.com/alibaba/cooma/wiki</url>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
 		<license>
@@ -73,14 +73,14 @@
 		</dependency>
 	</dependencies>
 	<scm>
-		<url>https://github.com/AlibabaTech/cooma</url>
+		<url>https://github.com/alibaba/cooma</url>
 		<connection>scm:git:git@github.com:AlibabaTech/cooma.git</connection>
 		<developerConnection>scm:git:git@github.com:AlibabaTech/cooma.git
 		</developerConnection>
 	</scm>
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/AlibabaTech/cooma/issues</url>
+		<url>https://github.com/alibaba/cooma/issues</url>
 	</issueManagement>
 	<developers>
 		<developer>
