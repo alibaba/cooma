@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.ext1;
+package com.alibaba.cooma.support;
 
-import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
-import com.alibaba.cooma.Extension;
-import com.alibaba.cooma.support.PojoSourceExtractor;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @see PojoSourceExtractor
  */
-@Extension("impl1")
-public interface SimpleExt {
-    // 没有使用key的@Adaptive ！
-    String echo(@Adaptive Config config, String s);
-
-    String yell(@Adaptive({"key1", "key2"}) Config config, String s);
-
-    // 无@Adaptive ！
-    String bang(Config config, int i);
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER})
+public @interface FromAttribute {
+    String value();
 }

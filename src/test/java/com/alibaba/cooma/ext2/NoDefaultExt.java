@@ -18,6 +18,8 @@ package com.alibaba.cooma.ext2;
 
 import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
+import com.alibaba.cooma.support.FromAttribute;
+import com.alibaba.cooma.support.PojoSourceExtractor;
 
 /**
  * 无Default。
@@ -27,5 +29,7 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface NoDefaultExt {
-    String echo(@Adaptive(attribute = "config") ConfigHolder holder, String s);
+    String echo(@FromAttribute("config")
+                @Adaptive
+                ConfigHolder holder, String s);
 }
