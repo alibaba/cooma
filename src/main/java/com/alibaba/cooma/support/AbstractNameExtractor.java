@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 public abstract class AbstractNameExtractor implements NameExtractor {
     protected Class<?> extension;
     protected Method method;
-    protected Class<?> type;
+    protected Class<?> parameterType;
     protected Adaptive adaptive;
 
     protected String[] adaptiveKeys;
@@ -42,8 +42,8 @@ public abstract class AbstractNameExtractor implements NameExtractor {
         this.method = method;
     }
 
-    public void setParameterType(Class<?> type) {
-        this.type = type;
+    public void setParameterType(Class<?> parameterType) {
+        this.parameterType = parameterType;
     }
 
     public void setAdaptive(Adaptive adaptive) {
@@ -58,7 +58,11 @@ public abstract class AbstractNameExtractor implements NameExtractor {
             keys = new String[]{StringUtils.toDotSpiteString(extension.getSimpleName())};
         }
         adaptiveKeys = keys;
+
+        doInit();
     }
+
+    protected abstract void doInit();
 
     public abstract String extract(Object argument);
 }
