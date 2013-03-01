@@ -24,13 +24,15 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * 缺省AdaptiveInstance调用时，扩展名称提取方法。
- * <p/>
- * <ol>
- * <li> 有{@link com.alibaba.cooma.Adaptive}注解的参数是String类型，则参数值直接作为扩展名称。
- * <li> 有{@link com.alibaba.cooma.Adaptive}注解的参数是Map类型，则提取Map的Value作为扩展名称。
- * <li>
- * </ol>
+ * 从{@link Map}参数中提取扩展名称。如果方法参数上还有{@link FromAttribute}注解，
+ * 表示不是从参数上直接提取，而是从参数的指定属性上提取。
+ *
+ *
+ * 示例：
+ * <pre><code>
+ * public void method(@FromAttribute("parameters") @Adaptive Person person);
+ * </code></pre>
+ * 表示从方法参数<code>person</code>的<code>parameters</code>属性（是个Map）上提取。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see FromAttribute

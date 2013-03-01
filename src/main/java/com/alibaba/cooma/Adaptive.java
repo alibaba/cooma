@@ -59,7 +59,8 @@ public @interface Adaptive {
     String[] value() default {};
 
     /**
-     * Adaptive Instance执行扩展点调用时，从方法参数上提取真实扩展名称。
+     * Adaptive Instance执行扩展点调用时，通过{@link NameExtractor#extract(Object)}方法
+     * 从扩展点方法参数上提取实际要调用的扩展名称。
      *
      * @since 0.3.0
      */
