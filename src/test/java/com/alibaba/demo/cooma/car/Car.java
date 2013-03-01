@@ -17,13 +17,14 @@
 package com.alibaba.demo.cooma.car;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension
 public interface Car {
-    void run(@Adaptive("car") Config config);
+    void run(@Adaptive("car") Map<String, String> config);
 }

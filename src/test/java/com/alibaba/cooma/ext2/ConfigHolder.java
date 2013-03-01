@@ -16,8 +16,8 @@
 
 package com.alibaba.cooma.ext2;
 
-import com.alibaba.cooma.Config;
 
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -25,7 +25,7 @@ import com.alibaba.cooma.Config;
 public class ConfigHolder {
     private Double Num;
 
-    private Config config;
+    private Map<String, String> config;
 
     private String name;
 
@@ -39,11 +39,11 @@ public class ConfigHolder {
         Num = num;
     }
 
-    public Config getConfig() {
+    public Map<String, String> getConfig() {
         return config;
     }
 
-    public void setConfig(Config config) {
+    public void setConfig(Map<String, String> config) {
         this.config = config;
     }
 

@@ -35,11 +35,13 @@ import com.alibaba.cooma.ext8.InvalidNameExt2;
 import com.alibaba.cooma.ext9.ManualAdaptiveClassExt;
 import com.alibaba.cooma.ext9.impl.ManualAdaptive;
 import com.alibaba.cooma.exta.ImplNoDefaultConstructorExt;
+import com.alibaba.util.Utils;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -141,7 +143,7 @@ public class ExtensionLoaderTest {
         int yellCount1 = Ext3Wrapper1.yellCount.get();
         int yellCount2 = Ext3Wrapper2.yellCount.get();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         assertEquals("Ext3Impl1-echo", impl1.echo(config, "ha"));
         assertEquals(echoCount1, Ext3Wrapper1.echoCount.get());
@@ -169,7 +171,7 @@ public class ExtensionLoaderTest {
         int yellCount1 = Ext3Wrapper1.yellCount.get();
         int yellCount2 = Ext3Wrapper2.yellCount.get();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         assertEquals("Ext3Impl1-echo", impl1.echo(config, "ha"));
         assertEquals(echoCount1 + 1, Ext3Wrapper1.echoCount.get());
@@ -279,7 +281,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveInstance_defaultExtension() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         String echo = ext.echo(config, "haha");
         assertEquals("Ext1Impl1-echo", echo);
@@ -289,7 +291,7 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveInstance_useTypeNameAsKey() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
 
         String echo = ext.echo(config, "haha");
         assertEquals("Ext1Impl2-echo", echo);
@@ -299,12 +301,12 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveInstance_customizeKey() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
 
         String echo = ext.yell(config, "haha");
         assertEquals("Ext1Impl2-yell", echo);
 
-        config = config.addConfig("key1", "impl3");
+        config.put("key1", "impl3");
         echo = ext.yell(config, "haha");
         assertEquals("Ext1Impl3-yell", echo);
     }
@@ -317,7 +319,7 @@ public class ExtensionLoaderTest {
             ext.echo(null, "haha");
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("adaptive com.alibaba.cooma.Config argument == null", e.getMessage());
+            assertEquals("adaptive java.util.Map argument == null", e.getMessage());
         }
     }
 
@@ -347,7 +349,7 @@ public class ExtensionLoaderTest {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
         try {
             ext.bang(config, 33);
             fail();
@@ -362,7 +364,7 @@ public class ExtensionLoaderTest {
     @Test
     public void test_getAdaptiveInstance_ManualAdaptiveClassExt() throws Exception {
         ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);
-        Config config = Config.fromKv("key", "impl2");
+        Map<String, String> config = Utils.kv2Map("key", "impl2");
 
         ManualAdaptiveClassExt impl1 = extensionLoader.getExtension("impl1");
         assertEquals("Ext9Impl1-echo", impl1.echo(config, ""));
@@ -375,7 +377,7 @@ public class ExtensionLoaderTest {
     public void test_configHolder_getAdaptiveInstance() throws Exception {
         NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
 
         ConfigHolder holder = new ConfigHolder();
         holder.setConfig(config);
@@ -388,7 +390,7 @@ public class ExtensionLoaderTest {
     public void test_configHolder_getAdaptiveInstance_noExtension() throws Exception {
         NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         ConfigHolder holder = new ConfigHolder();
         holder.setConfig(config);
@@ -400,7 +402,7 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("Fail to get extension("));
         }
 
-        config = config.addConfig("no.default.ext", "XXX");
+        config.put("no.default.ext", "XXX");
         holder.setConfig(config);
         try {
             ext.echo(holder, "haha");
@@ -433,7 +435,7 @@ public class ExtensionLoaderTest {
     public void test_configHolder_getAdaptiveInstance_ExceptionWhenNotAdaptiveMethod() throws Exception {
         SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         try {
             ext.bang(config, 33);
@@ -450,7 +452,7 @@ public class ExtensionLoaderTest {
     public void test_configHolder_getAdaptiveInstance_ExceptionWhenNameNotProvided() throws Exception {
         NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
 
         ConfigHolder holder = new ConfigHolder();
         holder.setConfig(config);
@@ -462,7 +464,7 @@ public class ExtensionLoaderTest {
             assertThat(expected.getMessage(), containsString("Fail to get extension("));
         }
 
-        config = config.addConfig("key1", "impl1");
+        config.put("key1", "impl1");
         holder.setConfig(config);
         try {
             ext.echo(holder, "haha");
@@ -476,11 +478,11 @@ public class ExtensionLoaderTest {
     public void test_getAdaptiveInstance_inject() throws Exception {
         InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getAdaptiveInstance();
 
-        Config config = Config.fromKv("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key", "impl1");
+        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key", "impl1");
 
         assertEquals("Ext6Impl1-echo-Ext1Impl1-echo", ext.echo(config, "ha"));
 
-        config = config.addConfig("simple.ext", "impl2");
+        config.put("simple.ext", "impl2");
         assertEquals("Ext6Impl1-echo-Ext1Impl2-echo", ext.echo(config, "ha"));
     }
 

@@ -16,14 +16,15 @@
 
 package com.alibaba.cooma.exta.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.exta.ImplNoDefaultConstructorExt;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ExtaImpl2 implements ImplNoDefaultConstructorExt {
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         return "Ext9Impl2-echo";
     }
 }

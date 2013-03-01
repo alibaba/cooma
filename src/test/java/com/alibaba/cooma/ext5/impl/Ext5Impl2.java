@@ -16,22 +16,23 @@
 
 package com.alibaba.cooma.ext5.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext5.NoAdaptiveMethodExt;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext5Impl2 implements NoAdaptiveMethodExt {
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         return "Ext5Impl2-echo";
     }
 
-    public String yell(Config config, String s) {
+    public String yell(Map<String, String> config, String s) {
         return "Ext5Impl2-yell";
     }
 
-    public String bang(Config config, int i) {
+    public String bang(Map<String, String> config, int i) {
         return "impl2";
     }
 }

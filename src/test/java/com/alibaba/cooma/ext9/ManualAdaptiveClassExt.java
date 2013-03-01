@@ -17,13 +17,14 @@
 package com.alibaba.cooma.ext9;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension("impl1")
 public interface ManualAdaptiveClassExt {
-    String echo(@Adaptive("key") Config config, String s);
+    String echo(@Adaptive("key") Map<String, String> config, String s);
 }

@@ -16,9 +16,9 @@
 
 package com.alibaba.cooma.ext3.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext3.WrappedExt;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,12 +34,12 @@ public class Ext3Wrapper1 implements WrappedExt {
         this.instance = instance;
     }
 
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         echoCount.incrementAndGet();
         return instance.echo(config, s);
     }
 
-    public String yell(Config config, String s) {
+    public String yell(Map<String, String> config, String s) {
         yellCount.incrementAndGet();
         return instance.yell(config, s);
     }

@@ -16,8 +16,8 @@
 
 package com.alibaba.perf;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ExtensionLoader;
+import com.alibaba.util.Utils;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -30,7 +30,7 @@ public class CarDemo {
         long tick = System.currentTimeMillis();
         for (int i = 0; i < 10 * 1000 * 1000; ++i) {
             Car1 adaptiveInstance = extensionLoader.getAdaptiveInstance();
-            adaptiveInstance.run(Config.fromKv("object", "racing")); // 通过car key指定的Car本身使用哪个实现。
+            adaptiveInstance.run(Utils.kv2Map("object", "racing")); // 通过car key指定的Car本身使用哪个实现。
         }
         System.out.println(System.currentTimeMillis() - tick);
 
@@ -38,7 +38,7 @@ public class CarDemo {
         tick = System.currentTimeMillis();
         for (int i = 0; i < 1000 * 1000; ++i) {
             Car1 adaptiveInstance = extensionLoader.getAdaptiveInstance();
-            adaptiveInstance.run(Config.fromKv("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
+            adaptiveInstance.run(Utils.kv2Map("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
         }
         System.out.println(System.currentTimeMillis() - tick);
 
@@ -46,7 +46,7 @@ public class CarDemo {
         tick = System.currentTimeMillis();
         for (int i = 0; i < 1000 * 1000; ++i) {
             Car1 adaptiveInstance = extensionLoader.getAdaptiveInstance();
-            adaptiveInstance.run(Config.fromKv("machine", "racing")); // 通过car key指定的Car本身使用哪个实现。
+            adaptiveInstance.run(Utils.kv2Map("machine", "racing")); // 通过car key指定的Car本身使用哪个实现。
         }
         System.out.println(System.currentTimeMillis() - tick);
 
@@ -54,7 +54,7 @@ public class CarDemo {
         tick = System.currentTimeMillis();
         for (int i = 0; i < 1000 * 1000; ++i) {
             Car1 adaptiveInstance = extensionLoader.getAdaptiveInstance();
-            adaptiveInstance.run(Config.fromKv("machine", "racing")); // 通过car key指定的Car本身使用哪个实现。
+            adaptiveInstance.run(Utils.kv2Map("machine", "racing")); // 通过car key指定的Car本身使用哪个实现。
         }
         System.out.println(System.currentTimeMillis() - tick);
 
@@ -62,7 +62,7 @@ public class CarDemo {
         tick = System.currentTimeMillis();
         for (int i = 0; i < 1000 * 1000; ++i) {
             Car1 adaptiveInstance = extensionLoader.getAdaptiveInstance();
-            adaptiveInstance.run(Config.fromKv("object", "racing")); // 通过car key指定的Car本身使用哪个实现。
+            adaptiveInstance.run(Utils.kv2Map("object", "racing")); // 通过car key指定的Car本身使用哪个实现。
         }
         System.out.println(System.currentTimeMillis() - tick);
     }

@@ -16,10 +16,10 @@
 
 package com.alibaba.cooma.ext6.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext6.InjectExt;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -35,7 +35,7 @@ public class Ext6Impl2 implements InjectExt {
         this.list = list;
     }
 
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         throw new UnsupportedOperationException();
     }
 

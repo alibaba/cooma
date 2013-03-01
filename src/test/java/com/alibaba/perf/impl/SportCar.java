@@ -16,13 +16,14 @@
 
 package com.alibaba.perf.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.perf.Car1;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class SportCar implements Car1 {
-    public void run(Config config) {
+    public void run(Map<String, String> config) {
     }
 }

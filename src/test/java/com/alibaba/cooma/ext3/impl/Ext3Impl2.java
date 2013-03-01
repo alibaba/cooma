@@ -16,22 +16,23 @@
 
 package com.alibaba.cooma.ext3.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext3.WrappedExt;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext3Impl2 implements WrappedExt {
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         return "Ext3Impl2-echo";
     }
 
-    public String yell(Config config, String s) {
+    public String yell(Map<String, String> config, String s) {
         return "Ext3Impl2-yell";
     }
 
-    public String bang(Config config, int i) {
+    public String bang(Map<String, String> config, int i) {
         return "impl2";
     }
 }

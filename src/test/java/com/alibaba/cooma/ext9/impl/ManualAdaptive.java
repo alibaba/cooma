@@ -16,15 +16,16 @@
 
 package com.alibaba.cooma.ext9.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ExtensionLoader;
 import com.alibaba.cooma.ext9.ManualAdaptiveClassExt;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class ManualAdaptive implements ManualAdaptiveClassExt {
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);
         ManualAdaptiveClassExt extension = extensionLoader.getExtension(config.get("key"));
         return extension.echo(config, s) + ManualAdaptive.class.getName();

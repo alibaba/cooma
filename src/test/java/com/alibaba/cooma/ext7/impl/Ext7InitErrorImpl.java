@@ -16,8 +16,9 @@
 
 package com.alibaba.cooma.ext7.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext7.InitErrorExt;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -30,7 +31,7 @@ public class Ext7InitErrorImpl implements InitErrorExt {
         }
     }
 
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         return "";
     }
 

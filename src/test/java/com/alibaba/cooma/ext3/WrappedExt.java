@@ -16,15 +16,16 @@
 
 package com.alibaba.cooma.ext3;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 @Extension("impl1")
 public interface WrappedExt {
-    String echo(Config config, String s);
+    String echo(Map<String, String> config, String s);
 
-    String yell(Config config, String s);
+    String yell(Map<String, String> config, String s);
 }
