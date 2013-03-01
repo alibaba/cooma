@@ -26,8 +26,9 @@ import java.util.Map;
 /**
  * 从{@link Map}参数中提取扩展名称。如果方法参数上还有{@link FromAttribute}注解，
  * 表示不是从参数上直接提取，而是从参数的指定属性上提取。
- *
- *
+ * <p/>
+ * 参数是{@link Map}类型，所以参数可以是<b>自定义</b>的类型，只要实现{@link Map}接口即可。
+ * <p/>
  * 示例：
  * <pre><code>
  * public void method(@FromAttribute("parameters") @Adaptive Person person);
