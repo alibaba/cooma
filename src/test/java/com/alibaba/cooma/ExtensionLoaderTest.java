@@ -26,6 +26,7 @@ import com.alibaba.cooma.ext3.impl.Ext3Impl1;
 import com.alibaba.cooma.ext3.impl.Ext3Impl2;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper1;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper2;
+import com.alibaba.cooma.ext4.WithAttributeExt;
 import com.alibaba.cooma.ext5.NoAdaptiveMethodExt;
 import com.alibaba.cooma.ext6.InjectExt;
 import com.alibaba.cooma.ext6.impl.Ext6Impl2;
@@ -40,6 +41,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -189,10 +191,10 @@ public class ExtensionLoaderTest {
     @Test
     public void test_getExtension_ExceptionNoExtension() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("XXX");
+            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension("NotExisted");
             fail();
         } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension com.alibaba.cooma.ext1.SimpleExt by name XXX"));
+            assertThat(expected.getMessage(), containsString("No such extension com.alibaba.cooma.ext1.SimpleExt by name NotExisted"));
         }
     }
 
@@ -276,6 +278,40 @@ public class ExtensionLoaderTest {
 
         assertEquals(expected, extensions);
     }
+
+    @Test
+    public void test_getExtensionAttribute_all() throws Exception {
+        ExtensionLoader<WithAttributeExt> extensionLoader = ExtensionLoader.getExtensionLoader(WithAttributeExt.class);
+
+        Map<String, Map<String, String>> extensionAttribute = extensionLoader.getExtensionAttribute();
+
+        Map<String, Map<String, String>> expected = new HashMap<String, Map<String, String>>();
+        expected.put("impl1", Utils.kv2Map("k1", "v1", "k2", "", "k3", "v3", "k4", "", "k5", "v5"));
+        expected.put("impl2", new HashMap<String, String>());
+        expected.put("impl3", Utils.kv2Map("key1", "value1", "key2", "value2", "key3", ""));
+
+        assertEquals(expected, extensionAttribute);
+    }
+
+    @Test
+    public void test_getExtensionAttribute_one() throws Exception {
+        ExtensionLoader<WithAttributeExt> extensionLoader = ExtensionLoader.getExtensionLoader(WithAttributeExt.class);
+        Map<String, String> extensionAttribute = extensionLoader.getExtensionAttribute("impl1");
+        assertEquals(Utils.kv2Map("k1", "v1", "k2", "", "k3", "v3", "k4", "", "k5", "v5"), extensionAttribute);
+    }
+
+    @Test
+    public void test_getExtensionAttribute_oneNotExisted() throws Exception {
+        ExtensionLoader<WithAttributeExt> extensionLoader = ExtensionLoader.getExtensionLoader(WithAttributeExt.class);
+
+        try {
+            Map<String, String> extensionAttribute = extensionLoader.getExtensionAttribute("NotExisted");
+            fail();
+        } catch (IllegalStateException expected) {
+            assertThat(expected.getMessage(), containsString("No such extension com.alibaba.cooma.ext4.WithAttributeExt by name NotExisted"));
+        }
+    }
+
 
     @Test
     public void test_getAdaptiveInstance_defaultExtension() throws Exception {
@@ -529,7 +565,7 @@ public class ExtensionLoaderTest {
             fail();
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(),
-                       containsString("default name(invalidName]) of extension com.alibaba.cooma.ext8.InvalidNameExt2 is invalid"));
+                    containsString("default name(invalidName]) of extension com.alibaba.cooma.ext8.InvalidNameExt2 is invalid"));
         }
     }
 

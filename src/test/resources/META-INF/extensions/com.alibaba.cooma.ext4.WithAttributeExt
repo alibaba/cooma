@@ -1,0 +1,6 @@
+impl1=    com.alibaba.cooma.ext4.impl.WithAttributeExtImpl1 (   k1=v1, k2, k3=v3, k4 =  , k5=v5 )
+impl2=com.alibaba.cooma.ext4.impl.WithAttributeExtImpl2()
+   impl3       = com.alibaba.cooma.ext4.impl.WithAttributeExtImpl1   ( key1=value1, key2=value2, key3   )
+
+
+
