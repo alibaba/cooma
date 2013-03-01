@@ -22,7 +22,7 @@ import com.alibaba.util.Utils;
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
-public class CarDemo {
+public class Car1Demo {
     public static void main(String[] args) {
         ExtensionLoader<Car1> extensionLoader = ExtensionLoader.getExtensionLoader(Car1.class);
 
