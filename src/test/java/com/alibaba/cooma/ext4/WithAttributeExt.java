@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.ext2;
+package com.alibaba.cooma.ext4;
 
 import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
-import com.alibaba.cooma.support.FromAttribute;
+
+import java.util.Map;
 
 /**
- * 无Default。
- * 使用ConfigHolder。
- *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
-@Extension
-public interface NoDefaultExt {
-    String echo(@FromAttribute("config")
-                @Adaptive
-                ConfigHolder holder, String s);
+@Extension("impl1")
+public interface WithAttributeExt {
+    String echo(@Adaptive("key1") Map<String, String> config, String s);
 }
