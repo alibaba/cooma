@@ -16,11 +16,12 @@
 
 package com.alibaba.cooma.ext6.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.ext1.SimpleExt;
 import com.alibaba.cooma.ext6.Dao;
 import com.alibaba.cooma.ext6.InjectExt;
 import junit.framework.Assert;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -40,7 +41,7 @@ public class Ext6Impl1 implements InjectExt {
         this.simpleExt = simpleExt;
     }
 
-    public String echo(Config config, String s) {
+    public String echo(Map<String, String> config, String s) {
         return "Ext6Impl1-echo-" + simpleExt.echo(config, s);
     }
 }

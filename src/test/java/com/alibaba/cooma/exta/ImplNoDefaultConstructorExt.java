@@ -17,8 +17,9 @@
 package com.alibaba.cooma.exta;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * 扩展点实现没有缺省构造函数
@@ -27,5 +28,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension("impl1")
 public interface ImplNoDefaultConstructorExt {
-    String echo(@Adaptive("key") Config config, String s);
+    String echo(@Adaptive("key") Map<String, String> config, String s);
 }

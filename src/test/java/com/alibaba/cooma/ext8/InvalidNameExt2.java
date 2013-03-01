@@ -17,8 +17,9 @@
 package com.alibaba.cooma.ext8;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * 用于测试： 非法的扩展点名
@@ -27,5 +28,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension("invalidName]")
 public interface InvalidNameExt2 {
-    String echo(@Adaptive("key") Config config, String s);
+    String echo(@Adaptive("key") Map<String, String> config, String s);
 }

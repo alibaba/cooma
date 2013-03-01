@@ -17,8 +17,9 @@
 package com.alibaba.cooma.ext7;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * 用于测试：
@@ -28,5 +29,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface InitErrorExt {
-    String echo(@Adaptive("key") Config config, String s);
+    String echo(@Adaptive("key") Map<String, String> config, String s);
 }

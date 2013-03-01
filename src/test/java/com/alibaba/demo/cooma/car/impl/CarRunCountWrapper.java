@@ -16,9 +16,9 @@
 
 package com.alibaba.demo.cooma.car.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.demo.cooma.car.Car;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -32,7 +32,7 @@ public class CarRunCountWrapper implements Car {
         this.car = car;
     }
 
-    public void run(Config config) {
+    public void run(Map<String, String> config) {
         car.run(config);
 
         counter.incrementAndGet();

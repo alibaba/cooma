@@ -16,14 +16,15 @@
 
 package com.alibaba.demo.cooma.wheel.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.demo.cooma.wheel.Wheel;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 public class WoodWheel implements Wheel {
-    public void roll(Config config) {
+    public void roll(Map<String, String> config) {
         System.out.println("WoodWheel rolling...");
     }
 }

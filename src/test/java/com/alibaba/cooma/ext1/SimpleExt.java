@@ -17,9 +17,9 @@
 package com.alibaba.cooma.ext1;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
-import com.alibaba.cooma.support.PojoSourceExtractor;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
@@ -27,10 +27,10 @@ import com.alibaba.cooma.support.PojoSourceExtractor;
 @Extension("impl1")
 public interface SimpleExt {
     // 没有使用key的@Adaptive ！
-    String echo(@Adaptive Config config, String s);
+    String echo(@Adaptive Map<String, String> config, String s);
 
-    String yell(@Adaptive({"key1", "key2"}) Config config, String s);
+    String yell(@Adaptive({"key1", "key2"}) Map<String, String> config, String s);
 
     // 无@Adaptive ！
-    String bang(Config config, int i);
+    String bang(Map<String, String> config, int i);
 }

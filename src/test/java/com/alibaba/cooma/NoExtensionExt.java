@@ -16,11 +16,13 @@
 
 package com.alibaba.cooma;
 
+import java.util.Map;
+
 /**
  * 没有@Extesion注解。
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public interface NoExtensionExt {
-    String echo(@Adaptive Config config);
+    String echo(@Adaptive Map<String, String> config);
 }

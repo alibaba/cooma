@@ -16,9 +16,10 @@
 
 package com.alibaba.demo.cooma.car.impl;
 
-import com.alibaba.cooma.Config;
 import com.alibaba.demo.cooma.car.Car;
 import com.alibaba.demo.cooma.wheel.Wheel;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
@@ -31,7 +32,7 @@ public class SportCar implements Car {
         this.wheel = wheel;
     }
 
-    public void run(Config config) {
+    public void run(Map<String, String> config) {
         wheel.roll(config);
         System.out.println("SportCar Running...");
     }

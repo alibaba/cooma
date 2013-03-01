@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.ext5;
+package com.alibaba.util;
 
-import com.alibaba.cooma.Extension;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Jerry Lee(oldratlee AT gmail DOT com)
+ * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
-@Extension("impl1")
-public interface NoAdaptiveMethodExt {
-    String echo(Map<String, String> config, String s);
+public class Utils {
+    public static Map<String, String> kv2Map(String... kv) {
+        Map<String, String> cs = new HashMap<String, String>();
 
-    String yell(Map<String, String> config, String s);
+        for (int i = 0; i < kv.length; i += 2) {
+            String key = kv[i];
+            if (key == null) {
+                throw new IllegalArgumentException("Key must not null!");
+            }
+            if (i + 1 < kv.length) {
+                cs.put(key, kv[i + 1]);
+            } else {
+                cs.put(key, null);
+            }
+        }
 
-    String bang(Map<String, String> config, int i);
+        return cs;
+    }
+
 }

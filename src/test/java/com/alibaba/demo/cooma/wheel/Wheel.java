@@ -17,13 +17,14 @@
 package com.alibaba.demo.cooma.wheel;
 
 import com.alibaba.cooma.Adaptive;
-import com.alibaba.cooma.Config;
 import com.alibaba.cooma.Extension;
+
+import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee<at>gmail<dot>com)
  */
 @Extension("rubber")
 public interface Wheel {
-    void roll(@Adaptive("wheel") Config config);
+    void roll(@Adaptive("wheel") Map<String, String> config);
 }
