@@ -243,6 +243,24 @@ public class ExtensionLoader<T> {
         return defaultExtension;
     }
 
+    public Map<String, Map<String, String>> getExtensionAttribute() {
+        // 先一下加载扩展点类
+        getExtensionClasses();
+
+        return name2Attributes;
+    }
+
+    public Map<String, String> getExtensionAttribute(String name) {
+        if (name == null || name.length() == 0)
+            throw new IllegalArgumentException("Extension name == null");
+
+        // 先一下加载扩展点类，如果没有这个名字的扩展点类，会抛异常，
+        // 这样不用创建不必要的Holder。
+        getExtensionClass(name);
+
+        return name2Attributes.get(name);
+    }
+
     /**
      * 取得Adaptive实例。
      * <p/>
@@ -511,6 +529,7 @@ public class ExtensionLoader<T> {
 
     // Holder<Map<ext-name, ext-class>>
     private final Holder<Map<String, Class<?>>> extClassesHolder = new Holder<Map<String, Class<?>>>();
+    private volatile Map<String, Map<String, String>> name2Attributes;
     private final ConcurrentMap<Class<?>, String> extClass2Name = new ConcurrentHashMap<Class<?>, String>();
 
     private volatile Class<?> adaptiveClass = null;
@@ -575,6 +594,7 @@ public class ExtensionLoader<T> {
     private void loadExtensionClasses0() {
         Map<String, Class<?>> extName2Class = new HashMap<String, Class<?>>();
         Map<String, Class<? extends T>> tmpName2Wrapper = new LinkedHashMap<String, Class<? extends T>>();
+        Map<String, Map<String, String>> tmpName2Attributes = new LinkedHashMap<String, Map<String, String>>();
         String fileName = null;
         try {
             ClassLoader classLoader = getClassLoader();
@@ -589,7 +609,7 @@ public class ExtensionLoader<T> {
             if (urls != null) { // 找到的urls为null，或是没有找到文件，即认为是没有找到扩展点
                 while (urls.hasMoreElements()) {
                     java.net.URL url = urls.nextElement();
-                    readExtension0(extName2Class, tmpName2Wrapper, classLoader, url);
+                    readExtension0(extName2Class, tmpName2Attributes, tmpName2Wrapper, classLoader, url);
                 }
             }
         } catch (Throwable t) {
@@ -598,10 +618,11 @@ public class ExtensionLoader<T> {
         }
 
         extClassesHolder.set(extName2Class);
+        name2Attributes = tmpName2Attributes;
         name2Wrapper = tmpName2Wrapper;
     }
 
-    private void readExtension0(Map<String, Class<?>> extName2Class, Map<String, Class<? extends T>> name2Wrapper, ClassLoader classLoader, URL url) {
+    private void readExtension0(Map<String, Class<?>> extName2Class, Map<String, Map<String, String>> name2Attributes, Map<String, Class<? extends T>> name2Wrapper, ClassLoader classLoader, URL url) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"));
@@ -618,6 +639,7 @@ public class ExtensionLoader<T> {
                 try {
                     String name = null;
                     String body = null;
+                    String attribute = null;
                     int i = config.indexOf('=');
                     if (i > 0) {
                         name = config.substring(0, i).trim();
@@ -627,6 +649,15 @@ public class ExtensionLoader<T> {
                     if (name == null || name.length() == 0) {
                         throw new IllegalStateException(
                                 "missing extension name, config value: " + config);
+                    }
+                    int j = config.indexOf("(", i);
+                    if (j > 0) {
+                        if (config.charAt(config.length() - 1) != ')') {
+                            throw new IllegalStateException(
+                                    "missing ')' of extension attribute!");
+                        }
+                        body = config.substring(i, j).trim();
+                        attribute = config.substring(j, config.length() - 1);
                     }
 
                     Class<? extends T> clazz = Class.forName(body, true, classLoader).asSubclass(type);
@@ -680,6 +711,7 @@ public class ExtensionLoader<T> {
                                 } else {
                                     extName2Class.put(n, clazz);
                                 }
+                                name2Attributes.put(n, parseExtAttribute(attribute));
 
                                 if (!extClass2Name.containsKey(clazz)) {
                                     extClass2Name.put(clazz, n); // 实现类到扩展点名的Map中，记录了一个就可以了
@@ -731,5 +763,30 @@ public class ExtensionLoader<T> {
 
     private static boolean isValidExtName(String name) {
         return NAME_PATTERN.matcher(name).matches();
+    }
+
+    /**
+     * <code>
+     * "attrib1=value1,attrib2=value2,isProvider,order=3" =>
+     * {"attrib1"="value1", "attrib2"="value2", "isProvider"="", "order"="3"}
+     * </code>
+     */
+    private static Map<String, String> parseExtAttribute(String attribute) {
+        Map<String, String> ret = new HashMap<String, String>();
+        if (attribute == null || attribute.length() == 0) return ret;
+
+        String[] parts = attribute.split(",");
+        for (String part : parts) {
+            part = part.trim();
+            int idx = part.indexOf('=');
+            if (idx > 0) {
+                ret.put(part.substring(0, idx).trim(),
+                        part.substring(idx + 1).trim());
+            } else {
+                ret.put(part, "");
+            }
+        }
+
+        return ret;
     }
 }
