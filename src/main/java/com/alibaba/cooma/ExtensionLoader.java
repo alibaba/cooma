@@ -656,8 +656,8 @@ public class ExtensionLoader<T> {
                             throw new IllegalStateException(
                                     "missing ')' of extension attribute!");
                         }
-                        body = config.substring(i, j).trim();
-                        attribute = config.substring(j, config.length() - 1);
+                        body = config.substring(i + 1, j).trim();
+                        attribute = config.substring(j + 1, config.length() - 1);
                     }
 
                     Class<? extends T> clazz = Class.forName(body, true, classLoader).asSubclass(type);
