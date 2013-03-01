@@ -1,0 +1,2 @@
+racing=com.alibaba.perf.impl.RacingCar
+sport=com.alibaba.perf.impl.SportCar
