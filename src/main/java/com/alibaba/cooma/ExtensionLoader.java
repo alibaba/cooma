@@ -419,7 +419,7 @@ public class ExtensionLoader<T> {
     // ====================================
 
     private final Holder<T> adaptiveInstance = new Holder<T>();
-    private volatile Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
+    private final Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
 
     private volatile Map<Method, Integer> adaptiveMethod2ArgIndex;
     private volatile Map<Method, String[]> adaptiveMethod2Keys;
@@ -536,7 +536,7 @@ public class ExtensionLoader<T> {
 
     private volatile Map<String, Class<? extends T>> name2Wrapper;
 
-    private Map<String, IllegalStateException> extClassLoadExceptions = new ConcurrentHashMap<String, IllegalStateException>();
+    private final Map<String, IllegalStateException> extClassLoadExceptions = new ConcurrentHashMap<String, IllegalStateException>();
 
     private Class<?> getExtensionClass(String name) {
         if (name == null)
