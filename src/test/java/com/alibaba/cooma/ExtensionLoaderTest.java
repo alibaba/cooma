@@ -19,7 +19,6 @@ package com.alibaba.cooma;
 import com.alibaba.cooma.ext1.SimpleExt;
 import com.alibaba.cooma.ext1.impl.SimpleExtImpl1;
 import com.alibaba.cooma.ext1.impl.SimpleExtImpl2;
-import com.alibaba.cooma.ext2.ConfigHolder;
 import com.alibaba.cooma.ext2.NoDefaultExt;
 import com.alibaba.cooma.ext3.WrappedExt;
 import com.alibaba.cooma.ext3.impl.Ext3Impl1;
@@ -27,14 +26,11 @@ import com.alibaba.cooma.ext3.impl.Ext3Impl2;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper1;
 import com.alibaba.cooma.ext3.impl.Ext3Wrapper2;
 import com.alibaba.cooma.ext4.WithAttributeExt;
-import com.alibaba.cooma.ext5.NoAdaptiveMethodExt;
 import com.alibaba.cooma.ext6.InjectExt;
 import com.alibaba.cooma.ext6.impl.Ext6Impl2;
 import com.alibaba.cooma.ext7.InitErrorExt;
 import com.alibaba.cooma.ext8.InvalidNameExt;
 import com.alibaba.cooma.ext8.InvalidNameExt2;
-import com.alibaba.cooma.ext9.ManualAdaptiveClassExt;
-import com.alibaba.cooma.ext9.impl.ManualAdaptive;
 import com.alibaba.cooma.exta.ImplNoDefaultConstructorExt;
 import com.alibaba.util.Utils;
 import org.junit.Test;
@@ -51,8 +47,8 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -126,9 +122,9 @@ public class ExtensionLoaderTest {
     }
 
     @Test
-    public void test_getExtension_sameInstance() throws Exception {
+    public void test_getExtension_DifferentInstance() throws Exception {
         ExtensionLoader<SimpleExt> extensionLoader = ExtensionLoader.getExtensionLoader(SimpleExt.class);
-        assertSame(extensionLoader.getExtension("impl1"), extensionLoader.getExtension("impl1"));
+        assertNotSame(extensionLoader.getExtension("impl1"), extensionLoader.getExtension("impl1"));
     }
 
     @Test
@@ -211,7 +207,7 @@ public class ExtensionLoaderTest {
     @Test
     public void test_getExtension_ExceptionNullArg() throws Exception {
         try {
-            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension(null);
+            ExtensionLoader.getExtensionLoader(SimpleExt.class).getExtension((String) null);
             fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), containsString("Extension name == null"));
@@ -310,216 +306,6 @@ public class ExtensionLoaderTest {
         } catch (IllegalStateException expected) {
             assertThat(expected.getMessage(), containsString("No such extension com.alibaba.cooma.ext4.WithAttributeExt by name NotExisted"));
         }
-    }
-
-
-    @Test
-    public void test_getAdaptiveInstance_defaultExtension() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        String echo = ext.echo(config, "haha");
-        assertEquals("Ext1Impl1-echo", echo);
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_useTypeNameAsKey() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "simple.ext", "impl2");
-
-        String echo = ext.echo(config, "haha");
-        assertEquals("Ext1Impl2-echo", echo);
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_customizeKey() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key2", "impl2");
-
-        String echo = ext.yell(config, "haha");
-        assertEquals("Ext1Impl2-yell", echo);
-
-        config.put("key1", "impl3");
-        echo = ext.yell(config, "haha");
-        assertEquals("Ext1Impl3-yell", echo);
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_ConfigNpe() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-        try {
-            ext.echo(null, "haha");
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("adaptive java.util.Map argument == null", e.getMessage());
-        }
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_ExceptionWhenNoAdaptiveMethodOnInterface() throws Exception {
-        try {
-            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveInstance();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(),
-                    allOf(containsString("Fail to create adaptive extension for extension point com.alibaba.cooma.ext5.NoAdaptiveMethodExt"),
-                            containsString("No adaptive method on extension com.alibaba.cooma.ext5.NoAdaptiveMethodExt, refuse to create the adaptive class")));
-        }
-        // 多次get，都会报错且相同
-        try {
-            ExtensionLoader.getExtensionLoader(NoAdaptiveMethodExt.class).getAdaptiveInstance();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(),
-                    allOf(containsString("Fail to create adaptive extension for extension point com.alibaba.cooma.ext5.NoAdaptiveMethodExt"),
-                            containsString("No adaptive method on extension com.alibaba.cooma.ext5.NoAdaptiveMethodExt, refuse to create the adaptive class")));
-        }
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_ExceptionWhenNotAdaptiveMethod() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-        try {
-            ext.bang(config, 33);
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertThat(expected.getMessage(), containsString("method "));
-            assertThat(
-                    expected.getMessage(),
-                    containsString("of interface com.alibaba.cooma.ext1.SimpleExt is not adaptive method!"));
-        }
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_ManualAdaptiveClassExt() throws Exception {
-        ExtensionLoader<ManualAdaptiveClassExt> extensionLoader = ExtensionLoader.getExtensionLoader(ManualAdaptiveClassExt.class);
-        Map<String, String> config = Utils.kv2Map("key", "impl2");
-
-        ManualAdaptiveClassExt impl1 = extensionLoader.getExtension("impl1");
-        assertEquals("Ext9Impl1-echo", impl1.echo(config, ""));
-
-        ManualAdaptiveClassExt adaptiveInstance = extensionLoader.getAdaptiveInstance();
-        assertEquals("Ext9Impl2-echo" + ManualAdaptive.class.getName(), adaptiveInstance.echo(config, ""));
-    }
-
-    @Test
-    public void test_configHolder_getAdaptiveInstance() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "no.default.ext", "impl1");
-
-        ConfigHolder holder = new ConfigHolder();
-        holder.setConfig(config);
-
-        String echo = ext.echo(holder, "haha");
-        assertEquals("Ext2Impl1-echo", echo);
-    }
-
-    @Test
-    public void test_configHolder_getAdaptiveInstance_noExtension() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        ConfigHolder holder = new ConfigHolder();
-        holder.setConfig(config);
-
-        try {
-            ext.echo(holder, "haha");
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension("));
-        }
-
-        config.put("no.default.ext", "XXX");
-        holder.setConfig(config);
-        try {
-            ext.echo(holder, "haha");
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("No such extension"));
-        }
-    }
-
-    @Test
-    public void test_configHolder_getAdaptiveInstance_ConfigNpe() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
-
-        try {
-            ext.echo(null, "haha");
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("adaptive com.alibaba.cooma.ext2.ConfigHolder argument == null", e.getMessage());
-        }
-
-        try {
-            ext.echo(new ConfigHolder(), "haha");
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("adaptive com.alibaba.cooma.ext2.ConfigHolder argument getConfig() == null", e.getMessage());
-        }
-    }
-
-    @Test
-    public void test_configHolder_getAdaptiveInstance_ExceptionWhenNotAdaptiveMethod() throws Exception {
-        SimpleExt ext = ExtensionLoader.getExtensionLoader(SimpleExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        try {
-            ext.bang(config, 33);
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertThat(expected.getMessage(), containsString("method "));
-            assertThat(
-                    expected.getMessage(),
-                    containsString("of interface com.alibaba.cooma.ext1.SimpleExt is not adaptive method!"));
-        }
-    }
-
-    @Test
-    public void test_configHolder_getAdaptiveInstance_ExceptionWhenNameNotProvided() throws Exception {
-        NoDefaultExt ext = ExtensionLoader.getExtensionLoader(NoDefaultExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1");
-
-        ConfigHolder holder = new ConfigHolder();
-        holder.setConfig(config);
-
-        try {
-            ext.echo(holder, "impl1");
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension("));
-        }
-
-        config.put("key1", "impl1");
-        holder.setConfig(config);
-        try {
-            ext.echo(holder, "haha");
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected.getMessage(), containsString("Fail to get extension(com.alibaba.cooma.ext2.NoDefaultExt) name from argument"));
-        }
-    }
-
-    @Test
-    public void test_getAdaptiveInstance_inject() throws Exception {
-        InjectExt ext = ExtensionLoader.getExtensionLoader(InjectExt.class).getAdaptiveInstance();
-
-        Map<String, String> config = Utils.kv2Map("protocol", "p1", "host", "1.2.3.4", "port", "1010", "path", "path1", "key", "impl1");
-
-        assertEquals("Ext6Impl1-echo-Ext1Impl1-echo", ext.echo(config, "ha"));
-
-        config.put("simple.ext", "impl2");
-        assertEquals("Ext6Impl1-echo-Ext1Impl2-echo", ext.echo(config, "ha"));
     }
 
     @Test

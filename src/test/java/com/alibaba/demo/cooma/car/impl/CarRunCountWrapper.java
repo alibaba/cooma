@@ -18,7 +18,6 @@ package com.alibaba.demo.cooma.car.impl;
 
 import com.alibaba.demo.cooma.car.Car;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -26,15 +25,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CarRunCountWrapper implements Car {
     Car car;
-    AtomicInteger counter = new AtomicInteger();
+    static AtomicInteger counter = new AtomicInteger();
 
     public CarRunCountWrapper(Car car) {
         this.car = car;
     }
 
-    public void run(Map<String, String> config) {
-        car.run(config);
-
+    public void run() {
+        car.run();
         counter.incrementAndGet();
         System.out.println("Run time: " + counter);
     }

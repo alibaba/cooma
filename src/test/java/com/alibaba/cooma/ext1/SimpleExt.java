@@ -16,7 +16,6 @@
 
 package com.alibaba.cooma.ext1;
 
-import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
 
 import java.util.Map;
@@ -27,9 +26,9 @@ import java.util.Map;
 @Extension("impl1")
 public interface SimpleExt {
     // 没有使用key的@Adaptive ！
-    String echo(@Adaptive Map<String, String> config, String s);
+    String echo(Map<String, String> config, String s);
 
-    String yell(@Adaptive({"key1", "key2"}) Map<String, String> config, String s);
+    String yell(Map<String, String> config, String s);
 
     // 无@Adaptive ！
     String bang(Map<String, String> config, int i);

@@ -23,12 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -52,7 +50,6 @@ import java.util.regex.Pattern;
  *
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  * @see Extension
- * @see Adaptive
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">Service implementation of JDK5</a>
  * @since 0.1.0
  */
@@ -99,77 +96,39 @@ public class ExtensionLoader<T> {
         return loader;
     }
 
-    /**
-     * 获取指定名字的扩展实例。
-     *
-     * @param name 扩展名
-     * @return 指定名字的扩展实例
-     * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
-     * @throws IllegalStateException    指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
-     * @since 0.1.0
-     */
     public T getExtension(String name) {
-        if (name == null || name.length() == 0)
+        if (StringUtils.isEmpty(name))
             throw new IllegalArgumentException("Extension name == null");
-
-        // 先一下加载扩展点类，如果没有这个名字的扩展点类，会抛异常，
-        // 这样不用创建不必要的Holder。
-        getExtensionClass(name);
-
-        // 引入的Holder是为了下面用Holder作“细粒度锁”，而不是锁整个extInstances
-        Holder<T> holder = extInstances.get(name);
-        if (holder == null) {
-            extInstances.putIfAbsent(name, new Holder<T>());
-            holder = extInstances.get(name);
-        }
-        Holder<Throwable> throwableHolder = createExtInstanceErrors.get(name);
-        if (throwableHolder == null) {
-            createExtInstanceErrors.put(name, new Holder<Throwable>());
-            throwableHolder = createExtInstanceErrors.get(name);
-        }
-
-        if (throwableHolder.get() != null) {
-            throw new IllegalStateException("Fail to get extension " + name +
-                    " of extension point " + type.getName() + ", cause: " +
-                    throwableHolder.get().getMessage(), throwableHolder.get());
-        }
-        if (holder.get() == null) {
-            synchronized (holder) {
-                holder = extInstances.get(name);
-                throwableHolder = createExtInstanceErrors.get(name);
-                if (throwableHolder.get() != null) { // double check
-                    throw new IllegalStateException("Fail to get extension " + name +
-                            " of extension point " + type.getName() + ", cause: " +
-                            throwableHolder.get().getMessage(), throwableHolder.get());
-                }
-                if (holder.get() == null) {
-                    try {
-                        holder.set(createExtension(name));
-                    } catch (Throwable t) {
-                        throwableHolder.set(t);
-                        throw new IllegalStateException("Fail to get extension " + name +
-                                " of extension point " + type.getName() + ", cause: " + t.getMessage(), t);
-                    }
-                }
-            }
-        }
-
-        return holder.get();
+        return getExtension(name, new HashMap<String, String>(), new ArrayList<String>());
     }
 
-    /**
-     * 获取指定名字的扩展实例。
-     *
-     * @param name     扩展名
-     * @param wrappers 返回的实例上，要启用的Wrapper。
-     * @return 指定名字的扩展实例
-     * @throws IllegalArgumentException 参数为<code>null</code>或是空字符串。
-     * @throws IllegalStateException    指定的扩展名没有对应的扩展点，异常栈中包含可能的原因。
-     * @since 0.2.0
-     */
+    public T getExtension(String name, Map<String, String> properties) {
+        if (StringUtils.isEmpty(name))
+            throw new IllegalArgumentException("Extension name == null");
+        return getExtension(name, properties, new ArrayList<String>());
+    }
+
+    public T getExtension(Map<String, String> properties) {
+        String name = properties.get(type.getName()); // FIXME 使用类名作为Key，这里Hard Code了逻辑！
+        if (StringUtils.isEmpty(name)) {
+            name = defaultExtension;
+        }
+        return getExtension(name, properties, new ArrayList<String>());
+    }
+
     public T getExtension(String name, List<String> wrappers) {
-        T instance = getExtension(name);
-        return createWrapper(instance, wrappers);
+        if (wrappers == null) {
+            throw new IllegalArgumentException("wrappers == null");
+        }
+        return getExtension(name, new HashMap<String, String>(), wrappers);
+    }
+
+    public T getExtension(String name, Map<String, String> properties, List<String> wrappers) {
+        if (StringUtils.isEmpty(name))
+            throw new IllegalArgumentException("Extension name == null");
+        T extension = createExtension(name, properties);
+        inject(extension, properties);
+        return createWrapper(extension, properties, wrappers);
     }
 
     /**
@@ -261,79 +220,9 @@ public class ExtensionLoader<T> {
         return name2Attributes.get(name);
     }
 
-    /**
-     * 取得Adaptive实例。
-     * <p/>
-     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。<br />
-     * 推荐使用自动注入关联扩展的Adaptive实例的方式。
-     * <p/>
-     * Thread-safe.
-     *
-     * @since 0.1.0
-     */
-    public T getAdaptiveInstance() {
-        getExtensionClasses(); // 加载扩展点，保证会发现手写的AdaptiveClass
-
-        Throwable createError = createAdaptiveInstanceError.get();
-        T adaptiveInstance = this.adaptiveInstance.get();
-        if (null != createError) {
-            throw new IllegalStateException("Fail to create adaptive extension for extension point " +
-                    type.getName() + ", cause: " + createError.getMessage(), createError);
-        }
-        if (null != adaptiveInstance) {
-            return adaptiveInstance;
-        }
-
-        synchronized (this.adaptiveInstance) {
-            createError = createAdaptiveInstanceError.get();
-            adaptiveInstance = this.adaptiveInstance.get();
-            if (null != createError) { // double check
-                throw new IllegalStateException("Fail to create adaptive extension for extension point " +
-                        type.getName() + ", cause: " + createError.getMessage(), createError);
-            }
-            if (null != adaptiveInstance) {
-                return adaptiveInstance;
-            }
-
-            try {
-                this.adaptiveInstance.set(createAdaptiveInstance());
-                return this.adaptiveInstance.get();
-            } catch (Throwable t) {
-                createAdaptiveInstanceError.set(t);
-                throw new IllegalStateException("Fail to create adaptive extension for extension point " +
-                        type.getName() + ", cause: " + t.getMessage(), t);
-            }
-        }
-    }
-
-    /**
-     * 取得Adaptive实例。
-     * <p/>
-     * 一般情况不要使用这个方法，ExtensionLoader会把关联扩展的Adaptive实例注入好了。<br />
-     * 推荐使用自动注入关联扩展的Adaptive实例的方式。
-     *
-     * @param wrappers 返回的实例上，要启用的Wrapper。
-     * @since 0.2.1
-     */
-    public T getAdaptiveInstance(List<String> wrappers) {
-        T instance = getAdaptiveInstance();
-        return createWrapper(instance, wrappers);
-    }
-
     @Override
     public String toString() {
         return this.getClass().getName() + "<" + type.getName() + ">";
-    }
-
-    public T getPrototypeExtension(Map<Class<?>, String> extension2Name) {
-        String name = extension2Name.get(type);
-        if (name.isEmpty()) {
-            name = defaultExtension;
-        }
-        T extension = createExtension(name);
-
-        injectPrototypeExtension(extension, extension2Name);
-        return extension;
     }
 
     // ==============================
@@ -342,9 +231,6 @@ public class ExtensionLoader<T> {
 
     private final Class<T> type;
     private final String defaultExtension;
-
-    private final ConcurrentMap<String, Holder<T>> extInstances = new ConcurrentHashMap<String, Holder<T>>();
-    private final ConcurrentMap<String, Holder<Throwable>> createExtInstanceErrors = new ConcurrentHashMap<String, Holder<Throwable>>();
 
     private ExtensionLoader(Class<T> type) {
         this.type = type;
@@ -372,20 +258,22 @@ public class ExtensionLoader<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private T createExtension(String name) {
+    private T createExtension(String name, Map<String, String> properties) {
         Class<?> clazz = getExtensionClass(name);
         try {
-            return injectExtension((T) clazz.newInstance());
+            return inject((T) clazz.newInstance(), properties);
         } catch (Throwable t) {
-            throw new IllegalStateException("Fail to create extension " + name +
-                    " of extension point " + type.getName() + ", cause: " + t.getMessage(), t);
+            String msg = "Fail to create extension " + name +
+                    " of extension point " + type.getName() + ", cause: " + t.getMessage();
+            logger.warn(msg);
+            throw new IllegalStateException(msg, t);
         }
     }
 
-    private T createWrapper(T instance, List<String> wrappers) {
-        for (String name : wrappers) {
+    private T createWrapper(T instance, Map<String, String> properties, List<String> wrappers) {
+        if (wrappers != null) for (String name : wrappers) {
             try {
-                instance = injectExtension(name2Wrapper.get(name).getConstructor(type).newInstance(instance));
+                instance = inject(name2Wrapper.get(name).getConstructor(type).newInstance(instance), properties);
             } catch (Throwable e) {
                 throw new IllegalStateException("Fail to create wrapper(" + name + ") for extension point " + type);
             }
@@ -394,179 +282,33 @@ public class ExtensionLoader<T> {
         return instance;
     }
 
-    private T injectExtension(T instance) {
-        try {
-            for (Method method : instance.getClass().getMethods()) {
-                if (method.getName().startsWith("set")
-                        && method.getParameterTypes().length == 1
-                        && Modifier.isPublic(method.getModifiers())) {
-                    Class<?> pt = method.getParameterTypes()[0];
-                    if (pt.isInterface() && withExtensionAnnotation(pt)) {
-                        if (pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
-                            logger.warn("Ignore self set(" + method + ") for class(" +
-                                    instance.getClass() + ") when inject.");
-                            continue;
-                        }
-
-                        try {
-                            Object adaptive = getExtensionLoader(pt).getAdaptiveInstance();
-                            method.invoke(instance, adaptive);
-                        } catch (Exception e) {
-                            String errMsg = "Fail to inject via method " + method.getName()
-                                    + " of interface to extension implementation " + instance.getClass() +
-                                    " for extension point " + type.getName() + ", cause: " + e.getMessage();
-                            logger.warn(errMsg, e);
-                            throw new IllegalStateException(errMsg, e);
-                        }
+    private T inject(T instance, Map<String, String> properties) {
+        for (Method method : instance.getClass().getMethods()) {
+            if (method.getName().startsWith("set")
+                    && method.getParameterTypes().length == 1
+                    && Modifier.isPublic(method.getModifiers())) {
+                Class<?> pt = method.getParameterTypes()[0];
+                if (pt.isInterface() && withExtensionAnnotation(pt)) {
+                    if (pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
+                        logger.warn("Ignore self set(" + method + ") for class(" +
+                                instance.getClass() + ") when inject.");
+                        continue;
+                    }
+                    try {
+                        Object prototype = getExtensionLoader(pt).getExtension(properties);
+                        method.invoke(instance, prototype);
+                        // FIXME 要注入属性到Extension和Wrapper！
+                    } catch (Throwable t) {
+                        String errMsg = "Fail to inject via method " + method.getName()
+                                + " of interface to extension implementation " + instance.getClass() +
+                                " for extension point " + type.getName() + ", cause: " + t.getMessage();
+                        logger.warn(errMsg, t);
+                        throw new IllegalStateException(errMsg, t);
                     }
                 }
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
         }
         return instance;
-    }
-
-    private T injectPrototypeExtension(T instance, Map<Class<?>, String> extension2Name) {
-        try {
-            for (Method method : instance.getClass().getMethods()) {
-                if (method.getName().startsWith("set")
-                        && method.getParameterTypes().length == 1
-                        && Modifier.isPublic(method.getModifiers())) {
-                    Class<?> pt = method.getParameterTypes()[0];
-                    if (pt.isInterface() && withExtensionAnnotation(pt)) {
-                        if (pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
-                            logger.warn("Ignore self set(" + method + ") for class(" +
-                                    instance.getClass() + ") when inject.");
-                            continue;
-                        }
-
-                        try {
-                            Object prototype = getExtensionLoader(pt).getPrototypeExtension(extension2Name);
-                            method.invoke(instance, prototype);
-                        } catch (Exception e) {
-                            String errMsg = "Fail to inject via method " + method.getName()
-                                    + " of interface to extension implementation " + instance.getClass() +
-                                    " for extension point " + type.getName() + ", cause: " + e.getMessage();
-                            logger.warn(errMsg, e);
-                            throw new IllegalStateException(errMsg, e);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return instance;
-    }
-
-    // ====================================
-    // get & create Adaptive Instance
-    // ====================================
-
-    private final Holder<T> adaptiveInstance = new Holder<T>();
-    private final Holder<Throwable> createAdaptiveInstanceError = new Holder<Throwable>();
-
-    private volatile Map<Method, Integer> adaptiveMethod2ArgIndex;
-    private volatile Map<Method, String[]> adaptiveMethod2Keys;
-    private volatile Map<Method, NameExtractor> adaptiveMethod2Extractor;
-
-    private T createAdaptiveInstance() throws IllegalAccessException, InstantiationException {
-        checkAndCollectAdaptiveInfo0();
-
-        // 有AdaptiveClass（在扩展点配置文件中声明的类）
-        if (adaptiveClass != null) {
-            return type.cast(adaptiveClass.newInstance());
-        }
-
-        Object p = Proxy.newProxyInstance(ExtensionLoader.class.getClassLoader(), new Class[]{type}, new InvocationHandler() {
-
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (method.getDeclaringClass().equals(Object.class)) {
-                    String methodName = method.getName();
-                    if (methodName.equals("toString")) {
-                        return "Adaptive Instance for " + type.getName();
-                    }
-                    if (methodName.equals("hashCode")) {
-                        return 1;
-                    }
-                    if (methodName.equals("equals")) {
-                        return this == args[0];
-                    }
-                    throw new UnsupportedOperationException("not support method " + method +
-                            " of Adaptive Instance for " + type.getName());
-                }
-
-                if (!adaptiveMethod2ArgIndex.containsKey(method)) {
-                    throw new UnsupportedOperationException("method " + method.getName() +
-                            " of interface " + type.getName() + " is not adaptive method!");
-                }
-
-                int confArgIdx = adaptiveMethod2ArgIndex.get(method);
-                Object arg = args[confArgIdx];
-                NameExtractor nameExtractor = adaptiveMethod2Extractor.get(method);
-                String extName = nameExtractor.extract(arg);
-                if (extName == null) extName = defaultExtension;
-                if (extName == null)
-                    throw new IllegalStateException("Fail to get extension(" + type.getName() +
-                            ") name from argument(" + arg + ") use keys(" + Arrays.toString(adaptiveMethod2Keys.get(method)) + ")");
-                return method.invoke(ExtensionLoader.this.getExtension(extName), args);
-            }
-        });
-
-        return type.cast(p);
-    }
-
-    /**
-     * 收到Adaptive Instance需要的信息。
-     * 1. 注解所在方法的参数的位置
-     * 2. Method的Adaptive Keys
-     */
-    private void checkAndCollectAdaptiveInfo0() throws IllegalAccessException, InstantiationException {
-        Method[] methods = type.getMethods();
-        boolean hasAdaptiveAnnotation = false;
-
-        final Map<Method, Integer> m2ArgIndex = new HashMap<Method, Integer>();
-        final Map<Method, String[]> m2Keys = new HashMap<Method, String[]>();
-        final Map<Method, NameExtractor> m2Extractor = new HashMap<Method, NameExtractor>();
-        for (Method method : methods) {
-            Adaptive adaptive = null;
-            int argIdx = 0;
-
-            // 找 有@Adaptive注解的方法参数
-            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-            for (int i = 0; i < parameterAnnotations.length; i++) {
-                Annotation[] annotations = parameterAnnotations[i];
-                for (Annotation a : annotations) {
-                    if (a instanceof Adaptive) {
-                        hasAdaptiveAnnotation = true;
-                        if (adaptive != null) {
-                            throw new IllegalStateException("at most 1 parameter can be annotated by @Adaptive for method " +
-                                    method.getName() + " of extension " + type.getName());
-                        }
-                        adaptive = (Adaptive) a;
-                        argIdx = i;
-                    }
-                }
-            }
-            if (adaptive == null) continue;
-
-            NameExtractor nameExtractor = adaptive.extractor().newInstance();
-            nameExtractor.setMethod(method);
-            nameExtractor.init();
-            m2Extractor.put(method, nameExtractor);
-
-            m2ArgIndex.put(method, argIdx);
-            m2Keys.put(method, adaptive.value());
-        }
-        // 接口上没有Adaptive方法，则不需要生成Adaptive类
-        if (!hasAdaptiveAnnotation)
-            throw new IllegalStateException("No adaptive method on extension " +
-                    type.getName() + ", refuse to create the adaptive class!");
-
-        adaptiveMethod2Extractor = m2Extractor;
-        adaptiveMethod2ArgIndex = m2ArgIndex;
-        adaptiveMethod2Keys = m2Keys;
     }
 
     // ====================================

@@ -16,7 +16,6 @@
 
 package com.alibaba.cooma.ext6;
 
-import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
 
 import java.util.Map;
@@ -28,5 +27,5 @@ import java.util.Map;
  */
 @Extension
 public interface InjectExt {
-    String echo(@Adaptive({"key"}) Map<String, String> config, String s);
+    String echo(Map<String, String> config, String s);
 }

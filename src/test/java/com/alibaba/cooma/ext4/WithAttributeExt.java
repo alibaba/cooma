@@ -16,7 +16,6 @@
 
 package com.alibaba.cooma.ext4;
 
-import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
 
 import java.util.Map;
@@ -26,5 +25,5 @@ import java.util.Map;
  */
 @Extension("impl1")
 public interface WithAttributeExt {
-    String echo(@Adaptive("key1") Map<String, String> config, String s);
+    String echo(Map<String, String> config, String s);
 }

@@ -18,6 +18,7 @@ package com.alibaba.demo.cooma;
 
 import com.alibaba.cooma.ExtensionLoader;
 import com.alibaba.demo.cooma.car.Car;
+import com.alibaba.demo.cooma.wheel.Wheel;
 import com.alibaba.util.Utils;
 
 import java.util.Arrays;
@@ -31,33 +32,28 @@ public class CarDemo {
 
         // 演示 扩展的获得、关联扩展点的注入（Car扩展点引用了Wheel）
 
+        Car defaultCar = extensionLoader.getDefaultExtension();
+        defaultCar.run();
+
+        System.out.println("=================================");
+
         Car racingCar = extensionLoader.getExtension("racing");
-        racingCar.run(Utils.kv2Map("wheel", "wood")); // 通过Key指定要哪种轮子
+        racingCar.run();
 
         System.out.println("=================================");
 
-        Car sportCar = extensionLoader.getExtension("sport");
-        sportCar.run(Utils.kv2Map("k1", "v1")); // 缺省使用RubberWheel
-
-        // 演示 Adaptive Instance的使用
-
-        System.out.println("=================================");
-
-        Car adaptiveInstance = extensionLoader.getAdaptiveInstance();
-        adaptiveInstance.run(Utils.kv2Map("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
+        Car sportCar = extensionLoader.getExtension("sport", Utils.kv2Map(Wheel.class.getName(), "wood"));
+        sportCar.run(); // 缺省使用RubberWheel
 
         // 演示 Wrapper的使用
 
         System.out.println("=================================");
 
-        Car countedSportCar = extensionLoader.getExtension("sport", Arrays.asList("run_counter"));
-        countedSportCar.run(Utils.kv2Map("k1", "v1")); // 缺省使用RubberWheel
+        Car countedSportCar1 = extensionLoader.getExtension("sport", Arrays.asList("run_counter"));
+        Car countedSportCar2 = extensionLoader.getExtension("sport", Arrays.asList("run_counter"));
 
-        // 演示 在Adaptive Instance上Wrapper的使用
-
-        System.out.println("=================================");
-
-        Car countedAdaptiveInstance = extensionLoader.getAdaptiveInstance(Arrays.asList("run_counter"));
-        countedAdaptiveInstance.run(Utils.kv2Map("car", "racing")); // 通过car key指定的Car本身使用哪个实现。
+        countedSportCar1.run();
+        countedSportCar2.run();
+        countedSportCar1.run();
     }
 }
