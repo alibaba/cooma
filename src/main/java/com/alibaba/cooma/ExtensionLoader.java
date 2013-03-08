@@ -325,6 +325,17 @@ public class ExtensionLoader<T> {
         return this.getClass().getName() + "<" + type.getName() + ">";
     }
 
+    public T getPrototypeExtension(Map<Class<?>, String> extension2Name) {
+        String name = extension2Name.get(type);
+        if (name.isEmpty()) {
+            name = defaultExtension;
+        }
+        T extension = createExtension(name);
+
+        injectPrototypeExtension(extension, extension2Name);
+        return extension;
+    }
+
     // ==============================
     // internal methods
     // ==============================
@@ -401,9 +412,44 @@ public class ExtensionLoader<T> {
                             Object adaptive = getExtensionLoader(pt).getAdaptiveInstance();
                             method.invoke(instance, adaptive);
                         } catch (Exception e) {
-                            logger.error("Fail to inject via method " + method.getName()
+                            String errMsg = "Fail to inject via method " + method.getName()
                                     + " of interface to extension implementation " + instance.getClass() +
-                                    " for extension point " + type.getName() + ", cause: " + e.getMessage(), e);
+                                    " for extension point " + type.getName() + ", cause: " + e.getMessage();
+                            logger.warn(errMsg, e);
+                            throw new IllegalStateException(errMsg, e);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return instance;
+    }
+
+    private T injectPrototypeExtension(T instance, Map<Class<?>, String> extension2Name) {
+        try {
+            for (Method method : instance.getClass().getMethods()) {
+                if (method.getName().startsWith("set")
+                        && method.getParameterTypes().length == 1
+                        && Modifier.isPublic(method.getModifiers())) {
+                    Class<?> pt = method.getParameterTypes()[0];
+                    if (pt.isInterface() && withExtensionAnnotation(pt)) {
+                        if (pt.equals(type)) { // avoid obvious dead loop TODO avoid complex nested loop setting?
+                            logger.warn("Ignore self set(" + method + ") for class(" +
+                                    instance.getClass() + ") when inject.");
+                            continue;
+                        }
+
+                        try {
+                            Object prototype = getExtensionLoader(pt).getPrototypeExtension(extension2Name);
+                            method.invoke(instance, prototype);
+                        } catch (Exception e) {
+                            String errMsg = "Fail to inject via method " + method.getName()
+                                    + " of interface to extension implementation " + instance.getClass() +
+                                    " for extension point " + type.getName() + ", cause: " + e.getMessage();
+                            logger.warn(errMsg, e);
+                            throw new IllegalStateException(errMsg, e);
                         }
                     }
                 }

@@ -53,6 +53,14 @@ public final class StringUtils {
         }
     }
 
+    public static boolean isEmpty(String s) {
+        return s == null || s.length() == 0;
+    }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.trim().length() == 0;
+    }
+
     /**
      * convert CamelCase string to dot-split lowercase string.
      * <p/>
