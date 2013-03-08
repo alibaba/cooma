@@ -24,5 +24,5 @@ import java.util.Map;
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public interface NoExtensionExt {
-    String echo(@Adaptive Map<String, String> config);
+    String echo(Map<String, String> config);
 }

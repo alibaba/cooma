@@ -16,7 +16,6 @@
 
 package com.alibaba.cooma.exta;
 
-import com.alibaba.cooma.Adaptive;
 import com.alibaba.cooma.Extension;
 
 import java.util.Map;
@@ -28,5 +27,5 @@ import java.util.Map;
  */
 @Extension("impl1")
 public interface ImplNoDefaultConstructorExt {
-    String echo(@Adaptive("key") Map<String, String> config, String s);
+    String echo(Map<String, String> config, String s);
 }
