@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.exta;
+package com.alibaba.cooma.ext5;
 
 import com.alibaba.cooma.Extension;
 
