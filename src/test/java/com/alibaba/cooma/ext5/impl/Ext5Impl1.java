@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.alibaba.cooma.exta.impl;
+package com.alibaba.cooma.ext5.impl;
 
-import com.alibaba.cooma.exta.ImplNoDefaultConstructorExt;
+import com.alibaba.cooma.ext5.ImplNoDefaultConstructorExt;
 
 import java.util.Map;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
-public class ExtaImpl1 implements ImplNoDefaultConstructorExt {
-    public ExtaImpl1(String xx) {
+public class Ext5Impl1 implements ImplNoDefaultConstructorExt {
+    public Ext5Impl1(String xx) {
 
     }
 
     public String echo(Map<String, String> config, String s) {
-        return "Ext9Impl1-echo";
+        return "Ext5Impl1-echo";
     }
 }

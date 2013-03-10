@@ -31,7 +31,7 @@ import com.alibaba.cooma.ext6.impl.Ext6Impl2;
 import com.alibaba.cooma.ext7.InitErrorExt;
 import com.alibaba.cooma.ext8.InvalidNameExt;
 import com.alibaba.cooma.ext8.InvalidNameExt2;
-import com.alibaba.cooma.exta.ImplNoDefaultConstructorExt;
+import com.alibaba.cooma.ext5.ImplNoDefaultConstructorExt;
 import com.alibaba.util.Utils;
 import org.junit.Test;
 
