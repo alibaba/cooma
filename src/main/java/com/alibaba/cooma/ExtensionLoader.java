@@ -559,7 +559,7 @@ public class ExtensionLoader<T> {
      * {"attrib1"="value1", "attrib2"="value2", "isProvider"="", "order"="3"}
      * </code>
      */
-    private static Map<String, String> parseExtAttribute(String attribute) {
+    static Map<String, String> parseExtAttribute(String attribute) {
         Map<String, String> ret = new HashMap<String, String>();
         if (attribute == null || attribute.length() == 0) return ret;
 

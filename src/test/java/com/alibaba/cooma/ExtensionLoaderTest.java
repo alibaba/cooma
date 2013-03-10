@@ -360,4 +360,11 @@ public class ExtensionLoaderTest {
         ExtensionLoader<ImplNoDefaultConstructorExt> extensionLoader = ExtensionLoader.getExtensionLoader(ImplNoDefaultConstructorExt.class);
         assertEquals(new HashSet<String>(Arrays.asList("impl2")), extensionLoader.getSupportedExtensions());
     }
+
+    @Test
+    public void test_parseExtAttribute() throws Exception {
+        assertEquals(Utils.kv2Map("k1", "v1", "k2", "v2"), ExtensionLoader.parseExtAttribute("k1=v1,k2=v2"));
+        assertEquals(Utils.kv2Map("k1", "v1", "k2", "v2", "k3", ""), ExtensionLoader.parseExtAttribute("  k1   =v1,   k2=    v2  , k3    "));
+        assertEquals(Utils.kv2Map("k1", ""), ExtensionLoader.parseExtAttribute("k1"));
+    }
 }
