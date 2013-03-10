@@ -16,14 +16,13 @@
 
 package com.alibaba.cooma.ext2.impl;
 
-import com.alibaba.cooma.ext2.ConfigHolder;
 import com.alibaba.cooma.ext2.NoDefaultExt;
 
 /**
  * @author Jerry Lee(oldratlee AT gmail DOT com)
  */
 public class Ext2Impl1 implements NoDefaultExt {
-    public String echo(ConfigHolder holder, String s) {
+    public String echo(String s) {
         return "Ext2Impl1-echo";
     }
 }

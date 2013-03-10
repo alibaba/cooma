@@ -25,11 +25,9 @@ import java.util.Map;
  */
 @Extension("impl1")
 public interface SimpleExt {
-    // 没有使用key的@Adaptive ！
     String echo(Map<String, String> config, String s);
 
     String yell(Map<String, String> config, String s);
-
-    // 无@Adaptive ！
+    
     String bang(Map<String, String> config, int i);
 }

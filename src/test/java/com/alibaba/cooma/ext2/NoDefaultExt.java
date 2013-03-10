@@ -26,5 +26,5 @@ import com.alibaba.cooma.Extension;
  */
 @Extension
 public interface NoDefaultExt {
-    String echo(ConfigHolder holder, String s);
+    String echo(String s);
 }

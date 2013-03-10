@@ -31,8 +31,4 @@ public class Ext3Impl2 implements WrappedExt {
     public String yell(Map<String, String> config, String s) {
         return "Ext3Impl2-yell";
     }
-
-    public String bang(Map<String, String> config, int i) {
-        return "impl2";
-    }
 }
