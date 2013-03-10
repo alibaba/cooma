@@ -37,13 +37,18 @@ public class CarDemo {
 
         System.out.println("=================================");
 
-        Car racingCar = extensionLoader.getExtension("racing");
-        racingCar.run();
+        Car car1 = extensionLoader.getExtension("racing");
+        car1.run();
 
         System.out.println("=================================");
 
-        Car sportCar = extensionLoader.getExtension("sport", Utils.kv2Map(Wheel.class.getName(), "wood"));
-        sportCar.run(); // 缺省使用RubberWheel
+        Car car2 = extensionLoader.getExtension("sport", Utils.kv2Map(Wheel.class.getName(), "wood"));
+        car2.run(); // 缺省使用RubberWheel
+
+        System.out.println("=================================");
+
+        Car car3 = extensionLoader.getExtension(Utils.kv2Map(Car.class.getName(), "racing", Wheel.class.getName(), "wood"));
+        car3.run(); // 缺省使用RubberWheel
 
         // 演示 Wrapper的使用
 
