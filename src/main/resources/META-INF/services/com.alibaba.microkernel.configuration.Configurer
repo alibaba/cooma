@@ -1,0 +1,12 @@
+com.alibaba.microkernel.configuration.internal.DotConfigurer
+com.alibaba.microkernel.configuration.internal.RemoveConfigurer
+com.alibaba.microkernel.configuration.internal.ReplaceConfigurer
+com.alibaba.microkernel.configuration.internal.PrependConfigurer
+com.alibaba.microkernel.configuration.internal.AppendConfigurer
+com.alibaba.microkernel.configuration.internal.ReferenceConfigurer
+com.alibaba.microkernel.configuration.internal.FileConfigurer
+com.alibaba.microkernel.configuration.internal.ListConfigurer
+com.alibaba.microkernel.configuration.internal.OverrideConfigurer
+com.alibaba.microkernel.configuration.internal.EnvironmentConfigurer
+com.alibaba.microkernel.configuration.internal.SystemConfigurer
+com.alibaba.microkernel.configuration.internal.PropertiesConfigurer

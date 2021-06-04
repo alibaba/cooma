@@ -1,0 +1,8 @@
+com.alibaba.microkernel.convention.internal.ConfigMicrokernel
+com.alibaba.microkernel.convention.internal.AopMicrokernel
+com.alibaba.microkernel.convention.internal.AllMicrokernel
+com.alibaba.microkernel.convention.internal.ArrayMicrokernel
+com.alibaba.microkernel.convention.internal.PrimitiveMicrokernel
+com.alibaba.microkernel.convention.internal.CloseableMicrokernel
+com.alibaba.microkernel.convention.internal.IocMicrokernel
+com.alibaba.microkernel.convention.internal.SpiMicrokernel
